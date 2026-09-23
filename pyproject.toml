@@ -6,7 +6,7 @@ readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
     "bitstring>=4.4.0",
-    "i2c-api @ git+https://github.com/priimak/i2c_api.git@v0.15.3"
+    "i2c-api @ git+https://github.com/priimak/i2c_api.git@v0.16.5"
 ]
 
 [build-system]
@@ -34,6 +34,6 @@ select = [
 [dependency-groups]
 dev = [
     "pytest>=9.1.1",
-    "i2capi-i2cdriver @ git+https://github.com/priimak/i2capi_i2cdriver.git@v0.7.2",
+    "i2capi-i2cdriver @ git+https://github.com/priimak/i2capi_i2cdriver.git@v0.7.3",
     "ruff"
 ]
