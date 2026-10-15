@@ -3,7 +3,7 @@ import json
 import pytest
 from bitstring import BitArray
 
-from rgscore.model.register import FieldDef, Register, RLink
+from rgscore.model.register import EnumValue, Field, FieldDef, Register, RLink
 
 
 class MemLink(RLink):
@@ -101,7 +101,10 @@ def test_register_access():
         bit_len=7,
         address=0x42,
         name="AReg",
-        model=[FieldDef.value_of("a@[3:0]U4.1#ro"), FieldDef.value_of("b@[6:4]S3.0")],
+        model=[
+            FieldDef.value_of("a@[3:0]U4.1#ro"),
+            FieldDef.value_of("b@[6:4]S3.0").with_enum([EnumValue("On", 1), EnumValue("Off", 0)]),
+        ],
     )
     assert r.get_field_names() == ["b", "a"]
     assert r.get_field_values() == {"a": 0.0, "b": 0.0}
@@ -143,7 +146,10 @@ def test_register_access():
         bit_len=7,
         address=0x42,
         name="AReg",
-        model=[FieldDef.value_of("a@[3:0]U4.1"), FieldDef.value_of("b@[6:4]S3.0")],
+        model=[
+            FieldDef.value_of("a@[3:0]U4.1"),
+            FieldDef.value_of("b@[6:4]S3.0").with_enum([EnumValue("On", 1), EnumValue("Off", 0)]),
+        ],
     )
 
     assert r.set_field_value("a", 7.5) == 7.5
@@ -156,12 +162,23 @@ def test_register_access():
     r.set_field_value("a", 0)
     assert r.get_field_value("a") == 0.0
 
-    # setting outside of valid range should fail
+    # setting outside valid range should fail
     with pytest.raises(ValueError):
         r.set_field_value("a", -0.1)
 
     with pytest.raises(ValueError):
         r.set_field_value("a", 7.5001)
+
+    # set values from enum
+    assert r.get_field_value("b") == 0.0
+    r.set_field_value("b", "On")
+    assert r.get_field_value("b") == 1.0
+    assert r.get_field_value("b") == 1.0
+    assert r.get_field_definition("b").valid_value_values[r.get_field_value("b")].name == "On"
+
+    # invalid enum should raise ValueError
+    with pytest.raises(ValueError):
+        r.set_field_value("b", "Zzz")
 
 
 def test_field_def():
@@ -172,7 +189,7 @@ def test_field_def():
     assert fd.offset == 3
     assert fd.signed == "U"
     assert fd.fractional == 3
-    assert fd.rw == False
+    assert not fd.rw
 
     # omitting rw flag implies "rw"
     fd = FieldDef.value_of("a@[10:3]U8.3")
@@ -181,19 +198,54 @@ def test_field_def():
     assert fd.offset == 3
     assert fd.signed == "U"
     assert fd.fractional == 3
-    assert fd.rw == True
+    assert fd.rw
 
     # field with width of 1 bit can be written as [offset] or [offset:offset]
-    fd = FieldDef.value_of("a@[5:5]U1.0")
+    fd = (
+        FieldDef.value_of("a@[5:5]U1.0")
+        .with_description("Aloha")
+        .with_enum([EnumValue("Yes", 1, "Do it"), EnumValue("No", 0, "Do not")])
+    )
     assert fd.offset == 5
     assert fd.width == 1
+    assert fd.desc == "Aloha"
+    assert fd.enum_values == [EnumValue("Yes", 1, "Do it"), EnumValue("No", 0, "Do not")]
+
+    # check duplicate enum values
+    with pytest.raises(ValueError):
+        FieldDef.value_of("a@[5:5]U1.0").with_enum([EnumValue("Yes", 1, "Do it"), EnumValue("No", 1, "Do not")])
+
+    with pytest.raises(ValueError):
+        FieldDef(
+            name="a",
+            offset=0,
+            signed="U",
+            width=2,
+            fractional=0,
+            rw=True,
+            enum_values=[EnumValue("Yes", 1, "Do it"), EnumValue("No", 1, "Do not")],
+        )
+
+    with pytest.raises(ValueError):
+        FieldDef.value_of("a@[5:5]U1.0").with_enum([EnumValue("Yes", 1, "Do it"), EnumValue("Yes", 0, "Do not")])
+
+    with pytest.raises(ValueError):
+        FieldDef(
+            name="a",
+            offset=0,
+            signed="U",
+            width=2,
+            fractional=0,
+            rw=True,
+            enum_values=[EnumValue("Yes", 1, "Do it"), EnumValue("Yes", 0, "Do not")],
+        )
 
     fd = FieldDef.value_of("a@[5]U1.0")
     assert fd.offset == 5
     assert fd.width == 1
 
     # field range [10:3] is of width 8 bits while numeric type is declared as unsigned 3 bits wide int. This is
-    # iternally inconsistent and should give rise to ValueError
+    # internally inconsistent and should give rise to ValueError
     with pytest.raises(ValueError):
         FieldDef.value_of("a@[10:3]U3.0")
 
@@ -206,6 +258,35 @@ def test_field_def():
 
     with pytest.raises(ValueError):  # missing bit range
         FieldDef.value_of("x@S3.0")
+
+    f1 = (
+        FieldDef.value_of("a@[3:0]U4.1#ro")
+        .with_description("Aloha")
+        .with_enum([EnumValue("X", 1, "xval"), EnumValue("Y", 2, "yval")])
+    )
+    f2 = f1.copy()
+    f2.with_description("Hello").with_enum([EnumValue("Z", 4, "xval"), EnumValue("Y", 3, "yval")])
+    assert f1.desc == "Aloha"
+    assert f2.desc == "Hello"
+    assert f1.enum_values == [EnumValue("X", 1, "xval"), EnumValue("Y", 2, "yval")]
+    assert f2.enum_values == [EnumValue("Z", 4, "xval"), EnumValue("Y", 3, "yval")]
+
+    f3 = Field(
+        name="a",
+        offset=0,
+        numeric_type="U4.1",
+        rw="ro",
+        desc="Aloha",
+        values=[EnumValue("X", 1, "xval"), EnumValue("Y", 2, "yval")],
+    )
+    assert f1 == f3
+    assert f2 != f3
+
+    with pytest.raises(ValueError):
+        Field(name="a", offset=0, numeric_type="Z4.1")
+
+    with pytest.raises(ValueError):
+        Field(name="a", offset=0, numeric_type="U4.1", rw="rz")
 
 
 def test_link():
@@ -284,7 +365,11 @@ def test_json_serialization():
         name="Foo",
         address=0x01,
         address_bus_width_bytes=2,
-        model=[FieldDef.value_of("a@[3:0]U4.1#ro"), FieldDef.value_of("b@[6:4]S3.0")],
+        desc="Register_r1",
+        model=[
+            FieldDef.value_of("a@[3:0]U4.1#ro").with_description("A field").with_enum([EnumValue("A", 3, "a value")]),
+            FieldDef.value_of("b@[6:4]S3.0"),
+        ],
     )
     r_json = r1.to_json_def()
     data = json.loads(r_json)

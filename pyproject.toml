@@ -6,7 +6,8 @@ readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
     "bitstring>=4.4.0",
-    "i2c-api @ git+https://github.com/priimak/i2c_api.git@v0.16.5"
+    "i2c-api @ git+https://github.com/priimak/i2c_api.git@v0.16.5",
+    "pydantic>=2.14.1",
 ]
 
 [build-system]

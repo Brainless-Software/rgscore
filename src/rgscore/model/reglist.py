@@ -10,6 +10,7 @@ class RegList:
         self,
         store: RLink | None = None,
         on_change_callback: Callable[[Self], None] = lambda _: None,
+        registers: list[Register] | None = None,
     ):
         super().__init__()
         self.registers: list[Register] = []
@@ -19,6 +20,9 @@ class RegList:
         self._reg_by_address: dict[int, Register] = {}
         self._store = store
         self._on_change_callback = on_change_callback
+
+        if registers is not None:
+            self.add(registers)
 
     def add(self, rs: Register | list[Register]):
         self.__add(rs, call_on_change_callback=True)
