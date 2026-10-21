@@ -90,8 +90,6 @@ class FieldDef:
             raise ValueError("Invalid signed value")
         if self.offset < 0:
             raise ValueError("Field offset must be a positive integer")
-        if self.width <= 0:
-            raise EnumValue("Field width must be a positive integer")
 
         if self.enum_values is not None:
             vlen = len(self.enum_values)
