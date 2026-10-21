@@ -289,6 +289,143 @@ def test_field_def():
         Field(name="a", offset=0, numeric_type="U4.1", rw="rz")
 
 
+def test_fielddef_validate_invalid_signed():
+    """Test FieldDef.__validate__ raises ValueError for invalid signed value."""
+    with pytest.raises(ValueError, match="Invalid signed value"):
+        FieldDef(name="a", offset=0, signed="X", width=4, fractional=0, rw=True)
+
+
+def test_fielddef_validate_negative_offset():
+    """Test FieldDef.__validate__ raises ValueError for negative offset."""
+    with pytest.raises(ValueError, match="Field offset must be a positive integer"):
+        FieldDef(name="a", offset=-1, signed="U", width=4, fractional=0, rw=True)
+
+
+def test_fielddef_format_fractional_zero():
+    """Test FieldDef.format with fractional == 0 returns int string."""
+    fd = FieldDef(name="a", offset=0, signed="U", width=4, fractional=0, rw=True)
+    # fractional == 0 should return int string
+    assert fd.format(3.0) == "3"
+    assert fd.format(3.5) == "3"  # int(3.5) == 3
+
+
+def test_fielddef_repr():
+    """Test FieldDef.__repr__ method."""
+    fd = FieldDef(name="test_field", offset=2, signed="U", width=4, fractional=1, rw=True)
+    repr_str = repr(fd)
+    assert "test_field" in repr_str
+    assert "U4.1" in repr_str
+    assert "#rw" in repr_str
+
+    # Test read-only
+    fd_ro = FieldDef(name="ro_field", offset=0, signed="S", width=3, fractional=0, rw=False)
+    repr_str_ro = repr(fd_ro)
+    assert "ro_field" in repr_str_ro
+    assert "S3.0" in repr_str_ro
+    assert "#ro" in repr_str_ro
+
+
+def test_fielddef_next_up_value():
+    """Test FieldDef.next_up_value method."""
+    from bitstring import BitArray
+
+    # Unsigned field
+    fd = FieldDef(name="a", offset=0, signed="U", width=4, fractional=0, rw=True)
+    data = BitArray("uint:4=5")
+    # next_up_value should return 6
+    assert fd.next_up_value(data) == 6
+
+    # Signed field
+    fd_signed = FieldDef(name="b", offset=0, signed="S", width=4, fractional=0, rw=True)
+    data_signed = BitArray("int:4=2")
+    assert fd_signed.next_up_value(data_signed) == 3
+
+
+def test_fielddef_next_down_value():
+    """Test FieldDef.next_down_value method."""
+    from bitstring import BitArray
+
+    # Unsigned field
+    fd = FieldDef(name="a", offset=0, signed="U", width=4, fractional=0, rw=True)
+    data = BitArray("uint:4=5")
+    # next_down_value should return 4
+    assert fd.next_down_value(data) == 4
+
+    # Signed field
+    fd_signed = FieldDef(name="b", offset=0, signed="S", width=4, fractional=0, rw=True)
+    data_signed = BitArray("int:4=-2")
+    assert fd_signed.next_down_value(data_signed) == -3
+
+
+def test_fielddef_get_next_raw_field_out_of_range():
+    """Test FieldDef.__get_next_raw_field when next value is out of range (ValueError caught)."""
+    from bitstring import BitArray
+
+    # Unsigned field at max value - next up should wrap/return same
+    fd = FieldDef(name="a", offset=0, signed="U", width=4, fractional=0, rw=True)
+    data = BitArray("uint:4=15")  # max value for 4 bits unsigned
+    # next_up_value should return same value (15) since 16 is out of range
+    assert fd.next_up_value(data) == 15
+
+    # Signed field at max value
+    fd_signed = FieldDef(name="b", offset=0, signed="S", width=4, fractional=0, rw=True)
+    data_signed = BitArray("int:4=7")  # max value for 4 bits signed
+    assert fd_signed.next_up_value(data_signed) == 7
+
+    # Signed field at min value
+    data_signed_min = BitArray("int:4=-8")  # min value for 4 bits signed
+    assert fd_signed.next_down_value(data_signed_min) == -8
+
+
+def test_fielddef_value_of_invalid_definition():
+    """Test FieldDef.value_of raises ValueError for invalid field definition string."""
+    with pytest.raises(ValueError, match="Invalid register field definition"):
+        FieldDef.value_of("invalid_definition_string")
+
+    # Test various invalid formats
+    with pytest.raises(ValueError):
+        FieldDef.value_of("")  # empty string
+
+    with pytest.raises(ValueError):
+        FieldDef.value_of("no_at_sign")
+
+    with pytest.raises(ValueError):
+        FieldDef.value_of("name@[3:0]")  # missing numeric type
+
+    with pytest.raises(ValueError):
+        FieldDef.value_of("name@[3:0]X4.0")  # invalid signed
+
+
+def test_fielddef_with_enum_duplicate_name():
+    """Test FieldDef.with_enum raises ValueError for duplicate enum names."""
+    fd = FieldDef.value_of("a@[3:0]U4.0")
+    with pytest.raises(ValueError, match="Duplicate name in enum values"):
+        fd.with_enum([EnumValue("Same", 1), EnumValue("Same", 2)])
+
+
+def test_fielddef_with_enum_duplicate_value():
+    """Test FieldDef.with_enum raises ValueError for duplicate enum values."""
+    fd = FieldDef.value_of("a@[3:0]U4.0")
+    with pytest.raises(ValueError, match="Duplicate value in enum values"):
+        fd.with_enum([EnumValue("A", 1), EnumValue("B", 1)])
+
+
+def test_enumvalue_repr():
+    """Test EnumValue.__repr__ method."""
+    ev = EnumValue(name="TestEnum", value=42, desc="A test enum")
+    repr_str = repr(ev)
+    assert "42.0" in repr_str  # value is converted to float
+    assert "TestEnum" in repr_str
+    assert "A test enum" in repr_str
+
+    # Test with empty description
+    ev2 = EnumValue(name="Simple", value=1)
+    repr_str2 = repr(ev2)
+    assert "1.0" in repr_str2
+    assert "Simple" in repr_str2
+    assert "# " in repr_str2  # empty desc still shows "# "
+
+
 def test_link():
     store = MemLink()
     r = Register(
