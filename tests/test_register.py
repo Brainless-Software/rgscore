@@ -8,7 +8,7 @@ from rgscore.model.register import EnumValue, Field, FieldDef, Register, RLink
 
 class MemLink(RLink):
     def __init__(self):
-        self.store = {0x9: BitArray("uint:16=7"), 0xA: BitArray("uint:8=3")}
+        self.store = {0x9: BitArray("uint:16=7"), 0xA: BitArray("uint:8=3"), 0xC: BitArray("uint:8=5")}
         self.__last_used_address_bus_width = [0]
 
     def last_used_address_bus_width(self) -> int:
@@ -22,7 +22,12 @@ class MemLink(RLink):
     def write(self, addr: int, address_bus_width: int, value: BitArray) -> bool:
         self.__last_used_address_bus_width[0] = address_bus_width
         if addr in self.store:
-            self.store[addr] = value.copy()
+            if addr == 0xC:
+                # mutate written data. needed for read_back test
+                next_value = divmod(value.uint + 1, 255)[1]
+                self.store[addr] = BitArray(f"uint:8={next_value}")
+            else:
+                self.store[addr] = value.copy()
             return True
         else:
             return False
@@ -606,3 +611,185 @@ def test_embedding_class():
     # check disambiguation of b_raw and b_raw_raw
     assert rr.b_raw == 0
     assert rr.b_raw_raw == BitArray("0b000")
+
+
+def test_register_empty_model_error():
+    """Test that empty model list raises ValueError."""
+    with pytest.raises(ValueError, match="Register model must not be empty list"):
+        Register(8, model=[])
+
+
+def test_register_desc_setter():
+    """Test Register.desc setter."""
+    r = Register(8, name="TestReg")
+    assert r.desc == ""
+    r.desc = "New description"
+    assert r.desc == "New description"
+
+
+def test_register_set_width():
+    """Test Register.set_width method."""
+    r = Register(8, name="TestReg", model=[FieldDef.value_of("a@[3:0]U4.0")])
+    assert r.width == 8
+    r.set_field_value("a", 2)
+    assert r.get_field_value("a") == 2
+    r.width = 16
+    assert r.width == 16
+    # data should be reset
+    assert r.get_field_value("a") == 0
+
+
+def test_register_replace_model_duplicate_names():
+    """Test Register.replace_model raises ValueError for duplicate field names."""
+    r = Register(8, model=[FieldDef.value_of("a@[3:0]U4.0")])
+    with pytest.raises(ValueError, match="Duplicate field names in the model"):
+        r.replace_model([FieldDef.value_of("a@[3:0]U4.0"), FieldDef.value_of("a@[7:4]U4.0")])
+
+
+def test_register_get_def():
+    """Test Register.get_def method."""
+    r = Register(8, name="TestReg", address=0x42, desc="Test register", model=[FieldDef.value_of("a@[3:0]U4.0")])
+    def_str = r.get_def()
+    assert "Register" in def_str
+    assert "name:TestReg" in def_str
+    assert "addr:0x42" in def_str
+    assert 'desc:"Test register"' in def_str
+    assert "width:8" in def_str
+    assert "fields:" in def_str
+
+    # Test with no name, no address, no desc
+    r2 = Register(8, model=[FieldDef.value_of("b@[7:0]U8.0")])
+    def_str2 = r2.get_def()
+    assert "Register" in def_str2
+    assert "name:" not in def_str2 or "name:None" not in def_str2
+    assert "addr:" not in def_str2
+    assert "desc:" not in def_str2
+
+
+def test_register_repr():
+    """Test Register.__repr__ method."""
+    # With name and address
+    r = Register(8, name="TestReg", address=0x42, model=[FieldDef.value_of("a@[3:0]U4.0")])
+    repr_str = repr(r)
+    assert "TestReg" in repr_str
+    assert "0x42" in repr_str
+    assert "a=" in repr_str
+
+    # With name but no address
+    r2 = Register(8, name="NoAddrReg", model=[FieldDef.value_of("b@[7:0]U8.0")])
+    repr_str2 = repr(r2)
+    assert "NoAddrReg" in repr_str2
+    assert "0x" not in repr_str2
+
+    # With no name but with address
+    r3 = Register(8, address=0x10, model=[FieldDef.value_of("c@[3:0]U4.0")])
+    repr_str3 = repr(r3)
+    assert "Register" in repr_str3
+    assert "0x10" in repr_str3
+
+
+def test_register_get_next_up_field_value():
+    """Test Register.get_next_up_field_value method."""
+    r = Register(8, model=[FieldDef.value_of("a@[3:0]U4.0"), FieldDef.value_of("b@[7:4]U4.0")])
+    # Test valid field
+    next_val = r.get_next_up_field_value("a")
+    assert next_val == 1  # starting from 0, next up is 1
+
+    # Test non-existent field
+    with pytest.raises(ValueError, match='There is no field "nonexistent" in this register.'):
+        r.get_next_up_field_value("nonexistent")
+
+
+def test_register_get_next_down_field_value():
+    """Test Register.get_next_down_field_value method."""
+    r = Register(8, model=[FieldDef.value_of("a@[3:0]U4.0"), FieldDef.value_of("b@[7:4]S4.0")])
+    # Set a value first
+    r.set_field_value("a", 5)
+    next_val = r.get_next_down_field_value("a")
+    assert next_val == 4
+
+    # Test non-existent field
+    with pytest.raises(ValueError, match='There is no field "nonexistent" in this register.'):
+        r.get_next_down_field_value("nonexistent")
+
+
+def test_register_get_field_value_raw_error():
+    """Test Register.get_field_value_raw raises ValueError for non-existent field."""
+    r = Register(8, model=[FieldDef.value_of("a@[3:0]U4.0")])
+    with pytest.raises(ValueError, match='There is no field "nonexistent" in this register.'):
+        r.get_field_value_raw("nonexistent")
+
+
+def test_register_write_read_back():
+    """Test Register.write with read_back=True."""
+    store = MemLink()
+    r = Register(
+        bit_len=8,
+        address=0xC,
+        name="TestReg",
+        model=[FieldDef.value_of("a@[3:0]U4.0")],
+        link_provider=lambda: store,
+    )
+    r.set_field_value("a", 5)
+    assert r.get_field_value("a") == 5
+
+    # Write with read_back should read back after write. The store initially has 0xA = 3, but we write 5 which should be
+    # altered in the store to 6 (this is unique to register at address 0xC)
+    result = r.write(read_back=True)
+    assert result == True
+    # Value should be read back from store (which now contains the written value 5)
+    assert r.get_field_value("a") == 6
+
+
+def test_register_mk_embedding_class_auto_sync():
+    """Test Register.mk_embedding_class with auto_sync=True."""
+    store = MemLink()
+    r = Register(
+        bit_len=8,
+        address=0xA,
+        name="AutoSyncReg",
+        model=[FieldDef.value_of("a@[3:0]U4.0")],
+    )
+    # Create embedding class with auto_sync=True
+    embed_cls = r.mk_embedding_class(lambda: store, auto_sync=True)
+    reg_instance = embed_cls()
+
+    # Accessing field should auto-read from store
+    # store has 0xA = 3 (uint:8=3), lower 4 bits = 3, U4.0 = 3
+    val = reg_instance.a
+    assert val == 3
+    assert store.store[0xA] == BitArray("uint:8=3")
+
+    # Setting field should auto-write
+    reg_instance.a = 7
+    assert store.store[0xA] == BitArray("uint:8=7")
+
+    # Raw accessor should also auto-read
+    store.store[0xA] = BitArray("uint:8=5")
+    assert reg_instance.a_raw == BitArray("uint:4=5")
+
+    store.store[0xA] = BitArray("uint:8=6")
+    assert reg_instance.a == 6
+
+
+def test_register_from_dict_def_missing_desc():
+    """Test Register.from_dict_def with missing desc field."""
+    data = {
+        "name": "TestReg",
+        "address": "0x10",
+        "address_bus_width_bytes": 1,
+        "width": 8,
+        "fields": [{"name": "a", "offset": 0, "signed": "U", "width": 4, "fractional": 0, "rw": True}],
+    }
+    r = Register.from_dict_def(data)
+    assert r.name == "TestReg"
+    assert r.address == 0x10
+    assert r.desc == ""  # default empty string
+
+
+def test_register_link_provider_none():
+    """Test Register.link with no link provider and no address."""
+    r = Register(8, name="NoLinkReg")
+    # This should not raise an error, just do nothing
+    # (but write/read should fail gracefully)
+    assert r.write() == False

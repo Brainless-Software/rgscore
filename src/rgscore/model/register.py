@@ -48,7 +48,7 @@ class RLinkI2C(RLink):
         if data is None:
             return None
         else:
-            return BitArray(data[0:width])  # TODO: Check. This might be incorrect
+            return BitArray(data[0:width])
 
     def write(self, addr: int, address_bus_width: int, value: BitArray) -> bool:
         return self.i2c.write_register(
@@ -128,7 +128,7 @@ class FieldDef:
         return f"{self.name}@[{self.end_offset()}:{self.offset}]{self.signed}{self.width}.{self.fractional}#{rw}"
 
     def read_raw(self, data: BitArray) -> BitArray:
-        return data[(data.len - self.end_offset() - 1) : (data.len - self.offset)]
+        return data[(len(data) - self.end_offset() - 1) : (len(data) - self.offset)]
 
     def next_up_value(self, data: BitArray) -> float | int:
         return self.__next(data, 1)
@@ -141,10 +141,10 @@ class FieldDef:
         try:
             if self.signed == "S":
                 next_in_val = raw_field.int + step
-                return BitArray(f"int:{raw_field.len}={next_in_val}")
+                return BitArray(f"int:{len(raw_field)}={next_in_val}")
             else:  # unsigned
                 next_in_val = raw_field.uint + step
-                return BitArray(f"uint:{raw_field.len}={next_in_val}")
+                return BitArray(f"uint:{len(raw_field)}={next_in_val}")
         except ValueError:
             # we are here if next value is out of range for this field
             return raw_field
@@ -164,7 +164,7 @@ class FieldDef:
     def write(self, data: BitArray, value: float) -> None:
         new_val = int(value * pow(2, self.fractional))
         tspec = ("int:" if self.signed == "S" else "uint:") + f"{self.width}={new_val}"
-        data.overwrite(BitArray(tspec), data.len - self.end_offset() - 1)
+        data.overwrite(len(data) - self.end_offset() - 1, BitArray(tspec))
 
     @staticmethod
     def value_of(field_definition: str) -> "FieldDef":
@@ -242,8 +242,8 @@ class Register:
 
         if bit_len <= 0:
             raise ValueError("Register width must be greater than zero")
-        self.data: BitArray = BitArray(bit_len)
-        self._originial_data = BitArray(bit_len)
+        self.data: BitArray = BitArray.from_zeros(bit_len)
+        self._originial_data = BitArray.from_zeros(bit_len)
         self.__width = bit_len
         self.__desc = desc
 
@@ -294,17 +294,8 @@ class Register:
     def width(self, new_width: int):
         self.__validate_model_wrt_width(self._model, new_width)
         self.__width = new_width
-        self._originial_data = BitArray(new_width)
-        self.data = BitArray(new_width)
-
-    def set_width(self, new_width: int):
-        self.width = new_width
-
-    def set_name(self, new_name: str):
-        self.name = new_name
-
-    def set_address(self, new_address: int):
-        self.address = new_address
+        self._originial_data = BitArray.from_zeros(new_width)
+        self.data = BitArray.from_zeros(new_width)
 
     def replace_model(self, new_model: list[FieldDef]):
         field_names: set[str] = {fd.name for fd in new_model}
