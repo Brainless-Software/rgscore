@@ -43,3 +43,8 @@ dev = [
     "pytest-cov>=7.1.0",
     "ruff",
 ]
+
+[tool.pytest]
+minversion = "9.0"
+addopts = ["--cov=src", "-ra", "-q", "--strict-markers", "--ignore=tests/test_integration_bmp581.py"]
+testpaths = ["tests"]
