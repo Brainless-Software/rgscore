@@ -4,7 +4,7 @@
 [![PyPI Latest Release](https://img.shields.io/pypi/v/rgscore.svg)](https://pypi.org/project/rgscore/)
 [![pytest](https://github.com/Brainless-Software/rgscore/actions/workflows/test.yml/badge.svg)](https://github.com/Brainless-Software/rgscore/actions/workflows/test.yml)
 
-Python library that provides classes for representing, defining and accessing registers on the embedded devices.
+Python library that provides classes for representing, defining and accessing registers in the embedded devices.
 
 Example:
 
