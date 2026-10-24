@@ -24,6 +24,7 @@ reglist = RegList(
             bit_len=8,
             name="Bar",
             address=0x02,
+            desc="Very important register",
             model=[FieldDef.value_of("b1@[3:0]U4.1#ro"), FieldDef.value_of("b2@[5:4]S2.0#rw")],
         ),
     ]

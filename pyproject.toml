@@ -6,7 +6,7 @@ readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
     "bitstring >= 5.0.0, < 6.0.0",
-    "i2c-api",
+    "i2c-api>=0.20.0",
     "pydantic>=2.14.1",
 ]
 
@@ -32,13 +32,9 @@ select = [
     "I", # isort
 ]
 
-[tool.uv.sources]
-i2c-api = { git = "https://github.com/priimak/i2c_api.git", rev = "v0.19.2" }
-i2c-drivers = { git = "https://github.com/Brainless-Software/i2c_drivers.git", rev = "v0.1.1" }
-
 [dependency-groups]
 dev = [
-    "i2c-drivers",
+    "i2c-drivers>=0.1.4",
     "pytest>=9.1.1",
     "pytest-cov>=7.1.0",
     "ruff",
