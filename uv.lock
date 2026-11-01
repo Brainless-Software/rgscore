@@ -168,22 +168,30 @@ wheels = [
 
 [[package]]
 name = "i2c-api"
-version = "0.19.2.post21+git.4d260fe0"
-source = { git = "https://github.com/brainless-software/i2c_api.git?rev=v0.20.0#4d260fe05c5b5f48ce0310a7e266e55dd9d228d4" }
+version = "0.21.0"
+source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "bitstring" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/83/b3/7eed538804957925e77d8073eea23d8c54e4c4024a15891e9dc2db97fdee/i2c_api-0.21.0.tar.gz", hash = "sha256:7bdbc453ab1cdb24e5ee7ea070c2bf63c377042b7e500709ea723957a5a5c82b", size = 10009, upload-time = "2026-11-01T01:51:19.02Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/5e/04/309bb2b3cec6c9fb3ec1af739d4dcdccd9e36a7aec4412fdb658e4b6f776/i2c_api-0.21.0-py3-none-any.whl", hash = "sha256:e6acb42f95283526409cd81491096ea37162becfb8e580173c3e44ce9f00e505", size = 10340, upload-time = "2026-11-01T01:51:18.068Z" },
 ]
 
 [[package]]
 name = "i2c-drivers"
-version = "0.1.6"
-source = { git = "https://github.com/Brainless-Software/i2c_drivers.git?rev=v0.1.6#0d0b591bd750a91c92e1ea8951692cefc4f070d5" }
+version = "0.2.0"
+source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "bitstring" },
     { name = "easymcp2221" },
     { name = "i2c-api" },
     { name = "i2cdriver" },
     { name = "pyftdi" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/5f/49/44b30178cce917ac1fd50cfd120d5049378741fb31c4890e585ab7eedb28/i2c_drivers-0.2.0.tar.gz", hash = "sha256:5f3d0257aea28bbda626bf63d741987057c87813613870962e29eb6513ca973e", size = 7113, upload-time = "2026-11-01T02:03:37.553Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/af/94/26eb44aa30c0cea31ffc92a283d3ec99fd67dd0e3517fdd0b31e61a32067/i2c_drivers-0.2.0-py3-none-any.whl", hash = "sha256:7dc87b0bb7c858a5824e46fce0410ab7265db3d1059dfa857d2c7e8fa25064dd", size = 7408, upload-time = "2026-11-01T02:03:36.484Z" },
 ]
 
 [[package]]
@@ -416,13 +424,13 @@ dev = [
 [package.metadata]
 requires-dist = [
     { name = "bitstring", specifier = ">=5.0.0,<6.0.0" },
-    { name = "i2c-api", git = "https://github.com/brainless-software/i2c_api.git?rev=v0.20.0" },
+    { name = "i2c-api", specifier = ">=0.21.0" },
     { name = "pydantic", specifier = ">=2.14.1" },
 ]
 
 [package.metadata.requires-dev]
 dev = [
-    { name = "i2c-drivers", git = "https://github.com/Brainless-Software/i2c_drivers.git?rev=v0.1.6" },
+    { name = "i2c-drivers", specifier = ">=0.2.0" },
     { name = "pytest", specifier = ">=9.1.1" },
     { name = "pytest-cov", specifier = ">=7.1.0" },
     { name = "ruff" },

@@ -51,10 +51,13 @@ class RLinkI2C(RLink):
             return BitArray(data[0:width])
 
     def write(self, addr: int, address_bus_width: int, value: BitArray) -> bool:
-        return self.i2c.write_register(
-            address=self.device_address,
-            register=RegisterAddress(addr, address_bus_width),
-            data=value,
+        return (
+            self.i2c.write_register(
+                address=self.device_address,
+                register=RegisterAddress(addr, address_bus_width),
+                data=value,
+            )
+            is not None
         )
 
 
