@@ -1,0 +1,148 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "required": [
+    "class",
+    "registers",
+    "version"
+  ],
+  "properties": {
+    "class": {
+      "type": "string",
+      "const": "RegList",
+      "$comment": "Required element for identification as to the type of this json"
+    },
+    "version": {
+      "type": "integer",
+      "$comment": "Version of the associated with json schema"
+    },
+    "registers": {
+      "$comment": "Array of registers; Within this array register names and addresses must be unique",
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "address",
+          "address_bus_width_bytes",
+          "desc",
+          "name",
+          "width",
+          "fields"
+        ],
+        "properties": {
+          "address": {
+            "type": "string",
+            "pattern": "^0x[0-9a-fA-F]+$",
+            "$comment": "Register address as hex integer written as string"
+          },
+          "address_bus_width_bytes": {
+            "type": "integer",
+            "$comment": "Width in bytes of address space to which addresses are referred to"
+          },
+          "desc": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "$comment": "Optional register description"
+          },
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "$comment": "Register name; Must be unique within the whole of regList"
+          },
+          "width": {
+            "type": "integer",
+            "minimum": 1,
+            "$comment": "Rotal register data width in bits."
+          },
+          "fields": {
+            "$comment": "Register fields within the whole of data bit array",
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "name",
+                "desc",
+                "fractional",
+                "offset",
+                "rw",
+                "signed",
+                "width",
+                "enum_values"
+              ],
+              "properties": {
+                "name": {
+                  "type": "string",
+                  "minLength": 1,
+                  "$comment": "Field name"
+                },
+                "desc": {
+                  "type": [
+                    "string",
+                    "null"
+                  ],
+                  "$comment": "Optional field description"
+                },
+                "fractional": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "$comment": "Fractional part in the fixed point number representation for this field"
+                },
+                "offset": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "$comment": "Offset in bits from the right in the register bit array where this field starts"
+                },
+                "rw": {
+                  "type": "boolean",
+                  "$comment": "Boolean flag indicating of this field is read-write (true) or read-only (false)"
+                },
+                "signed": {
+                  "type": "string",
+                  "pattern": "^[SU]$",
+                  "$comment": "Letter 'S' or 'U' indicating of numeric value stored in this field is signed or unsigned"
+                },
+                "width": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "$comment": "Field width in bits"
+                },
+                "enum_values": {
+                  "$comment": "Optional enumerated values for this field mapping from name to integer of float value",
+                  "type": [
+                    "array",
+                    "null"
+                  ],
+                  "items": {
+                    "type": "object",
+                    "required": [
+                      "name",
+                      "value",
+                      "desc"
+                    ],
+                    "properties": {
+                      "name": {
+                        "type": "string",
+                        "minLength": 1,
+                        "$comment": "Name for this enum"
+                      },
+                      "value": {
+                        "type": ["integer", "number"],
+                        "$comment": "Value associated with this enum"
+                      },
+                      "desc": {
+                        "type": ["string", "null"],
+                        "$comment": "Optional description for this enum"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
