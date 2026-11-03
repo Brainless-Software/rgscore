@@ -582,6 +582,16 @@ def model(r) -> Register:
     return r.__model__
 
 
+def test_invalid_enum_name():
+    with pytest.raises(ValueError, match=re.escape("Invalid enum name [8x]")):
+        EnumValue("8x", 1, "Starting...")
+
+    with pytest.raises(ValueError, match=re.escape("Invalid enum name [ x8]")):
+        EnumValue(" x8", 1, "Starting...")
+
+    assert EnumValue("x8", 1, "Starting...").name == "x8"
+
+
 def test_field_enum_accessors():
     r = Register(
         bit_len=8,

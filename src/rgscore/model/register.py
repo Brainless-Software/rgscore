@@ -61,11 +61,18 @@ class RLinkI2C(RLink):
         )
 
 
+enum_value_name_re = re.compile(r"^[a-zA-Z_][a-zA-Z_0-9]*$")
+
+
 @dataclass(frozen=True)
 class EnumValue:
     name: str
     value: float
     desc: str = ""
+
+    def __post_init__(self):
+        if not enum_value_name_re.match(self.name):
+            raise ValueError(f"Invalid enum name [{self.name}]")
 
     def __repr__(self) -> str:
         return f"{self.name}({self.value})"
