@@ -1,4 +1,5 @@
 import json
+import re
 
 import pytest
 from bitstring import BitArray
@@ -195,6 +196,7 @@ def test_field_def():
     assert fd.signed == "U"
     assert fd.fractional == 3
     assert not fd.rw
+    assert fd.num_type() == "U8.3"
 
     # omitting rw flag implies "rw"
     fd = FieldDef.value_of("a@[10:3]U8.3")
@@ -418,17 +420,11 @@ def test_fielddef_with_enum_duplicate_value():
 def test_enumvalue_repr():
     """Test EnumValue.__repr__ method."""
     ev = EnumValue(name="TestEnum", value=42, desc="A test enum")
-    repr_str = repr(ev)
-    assert "42.0" in repr_str  # value is converted to float
-    assert "TestEnum" in repr_str
-    assert "A test enum" in repr_str
+    assert repr(ev) == "TestEnum(42)"
 
     # Test with empty description
-    ev2 = EnumValue(name="Simple", value=1)
-    repr_str2 = repr(ev2)
-    assert "1.0" in repr_str2
-    assert "Simple" in repr_str2
-    assert "# " in repr_str2  # empty desc still shows "# "
+    ev2 = EnumValue(name="Simple", value=1.0)
+    assert repr(ev2) == "Simple(1.0)"
 
 
 def test_link():
@@ -509,7 +505,7 @@ def test_json_serialization():
         address_bus_width_bytes=2,
         desc="Register_r1",
         model=[
-            FieldDef.value_of("a@[3:0]U4.1#ro").with_description("A field").with_enum([EnumValue("A", 3, "a value")]),
+            FieldDef.value_of("a@[3:0]U4.1#ro").with_description("A field").with_enum([EnumValue("A", 3.0, "a value")]),
             FieldDef.value_of("b@[6:4]S3.0"),
         ],
     )
@@ -522,6 +518,9 @@ def test_json_serialization():
 
     # now create new instance of Register from the json string
     r2 = Register.from_json_def(r_json)
+    b_json = r2.to_json_def()
+    # (Path.home() / "r.json").write_text(r_json)
+    # (Path.home() / "b.json").write_text(b_json)
     assert r2.name == "Foo"
     assert r2.address == 1
     assert r2.address_bus_width_bytes == 2
@@ -579,13 +578,74 @@ def test_register_change_def():
         r.replace_model([FieldDef.value_of("a@[3:0]U4.1#ro"), FieldDef.value_of("b@[16:14]S3.0")])
 
 
+def model(r) -> Register:
+    return r.__model__
+
+
+def test_field_enum_accessors():
+    r = Register(
+        bit_len=8,
+        name="AReg",
+        address=0xA,
+        model=[
+            FieldDef.value_of("a@[3:0]U4.1#rw").with_enum(
+                [EnumValue("START", 1, "Starting..."), EnumValue("STOP", 0, "Stoping...")]
+            ),
+            FieldDef.value_of("b_raw@[6:4]S3.0").with_description("Some field?"),
+        ],
+    )
+    f = r.fields_defs_obj
+    assert f is not None
+
+    # printing repr should return human-readable field definition
+    assert repr(f.b_raw) == "Field: b_raw\n  BitRange: [6:4]\n  NumType: S3.0\n  Access: rw\n  Description: Some field?"
+
+    # calling particular field without value should return list of available enums for this field or None
+    # if no enum values are associated with this field
+    assert f.b_raw() is None
+
+    # calling field with number value should return enum associated with that value if there are associated enums.
+    # If no enums are associated (as is the case with field b_raw), then simply return passed number.
+    assert f.b_raw(7.3) == 7.3
+
+    # printing repr should return human-readable field definition
+    assert repr(f.a) == "Field: a\n  BitRange: [3:0]\n  NumType: U4.1\n  Access: rw\n  Enum Values: [START(1), STOP(0)]"
+
+    # repr of field_accessor should show array of field names present in this register
+    assert repr(f) == "[b_raw, a]"
+
+    # field "a" has associated enums
+    assert f.a() == [EnumValue("START", 1, "Starting..."), EnumValue("STOP", 0, "Stoping...")]
+    assert f.a(0) == EnumValue("STOP", 0, "Stoping...")
+    assert f.a(1) == EnumValue("START", 1, "Starting...")
+
+    # since field "a" has associated enums calling that field with numeric value that is not in list of enums
+    # should return None
+    assert f.a(2) is None
+
+    # we should be able so set enum to the fields
+    assert r.get_field_value("a") == 0
+    r.set_field_value("a", f.a(1))
+    assert r.get_field_value("a") == 1
+    r.set_field_value("a", f.a(0))
+    assert r.get_field_value("a") == 0
+
+    with pytest.raises(ValueError, match=re.escape("Invalid enum value [STOP(0)] for field b_raw")):
+        r.set_field_value("b_raw", f.a(0))
+
+
 def test_embedding_class():
     store = MemLink()
     r = Register(
         bit_len=8,
         name="AReg",
         address=0xA,
-        model=[FieldDef.value_of("a@[3:0]U4.1#rw"), FieldDef.value_of("b_raw@[6:4]S3.0")],
+        model=[
+            FieldDef.value_of("a@[3:0]U4.1#rw").with_enum(
+                [EnumValue("START", 1, "Starting..."), EnumValue("STOP", 0, "Stoping...")]
+            ),
+            FieldDef.value_of("b_raw@[6:4]S3.0"),
+        ],
     )
     c = r.mk_embedding_class(lambda: store, auto_sync=False)
     rr = c()
@@ -792,4 +852,4 @@ def test_register_link_provider_none():
     r = Register(8, name="NoLinkReg")
     # This should not raise an error, just do nothing
     # (but write/read should fail gracefully)
-    assert r.write() == False
+    assert not r.write()

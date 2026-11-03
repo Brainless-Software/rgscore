@@ -5,7 +5,7 @@ from abc import ABC, abstractmethod
 from collections.abc import Callable
 from dataclasses import dataclass
 from functools import reduce
-from typing import Any, Self, final
+from typing import Self, final
 
 from bitstring import BitArray
 from i2c_api import I2CMaster, RegisterAddress
@@ -61,17 +61,14 @@ class RLinkI2C(RLink):
         )
 
 
-@dataclass
+@dataclass(frozen=True)
 class EnumValue:
     name: str
     value: float
     desc: str = ""
 
-    def __post_init__(self):
-        self.value = float(self.value)
-
     def __repr__(self) -> str:
-        return f"{self.value} = {self.name} # {self.desc}"
+        return f"{self.name}({self.value})"
 
 
 @dataclass
@@ -87,6 +84,9 @@ class FieldDef:
 
     def __post_init__(self):
         self.__validate__()
+
+    def num_type(self) -> str:
+        return f"{self.signed}{self.width}.{self.fractional}"
 
     def __validate__(self):
         if self.signed not in ("U", "S"):
@@ -364,7 +364,7 @@ class Register:
 
     def to_json_def(self, indent: int | None = None) -> str:
         """Exports register definition as json text."""
-        return json.dumps(self.to_dict_def(), indent=indent)
+        return json.dumps(self.to_dict_def(), indent=2)
 
     @staticmethod
     def from_dict_def(data: dict) -> "Register":
@@ -383,7 +383,7 @@ class Register:
         """Imports register definition from json text and returns instance of Register."""
         return Register.from_dict_def(json.loads(json_str))
 
-    def set_field_value(self, field: str, value: float | str) -> float | int:
+    def set_field_value(self, field: str, value: float | str | EnumValue) -> float | int:
         """
         Sets value to a field or raises exception if unable to do so. If value is str, then it is used as a look up
         into associated enum if any and found number value is used. If data in the register model in memory actually
@@ -402,6 +402,12 @@ class Register:
                     raise ValueError(f"Invalid enum value [{value}] for field {field}")
                 else:
                     return num_val.value
+            elif isinstance(value, EnumValue):
+                valid_enum_values = self.get_field_definition(field).enum_values
+                if valid_enum_values is None or value not in valid_enum_values:
+                    raise ValueError(f"Invalid enum value [{value}] for field {field}")
+                else:
+                    return value.value
             else:
                 return value
 
@@ -446,6 +452,10 @@ class Register:
 
     def get_field_definition(self, field: str) -> FieldDef:
         return self._fields_by_name[field]
+
+    @property
+    def fields_defs_obj(self) -> object:
+        return self.mk_field_model_accessor()
 
     def get_field_names(self) -> list[str]:
         return [m.name for m in self._model]
@@ -509,7 +519,61 @@ class Register:
                 self._originial_data = self.data.copy()
             return write_success
 
-    def mk_embedding_class(self, link_provider: Callable[[], RLink], auto_sync: bool) -> Any:
+    def mk_field_model_accessor(self) -> object:
+        all_fields = "[" + ", ".join(self.get_field_names()) + "]"
+
+        class FieldModelAccessor:
+            def __repr__(self) -> str:
+                return all_fields
+
+        fma = FieldModelAccessor()
+        for field_name in self.get_field_names():
+            fma.__setattr__(field_name, self.mk_embedding_field_enum_class(field_name))
+        return fma
+
+    def mk_embedding_field_enum_class(self, field_name: str) -> object:
+        field_def = self.get_field_definition(field_name)
+        enums = field_def.enum_values
+
+        def get_repr() -> str:
+
+            rw = "rw" if field_def.rw else "ro"
+            field_repr = (
+                f"Field: {field_def.name}\n"
+                f"  BitRange: [{field_def.end_offset()}:{field_def.offset}]\n"
+                f"  NumType: {field_def.signed}{field_def.width}.{field_def.fractional}\n"
+                f"  Access: {rw}\n"
+            )
+            if field_def.desc is not None and field_def.desc.strip() != "":
+                field_repr += f"  Description: {field_def.desc}"
+            if enums is not None:
+                field_repr += "  Enum Values: [" + ", ".join([str(e) for e in enums]) + "]"
+            return field_repr
+
+        all_enums = get_repr()
+
+        class FieldModelEnumAccessor:
+            def __repr__(self) -> str:
+                return all_enums
+
+            def __call__(self, value: float | None = None):
+                if value is None:
+                    return enums
+                elif enums is None:
+                    return value
+                else:
+                    for e in enums:
+                        if e.value == value:
+                            return e
+                    return None
+
+        fma = FieldModelEnumAccessor()
+        if enums is not None:
+            for e in enums:
+                fma.__setattr__(e.name, e)
+        return fma
+
+    def mk_embedding_class(self, link_provider: Callable[[], RLink], auto_sync: bool) -> object:
         register = self.copy()
         register.set_link_provider(link_provider)
 
@@ -518,31 +582,32 @@ class Register:
             "_write": register.write,
             "__repr__": register.__repr__,
             "__call__": lambda _: register.data,
+            "__model__": register,
         }
-        for field_name in self.get_field_names():
 
-            def mk_accessor(fname, register, auto_sync):
-                def field_accessor(sself, new_value=None) -> int | float:
-                    if new_value is None:
-                        if auto_sync:
-                            register.read()
-                        return register.get_field_value(fname)
-                    else:
-                        retval = register.set_field_value(fname, new_value)
-                        if auto_sync:
-                            register.write()
-                        return retval
-
-                return field_accessor
-
-            def mk_raw_accessor(fname, register):
-                def field_accessor(sself) -> BitArray:
+        def mk_accessor(fname, register, auto_sync):
+            def field_accessor(sself, new_value=None) -> int | float:
+                if new_value is None:
                     if auto_sync:
                         register.read()
-                    return register.get_field_value_raw(fname)
+                    return register.get_field_value(fname)
+                else:
+                    retval = register.set_field_value(fname, new_value)
+                    if auto_sync:
+                        register.write()
+                    return retval
 
-                return field_accessor
+            return field_accessor
 
+        def mk_raw_accessor(fname, register):
+            def field_accessor(sself) -> BitArray:
+                if auto_sync:
+                    register.read()
+                return register.get_field_value_raw(fname)
+
+            return field_accessor
+
+        for field_name in self.get_field_names():
             accessor = mk_accessor(field_name, register, auto_sync)
             attrs[field_name] = property(fget=accessor, fset=accessor)
             attrs[field_name + "_raw"] = property(fget=mk_raw_accessor(field_name, register))
