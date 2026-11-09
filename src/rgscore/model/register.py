@@ -246,7 +246,7 @@ class FieldDef:
         ```
 
         Note that this does not allow you to provide field description or valid enum values. To that end use
-        methods `with_description(...)` and `with_enum(...)`.
+        methods with_description(...) and with_enum(...).
         """
         m = Register.field_def_re.match(field_definition)
         if m:
@@ -643,8 +643,9 @@ class Register:
         register will be used. If no addresses are given and present in the internal register definition then ValueError
         will be raised.
 
-        :param link: link to external store
-        :param register_address: address of register in external store
+        Args:
+            link: link to external store
+            register_address: address of register in external store
         """
         if register_address is not None:
             self.linked_address = register_address
@@ -680,10 +681,13 @@ class Register:
         Once data is written to the external store, calling `Register::is_changed()` starts returning False until
         data is modified by calling `Register::set_field_value(...)`.
 
-        :param read_back: If True, then immediately after write operation read it back. If False, then do just write op.
-        :param if_changed_only: If True, then check if register in memory model changed and if so then do write,
+        Args:
+            read_back: If True, then immediately after write operation read it back. If False, then do just write op.
+            if_changed_only: If True, then check if register in memory model changed and if so then do write,
                 otherwise do not write (return False). If False (default), then always write.
-        :return: True or False if write operation was successful or not.
+
+        Returns:
+            True or False if write operation was successful or not.
         """
         if self.__link_provider is None or (if_changed_only and self._originial_data == self.data):
             return False
