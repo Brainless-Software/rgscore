@@ -289,6 +289,10 @@ class FieldDef:
 
 
 class Register:
+    """
+    This class encapsulates a register model and in-memory data store optionally linked to the external device.
+    """
+
     numeric_type_re = re.compile(r"^\s*(?P<s>U|S)(?P<w>\d+)\.(?P<f>\d+)\s*$")
     rw_re = re.compile(r"^\s*(?P<rw>rw|ro)\s*$")
     field_def_re = re.compile(
