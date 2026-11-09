@@ -186,6 +186,9 @@ def test_register_access():
     with pytest.raises(ValueError):
         r.set_field_value("b", "Zzz")
 
+    with pytest.raises(ValueError, match=re.escape('There is no field "invalid" in this register.')):
+        r.get_field_definition("invalid")
+
 
 def test_field_def():
     # fully written out valid field definition
@@ -504,17 +507,22 @@ def test_json_serialization():
         address=0x01,
         address_bus_width_bytes=2,
         desc="Register_r1",
+        reset="0x7",
         model=[
             FieldDef.value_of("a@[3:0]U4.1#ro").with_description("A field").with_enum([EnumValue("A", 3.0, "a value")]),
             FieldDef.value_of("b@[6:4]S3.0"),
         ],
     )
+    assert r1.reset_value == BitArray("0x07")
+    r1.data = BitArray("0x07")
+
     r_json = r1.to_json_def()
     data = json.loads(r_json)
     assert data["name"] == "Foo"
     assert data["address"] == "0x1"
     assert data["width"] == 8
     assert len(data["fields"]) == 2
+    assert data["reset"] == "0b00000111"
 
     # now create new instance of Register from the json string
     r2 = Register.from_json_def(r_json)
@@ -530,6 +538,8 @@ def test_json_serialization():
         "a",
     ]  # fields are resorted by decreasing offset
     assert r_json == r2.to_json_def()
+    assert r1 == r2
+    assert r1 != ""
 
 
 def test_register_fields_order():
@@ -545,13 +555,14 @@ def test_register_fields_order():
 
 def test_register_copy():
     store = MemLink()
-    r = Register(bit_len=8, name="AReg", link_provider=lambda: store, address=0xA)
-    r.set_field_value("val", 3)
-    r_copy = r.copy()
-    r.set_field_value("val", 4)
-    assert r_copy.to_json_def() == r.to_json_def()
+    r_original = Register(bit_len=8, name="AReg", link_provider=lambda: store, address=0xA, reset="0x1")
+    r_original.set_field_value("val", 3)
+    r_copy = r_original.copy()
+    assert r_original == r_copy
+    r_original.set_field_value("val", 4)
+    assert r_copy.to_json_def() == r_original.to_json_def()
     assert r_copy.get_field_value("val") == 3
-    assert r.get_field_value("val") == 4
+    assert r_original.get_field_value("val") == 4
 
 
 def test_register_change_def():
@@ -719,21 +730,20 @@ def test_register_replace_model_duplicate_names():
 def test_register_get_def():
     """Test Register.get_def method."""
     r = Register(8, name="TestReg", address=0x42, desc="Test register", model=[FieldDef.value_of("a@[3:0]U4.0")])
-    def_str = r.get_def()
+    def_str = r.pretty_print()
     assert "Register" in def_str
-    assert "name:TestReg" in def_str
-    assert "addr:0x42" in def_str
-    assert 'desc:"Test register"' in def_str
-    assert "width:8" in def_str
-    assert "fields:" in def_str
+    assert "TestReg" in def_str
+    assert "0x42" in def_str
+    assert "Test register" in def_str
+    assert "8" in def_str
+    assert "Fields:" in def_str
 
     # Test with no name, no address, no desc
     r2 = Register(8, model=[FieldDef.value_of("b@[7:0]U8.0")])
-    def_str2 = r2.get_def()
+    def_str2 = r2.pretty_print()
     assert "Register" in def_str2
-    assert "name:" not in def_str2 or "name:None" not in def_str2
-    assert "addr:" not in def_str2
-    assert "desc:" not in def_str2
+    assert "Address:" not in def_str2
+    assert "Description:" not in def_str2
 
 
 def test_register_repr():
@@ -863,3 +873,19 @@ def test_register_link_provider_none():
     # This should not raise an error, just do nothing
     # (but write/read should fail gracefully)
     assert not r.write()
+
+
+def test_field_def_eq():
+    fd = FieldDef.value_of("b@[6:4]S3.0").with_enum([EnumValue("On", 1), EnumValue("Off", 0)]).with_description("Hello")
+    assert fd == FieldDef.value_of("b@[6:4]S3.0").with_enum([EnumValue("Off", 0), EnumValue("On", 1)]).with_description(
+        "Hello"
+    )
+    assert fd != FieldDef.value_of("b@[6:4]S3.0").with_enum([EnumValue("Off", 0), EnumValue("On", 1)]).with_description(
+        "Hallo"
+    )
+    assert fd != FieldDef.value_of("b@[6:4]S3.0").with_enum([EnumValue("Off", 2), EnumValue("On", 1)]).with_description(
+        "Hello"
+    )
+    assert fd != FieldDef.value_of("b@[6:4]S3.0").with_enum([EnumValue("On", 1)]).with_description("Hello")
+    assert fd != FieldDef.value_of("b@[6:4]S3.0").with_description("Hello")
+    assert FieldDef.value_of("b@[6:4]S3.0").with_description("Hello") != fd

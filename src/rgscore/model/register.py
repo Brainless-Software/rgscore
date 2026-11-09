@@ -10,6 +10,7 @@ from typing import Self, final
 from bitstring import BitArray
 from i2c_api import I2CMaster, RegisterAddress
 from pydantic import TypeAdapter
+from tabulate import tabulate
 
 
 class RLink(ABC):
@@ -89,10 +90,37 @@ class FieldDef:
     desc: str = ""
     enum_values: list[EnumValue] | None = None
 
+    def __eq__(self, other: object, /) -> bool:
+        eq = (
+            isinstance(other, FieldDef)
+            and self.name == other.name
+            and self.offset == other.offset
+            and self.signed == other.signed
+            and self.width == other.width
+            and self.fractional == other.fractional
+            and self.rw == other.rw
+            and self.desc == other.desc
+        )
+        if not eq:
+            return False
+        elif self.enum_values is None and other.enum_values is None:
+            return True
+        elif self.enum_values is not None and other.enum_values is None:
+            return False
+        elif self.enum_values is None and other.enum_values is not None:
+            return False
+        else:
+            return sorted(self.enum_values, key=lambda x: x.value) == sorted(other.enum_values, key=lambda x: x.value)
+
+    def rw_mode(self) -> str:
+        """Return r/w or r/o if this field is read/write or read/only."""
+        return "r/w" if self.rw else "r/o"
+
     def __post_init__(self):
         self.__validate__()
 
     def num_type(self) -> str:
+        """Returns fixed-point numerical type associatd with this field in the format (U|S)\\\\d+.\\\\d+"""
         return f"{self.signed}{self.width}.{self.fractional}"
 
     def __validate__(self):
@@ -113,9 +141,11 @@ class FieldDef:
             self.valid_value_values = {}
 
     def copy(self) -> Self:
+        """Returns a copy of this field definition."""
         return dataclasses.replace(self)
 
     def range(self) -> tuple[float, float]:
+        """Return inclusive range of possible values for this field."""
         if self.signed == "U":
             return (0.0, (pow(2, self.width) - 1) / pow(2, self.fractional))
         else:
@@ -125,25 +155,41 @@ class FieldDef:
             )
 
     def end_offset(self) -> int:
+        """Returns inclusive end offset where this field ends in the larger bit array."""
         return self.offset + self.width - 1
 
     def idxs(self) -> list[int]:
+        """Returns list of offset for each individual bits for this field."""
         return list(range(self.offset, self.end_offset() + 1))
 
     def format(self, value: float) -> str:
+        """Returns passed value as string formatting it based on numerical field type to be fractional or not."""
         return f"{int(value)}" if self.fractional == 0 else f"{value}"
+
+    def bit_range_str(self) -> str:
+        """Returns string representation of an inclusive offset range."""
+        return f"[{self.end_offset()}:{self.offset}]"
 
     def __repr__(self):
         rw = "rw" if self.rw else "ro"
         return f"{self.name}@[{self.end_offset()}:{self.offset}]{self.signed}{self.width}.{self.fractional}#{rw}"
 
     def read_raw(self, data: BitArray) -> BitArray:
+        """Returns a slice of input bit array corresponding to this field."""
         return data[(len(data) - self.end_offset() - 1) : (len(data) - self.offset)]
 
     def next_up_value(self, data: BitArray) -> float | int:
+        """
+        Given a complete register data return next valid larger value for this field or current value if
+        it is already maximum allowed as per numeric type specification.
+        """
         return self.__next(data, 1)
 
     def next_down_value(self, data: BitArray) -> float | int:
+        """
+        Given a complete register data return next valid smaller value for this field or current value if
+        it is already minimum allowed as per numeric type specification.
+        """
         return self.__next(data, -1)
 
     def __get_next_raw_field(self, data: BitArray, step: int) -> BitArray:
@@ -169,15 +215,39 @@ class FieldDef:
             return (raw_field.int if self.signed == "S" else raw_field.uint) / pow(2, self.fractional)
 
     def read(self, data: BitArray) -> float | int:
+        """Given a complete register data bit array return value of this field as interpreted by its numerical type."""
         return self.__read_from_raw_field(self.read_raw(data))
 
     def write(self, data: BitArray, value: float) -> None:
+        """
+        Given a complete register data bit array write value into it interpreting it as per this field numeric type.
+        Exception will be raised if provided value is outside of valid range of values for this field.
+        """
         new_val = int(value * pow(2, self.fractional))
         tspec = ("int:" if self.signed == "S" else "uint:") + f"{self.width}={new_val}"
         data.overwrite(len(data) - self.end_offset() - 1, BitArray(tspec))
 
     @staticmethod
     def value_of(field_definition: str) -> "FieldDef":
+        """
+        Creates a FieldDef instance from user friendly string definition. Input string must be in the following format:
+        ```
+
+            <name>@<offset_range><numeric_type><rw_status>
+
+            <name>             = $string([a-zA-Z_]+[0-9]*)
+            <offset_range>     = [<end_offset>] | [<end_offset>:<start_offset>]
+            <numeric_type>     = S<field_width_bits>.<fractional_bits> | U<field_width_bits>.<fractional_bits>
+            <rw_status>        = "rw" | "rw" | none
+            <end_offset>       = $positive_integer
+            <start_offset>     = $positive_integer
+            <field_width_bits> = $positive_integer
+            <fractional_bits>  = $positive_integer
+        ```
+
+        Note that this does not allow you to provide field description or valid enum values. To that end use
+        methods `with_description(...)` and `with_enum(...)`.
+        """
         m = Register.field_def_re.match(field_definition)
         if m:
             end_offset = int(m.group("end"))
@@ -203,10 +273,12 @@ class FieldDef:
             raise ValueError(f"Invalid register field definition [{field_definition}]")
 
     def with_description(self, desc: str) -> Self:
+        """Adds description to this field."""
         self.desc = desc
         return self
 
     def with_enum(self, values: list[EnumValue]) -> Self:
+        """Adds list of enum values to this field."""
         if len({v.name for v in values}) != len(values):
             raise ValueError("Duplicate name in enum values")
         if len({v.value for v in values}) != len(values):
@@ -233,6 +305,7 @@ class Register:
         name: str | None = None,
         link_provider: Callable[[], RLink] | None = None,
         desc: str = "",
+        reset: str | BitArray = "0x0",
     ):
         """
         Register in an object that encapsulates array of bits and field definitions and provides read and write
@@ -246,14 +319,21 @@ class Register:
             name: register name (optional)
             link_provider: provider of link to the external storage (optional)
             desc: register description (optional)
+            reset: bitarray value to which register will be reset; this is also the initial value which register will
+                have before reading its value from the physical devices.
         """
         if name is not None and not Register.register_name_re.match(name):
             raise ValueError("Invalid register name.")
 
         if bit_len <= 0:
             raise ValueError("Register width must be greater than zero")
-        self.data: BitArray = BitArray.from_zeros(bit_len)
-        self._originial_data = BitArray.from_zeros(bit_len)
+
+        reset_uint_value = BitArray(reset).uint if isinstance(reset, str) else reset.uint
+        self.__reset_data = BitArray(f"uint:{bit_len}={reset_uint_value}")
+
+        self.data: BitArray = self.__reset_data.copy()
+        self._originial_data = self.__reset_data.copy()
+
         self.__width = bit_len
         self.__desc = desc
 
@@ -289,7 +369,13 @@ class Register:
             raise ValueError("Overlapping fields in register definition.")
 
     @property
+    def reset_value(self) -> BitArray:
+        """Returns reset value."""
+        return self.__reset_data.copy()
+
+    @property
     def desc(self):
+        """Returns register description."""
         return self.__desc
 
     @desc.setter
@@ -298,6 +384,7 @@ class Register:
 
     @property
     def width(self) -> int:
+        """Returns register width in bits."""
         return self.__width
 
     @width.setter
@@ -307,7 +394,8 @@ class Register:
         self._originial_data = BitArray.from_zeros(new_width)
         self.data = BitArray.from_zeros(new_width)
 
-    def replace_model(self, new_model: list[FieldDef]):
+    def replace_model(self, new_model: list[FieldDef]) -> Self:
+        """Replaces register field model with new one."""
         field_names: set[str] = {fd.name for fd in new_model}
         if len(field_names) != len(new_model):
             raise ValueError("Duplicate field names in the model")
@@ -316,14 +404,17 @@ class Register:
         self._model.clear()
         self._model.extend(new_model)
         self._model.sort(key=lambda fd: -fd.offset)
+        return self
 
-    def copy(self) -> "Register":
+    def copy(self) -> Self:
+        """Returns a copy of the register."""
         register_copy = Register(
             bit_len=self.width,
             model=[fd.copy() for fd in self._model],
             address=self.address,
             name=self.name,
             link_provider=self.__link_provider,
+            reset=self.reset_value,
         )
         register_copy.data = self.data.copy()
         register_copy._originial_data = self._originial_data.copy()
@@ -332,19 +423,66 @@ class Register:
     def is_changed(self) -> bool:
         """
         Returns True or False indicating of register data has changed since it was loaded. This method is only usefull
-        when external storage is linked to the register and read() and write() methods are called.
+        when external storage is linked to the register and read() or write() methods are called.
         """
         return self._originial_data != self.data
 
-    def get_def(self) -> str:
+    def pretty_print(self) -> str:
         """Returns human-readable register definition."""
-        return (
-            "Register"
-            + ("" if self.name is None else f" name:{self.name}")
-            + ("" if self.address is None else f" addr:0x{self.address:X}")
-            + ("" if self.desc == "" else f' desc:"{self.desc}"')
-            + f" width:{self.width} fields:{self._model}"
-        )
+        r = [{1: "Register:", 2: self.name}]
+        if self.desc is not None and self.desc.strip() != "":
+            r.append({1: "Description:", 2: self.desc})
+        if self.address is not None:
+            r.append({1: "Address:", 2: f"0x{self.address:X}"})
+        r.append({1: "Width (bits):", 2: f"{self.width}"})
+        r.append({1: "Reset data:", 2: f"0b{self.reset_value.bin}"})
+        r.append({1: "Raw data:", 2: f"0b{self.data.bin}"})
+
+        field_name_width = max([len(f.name) for f in self._model]) + 1
+        field_range_width = max([len(f.bit_range_str()) for f in self._model]) + 1
+        field_numtype_width = max([len(f.num_type()) for f in self._model]) + 1
+        field_value_width = max([len(str(self.get_field_value(f.name))) for f in self._model]) + 1
+        fields_table = ""
+        for f in self._model:
+            v = f.format(self.get_field_value(f.name))
+            fields_table += (
+                f.name.ljust(field_name_width)
+                + f.bit_range_str().ljust(field_range_width)
+                + f.num_type().ljust(field_numtype_width)
+                + f.rw_mode()
+                + " => "
+                + v.ljust(field_value_width)
+                + (f" # {f.desc}" if f.desc is not None else "")
+                + "\n"
+            )
+            if f.enum_values is not None:
+                enum_names_width = max(len(e.name) for e in f.enum_values) + 2
+                enum_values_width = max(len(str(e.value)) for e in f.enum_values) + 2
+                for e in f.enum_values:
+                    fields_table += (
+                        "    > "
+                        + e.name.ljust(enum_names_width)
+                        + f.format(e.value).ljust(enum_values_width)
+                        + e.desc
+                        + "\n"
+                    )
+
+        r.append({1: "Fields:", 2: fields_table})
+        return tabulate(r, tablefmt="plain", missingval="")
+
+    def __eq__(self, another: object) -> bool:
+        if not isinstance(another, Register):
+            return False
+        else:
+            return (
+                self.name == another.name
+                and self.address == another.address
+                and self.address_bus_width_bytes == another.address_bus_width_bytes
+                and self.desc == another.desc
+                and self.width == another.width
+                and self.reset_value == another.reset_value
+                and self._model == another._model
+            )
 
     def __repr__(self):
         retval = "Register" if self.name is None else self.name
@@ -366,6 +504,7 @@ class Register:
             "address_bus_width_bytes": self.address_bus_width_bytes,
             "width": self.width,
             "desc": self.desc,
+            "reset": f"0b{self.reset_value.bin}",
             "fields": [dataclasses.asdict(field_def) for field_def in self._model],
         }
 
@@ -375,6 +514,7 @@ class Register:
 
     @staticmethod
     def from_dict_def(data: dict) -> "Register":
+        """Creates instance of he Register from dict."""
         fd_adapter = TypeAdapter(FieldDef)
         return Register(
             bit_len=data["width"],
@@ -383,6 +523,7 @@ class Register:
             address=None if data["address"] is None else int(data["address"], 16),
             address_bus_width_bytes=data["address_bus_width_bytes"],
             model=[fd_adapter.validate_python(f) for f in data["fields"]],
+            reset=data.get("reset", "0b0"),
         )
 
     @staticmethod
@@ -426,7 +567,18 @@ class Register:
         else:
             raise ValueError(f'Value {value} is out of range [{field_def.range()}] for field "{field}"')
 
+    def get_field_enum_value(self, field: str) -> EnumValue | float | int:
+        """
+        Returns field value for a given field name as EnumValue if matching feild value is present in the field
+        defintiion.
+
+        """
+
     def get_field_value(self, field: str) -> float | int:
+        """
+        Returns field value for a given field. Returned value will be converted to int or float
+        as defined in the fixed point format for this field.
+        """
         field_def = self._fields_by_name.get(field)
         if field_def is None:
             raise ValueError(f'There is no field "{field}" in this register.')
@@ -434,6 +586,11 @@ class Register:
             return field_def.read(self.data)
 
     def get_next_up_field_value(self, field: str) -> float | int:
+        """
+        Returns next field value that is larger than the current one for a given field. This is possible
+        because numeric types for a field are always fixed point numbers which define finite discrete set
+        of values. If current value for this field is the largest one, then current value is returned.
+        """
         field_def = self._fields_by_name.get(field)
         if field_def is None:
             raise ValueError(f'There is no field "{field}" in this register.')
@@ -441,6 +598,11 @@ class Register:
             return field_def.next_up_value(self.data)
 
     def get_next_down_field_value(self, field: str) -> float | int:
+        """
+        Returns next field value that is smaller than the current one for a given field. This is possible
+        because numeric types for a field are always fixed point numbers which define finite discrete set
+        of values. If current value for this field is the smallest one, then current value is returned.
+        """
         field_def = self._fields_by_name.get(field)
         if field_def is None:
             raise ValueError(f'There is no field "{field}" in this register.')
@@ -448,6 +610,7 @@ class Register:
             return field_def.next_down_value(self.data)
 
     def get_field_value_raw(self, field: str) -> BitArray:
+        """Returns raw BitArray object for this field."""
         field_def = self._fields_by_name.get(field)
         if field_def is None:
             raise ValueError(f'There is no field "{field}" in this register.')
@@ -455,16 +618,22 @@ class Register:
             return field_def.read_raw(self.data)
 
     def get_field_values(self) -> dict[str, float]:
+        """Retruns dict of field name to value contained within each field."""
         return {m.name: self.get_field_value(m.name) for m in self._model}
 
     def get_field_definition(self, field: str) -> FieldDef:
-        return self._fields_by_name[field]
+        """Returns field definition (model spec) for a given field."""
+        if field in self._fields_by_name:
+            return self._fields_by_name[field]
+        else:
+            raise ValueError(f'There is no field "{field}" in this register.')
 
     @property
     def fields_defs_obj(self) -> object:
         return self.mk_field_model_accessor()
 
     def get_field_names(self) -> list[str]:
+        """Returns list of field names present in this register."""
         return [m.name for m in self._model]
 
     def link(self, link: RLink, register_address: int | None = None) -> None:
@@ -487,6 +656,7 @@ class Register:
         self.__link_provider = lambda: link
 
     def set_link_provider(self, link_provider: Callable[[], RLink]) -> None:
+        """Sets provider of the RLink."""
         self.__link_provider = link_provider
 
     def read(self) -> None:
@@ -535,10 +705,10 @@ class Register:
 
         fma = FieldModelAccessor()
         for field_name in self.get_field_names():
-            fma.__setattr__(field_name, self.mk_embedding_field_enum_class(field_name))
+            fma.__setattr__(field_name, self.__mk_embedding_field_enum_class(field_name))
         return fma
 
-    def mk_embedding_field_enum_class(self, field_name: str) -> object:
+    def __mk_embedding_field_enum_class(self, field_name: str) -> object:
         field_def = self.get_field_definition(field_name)
         enums = field_def.enum_values
 

@@ -12,6 +12,16 @@ class RegList:
         on_change_callback: Callable[[Self], None] = lambda _: None,
         registers: list[Register] | None = None,
     ):
+        """
+        Creates instance of RegList. An object that holds an ordered set of registers.
+        Args:
+            store: an external store (object that accesses physical hardware) to which to which all registers in
+                this regList are to be linked. Default is None, meaning that this regList will be an in-memory only
+                representation of register set.
+            on_change_callback: function called when registers are added or removed to/from this regList or changed.
+            registers: optional list registers to be contained within this regList. Register can later be added by
+                calling RegList.add(...) method.
+        """
         super().__init__()
         self.registers: list[Register] = []
         self._reg_names: set[str] = set()
@@ -24,10 +34,11 @@ class RegList:
         if registers is not None:
             self.add(registers)
 
-    def add(self, rs: Register | list[Register]):
+    def add(self, rs: Register | list[Register]) -> None:
+        """Adds one or more registers to this regList."""
         self.__add(rs, call_on_change_callback=True)
 
-    def __add(self, rs: Register | list[Register], call_on_change_callback: bool):
+    def __add(self, rs: Register | list[Register], call_on_change_callback: bool) -> None:
         rs = [rs] if isinstance(rs, Register) else rs
         if len(rs) == 0:
             return
@@ -60,12 +71,24 @@ class RegList:
             self._on_change_callback(self)
 
     def get_register_by_name(self, name: str) -> Register | None:
+        """
+        Returns register contained within this regList by its name. If no such register exist
+        in the regList, then return None.
+        """
         return self._reg_by_names.get(name)
 
     def get_register_by_address(self, address: int) -> Register | None:
+        """
+        Returns register contained within this regList by its address. If no such register exist
+        in the regList, then return None.
+        """
         return self._reg_by_address.get(address)
 
-    def delete_register_by_name(self, name: str):
+    def delete_register_by_name(self, name: str) -> None:
+        """
+        Deletes (removes) registers identified by register name from this regList. If register under this name
+        does not exist, then this is a NO-OP.
+        """
         self.__delete_register_by_name(name, call_on_change_callback=True)
 
     def __delete_register_by_name(self, name: str, call_on_change_callback: bool):
@@ -127,7 +150,10 @@ class RegList:
             r.write()
 
     def to_json_def(self, indent: int | None = None) -> str:
-        """Exports register definition contained within regList as json text."""
+        """
+        Exports register definition contained within regList as json text. Resulting json
+        will confirm to the regList-scheme.json schema file.
+        """
         return json.dumps(
             {
                 "class": "RegList",
@@ -139,10 +165,13 @@ class RegList:
 
     @staticmethod
     def from_json_def(json_str: str) -> "RegList":
-        """Imports a RegList definition from a json string returning new instance of RegList."""
-        return RegList().load_from_json_def(json_str)
+        """
+        Imports a RegList definition from a json string returning new instance of RegList. Input string must
+        be a json document conforming to the regList-scheme.json schema file.
+        """
+        return RegList().__load_from_json_def(json_str)
 
-    def load_from_json_def(self, json_str: str) -> Self:
+    def __load_from_json_def(self, json_str: str) -> Self:
         data = json.loads(json_str)
         if data["class"] != "RegList":
             raise ValueError("Provided json document does not represent regList")

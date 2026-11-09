@@ -495,17 +495,15 @@ def test_write_all():
 
 def test_load_from_json_def_invalid_class():
     """Test ValueError when JSON class is not RegList."""
-    rgsl = RegList()
     invalid_json = json.dumps({"class": "NotRegList", "version": 1, "registers": []})
 
     with pytest.raises(ValueError, match="Provided json document does not represent regList"):
-        rgsl.load_from_json_def(invalid_json)
+        RegList.from_json_def(invalid_json)
 
 
 def test_load_from_json_def_unsupported_version():
     """Test ValueError when JSON version is not supported."""
-    rgsl = RegList()
     invalid_json = json.dumps({"class": "RegList", "version": 200, "registers": []})
 
     with pytest.raises(ValueError, match="Provided regList json has unsupported version 200"):
-        rgsl.load_from_json_def(invalid_json)
+        RegList.from_json_def(invalid_json)
