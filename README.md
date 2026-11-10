@@ -42,33 +42,50 @@ To fulfill above goals this library defines following classes
 ## Defining registers programmatically
 
 Registers are grouped into ordered collections known as regList's, represented by `RegList` class. When registers are
-added to the regList
-
-Example:
+added to the regList this ensures that they are unique (both, with regard to register names and addresses) within a 
+given regList. Registers can be address to the regList at the time of construction or later by 
+calling `RegList::add(...)` method.
 
 ```python
-from rgscore import Register, RegList, FieldDef
+from rgscore import Register, RegList, FieldDef, EnumValue
 
-reglist = RegList(
-    registers=[
-        Register(
-            bit_len=8,
-            name="Foo",
-            address=0x01,
-            model=[FieldDef.value_of("a@[3:0]U4.1#ro")],
-        ),
-        Register(
-            bit_len=8,
-            name="Bar",
-            address=0x02,
-            desc="Very important register",
-            model=[FieldDef.value_of("b1@[3:0]U4.1#ro"), FieldDef.value_of("b2@[5:4]S2.0#rw")],
-        ),
-    ]
-)
+regList = RegList(registers=[
+    Register(
+        bit_len=8,
+        name="Foo",
+        address=0x01,
+        desc="Register Foo",
+        model=[FieldDef.value_of("a@[3:0]U4.1#ro")]
+    )
+])
+
+regList.add(Register(
+    bit_len=8,
+    name="Bar",
+    address=0x02,
+    model=[
+        FieldDef.value_of("b@[3:0]U4.0#ro").with_description("field b").with_enum(
+            [EnumValue("START", 1, "Starting..."), EnumValue("STOP", 0, "Stoping...")]
+        )
+    ],
+))
 ```
 
 ## Loading regList from json file
+
+Instance of `RegList` can writen down into json file and read back like so
+
+```python
+from pathlib import Path
+from rgscore import RegList
+
+regListFilePath = Path.home() / "regList.json"
+
+regList = RegList(...)
+regListFilePath.write_text(regList.to_json_def())
+
+regList = RegList.from_json_def(regListFilePath.read_text())
+```
 
 ## Accessing registers on physical devices
 

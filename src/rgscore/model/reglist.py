@@ -49,7 +49,12 @@ class RegList:
 
             if r.name is None:
                 # create implicit register name if register does not an explicit one
-                r.name = f"R{r.address}"
+                generated_register_name = f"R{r.address}"
+                if generated_register_name in self._reg_names:
+                    raise ValueError(
+                        f"Register under a name [{generated_register_name}] is already preset in the regList"
+                    )
+                r.name = generated_register_name
 
             if r.name in self._reg_names:
                 raise ValueError(f"Register under a name [{r.name}] is already in the set")

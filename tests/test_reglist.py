@@ -49,6 +49,7 @@ def test_json_serialization():
             bit_len=8,
             name="Foo",
             address=0x01,
+            reset="0b11110001",
             model=[FieldDef.value_of("a@[3:0]U4.1#ro")],
         )
     )
@@ -507,3 +508,23 @@ def test_load_from_json_def_unsupported_version():
 
     with pytest.raises(ValueError, match="Provided regList json has unsupported version 200"):
         RegList.from_json_def(invalid_json)
+
+
+def test_insert_auto_name_register_collision():
+    regList = RegList(registers=[Register(bit_len=8, name="R11", address=0x0A)])
+    r = Register(bit_len=8, address=0x0B)
+    assert r.name is None
+    with pytest.raises(ValueError, match=re.escape("Register under a name [R11] is already preset in the regList")):
+        regList.add(r)
+
+    # name should have stayed unchanged
+    assert r.name is None
+
+
+def test_register_duplicate_field_names():
+    with pytest.raises(ValueError, match="Duplicate field names in the model"):
+        Register(bit_len=8, name="Foo", model=[FieldDef.value_of("a@[3:0]U4.1"), FieldDef.value_of("a@[7:4]U4.1")])
+
+    r = Register(bit_len=8, name="Foo", model=[FieldDef.value_of("a@[3:0]U4.1")])
+    with pytest.raises(ValueError, match="Duplicate field names in the model"):
+        r.replace_model([FieldDef.value_of("a@[3:0]U4.1"), FieldDef.value_of("a@[7:4]U4.1")])

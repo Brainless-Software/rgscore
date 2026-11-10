@@ -29,6 +29,13 @@
           "width",
           "fields"
         ],
+        "additionalProperties": {
+          "reset": {
+            "type": "string",
+            "pattern": "^0b[01]+$",
+            "$comment": "String holding binary value for this register default bitarray"
+          }
+        },
         "properties": {
           "address": {
             "type": "string",

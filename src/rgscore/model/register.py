@@ -325,6 +325,15 @@ class Register:
             desc: register description (optional)
             reset: bitarray value to which register will be reset; this is also the initial value which register will
                 have before reading its value from the physical devices.
+
+        Raises:
+            ValueError: if 
+                (a) register name is given but not valid. 
+                (b) register width is negative.
+                (c) model is an empty list. 
+                (d) model contains duplicate or overlapping fields.
+                (e) one of the fields extends outside of declared register bit-width.
+
         """
         if name is not None and not Register.register_name_re.match(name):
             raise ValueError("Invalid register name.")
@@ -374,7 +383,7 @@ class Register:
 
     @property
     def reset_value(self) -> BitArray:
-        """Returns reset value."""
+        """Returns raw reset value."""
         return self.__reset_data.copy()
 
     @property
@@ -399,7 +408,23 @@ class Register:
         self.data = BitArray.from_zeros(new_width)
 
     def replace_model(self, new_model: list[FieldDef]) -> Self:
-        """Replaces register field model with new one."""
+        """
+        Replaces register field model with new one.
+
+        Args:
+            new_model: new fields model to be used.
+
+        Returns:
+            Register: self.
+
+        Raises:
+            ValueError: if
+                (a) new model is an empty list.
+                (d) new model contains duplicate or overlapping fields.
+                (e) one of the fields extends outside of declared register bit-width.
+        """
+        if new_model == []:
+            raise ValueError("Register model must not be empty list")
         field_names: set[str] = {fd.name for fd in new_model}
         if len(field_names) != len(new_model):
             raise ValueError("Duplicate field names in the model")
@@ -426,7 +451,7 @@ class Register:
 
     def is_changed(self) -> bool:
         """
-        Returns True or False indicating of register data has changed since it was loaded. This method is only usefull
+        Returns True or False indicating if register data has changed since it was loaded. This method is only usefull
         when external storage is linked to the register and read() or write() methods are called.
         """
         return self._originial_data != self.data
@@ -540,6 +565,20 @@ class Register:
         Sets value to a field or raises exception if unable to do so. If value is str, then it is used as a look up
         into associated enum if any and found number value is used. If data in the register model in memory actually
         changed as a result of calling this method, then calling `Register::is_changed()` starts returning True.
+
+        Args:
+            field: name of this field for which we are setting new value.
+            value: new value to be set to this field.
+
+        Returns:
+            Actually set value. It might be different from the provided value because of numerical
+            truncation as per number format specification associated with this field.
+
+        Raises:
+            ValueError: If (1) There is no field under this name in the register, (2) Field is not writable,
+                (3) supplied value is outside of value range as per number format specification associated
+                with this field. (4) no enum under this name or just the supplied enum found in the associated
+                enum array.
         """
         field_def = self._fields_by_name.get(field)
         if field_def is None:
@@ -574,14 +613,41 @@ class Register:
     def get_field_enum_value(self, field: str) -> EnumValue | float | int:
         """
         Returns field value for a given field name as EnumValue if matching feild value is present in the field
-        defintiion.
+        definition. If value held by this field does no match any EnumValue, perhaps because no enum array was
+        set up for this field in the model, then return numeric value.
 
+        Args:
+            field: name of the field for which are accessing value.
+
+        Returns:
+            EnumValue for this field or numeric value if no matching EnumValue is found.
+
+        Raises:
+            ValueError: if no field under this name present in the register.
         """
+        value = self.get_field_value(field)
+        valid_enum_values = self.get_field_definition(field).enum_values
+        if valid_enum_values is None:
+            return value
+        else:
+            for e in valid_enum_values:
+                if e.value == value:
+                    return e
+            return value
 
     def get_field_value(self, field: str) -> float | int:
         """
         Returns field value for a given field. Returned value will be converted to int or float
         as defined in the fixed point format for this field.
+
+        Args:
+            field: name of the field for which are accessing value.
+
+        Returns:
+            Numeric value associated with this field as interpreted by this fields numeric type .
+
+        Raises:
+            ValueError: if no field under this name present in the register.
         """
         field_def = self._fields_by_name.get(field)
         if field_def is None:
@@ -664,18 +730,28 @@ class Register:
         """Sets provider of the RLink."""
         self.__link_provider = link_provider
 
-    def read(self) -> None:
+    def read(self) -> bool:
         """
-        Reads register data from associated link (external store). If no link is configured, then this is a no-op.
-        If external store store (link) is configure and read operation fails for any reason than RuntimeError is raised.
-        Once data is read from the external store, calling `Register::is_changed()` starts returning False until
-        data is modified by calling `Register::set_field_value(...)`.
+        Reads register data from the linked provider if provider is configured and update internal in-memory bitarry.
+        If provider is not configued then no read is performed and this function returns False. If provider is
+        available, then do read, update in-memory bitarray and return True. Once data is read from the external
+        store, calling `Register::is_changed()` starts returning False until data is modified by
+        calling `Register::set_field_value(...)`.
+
+        Returns:
+            True or False indicating if physical register was read into in-memory bitarray of
+             this Register instance or not.
+
+        Raises:
+            ValueError: if read from linked provider was attempted and no physical register was found at this
+                register model address.
+            Exception: if read failed for any other reason such for example broken physical link and alike.
         """
         if self.__link_provider is not None:
             assert self.linked_address is not None
             raw_data = self.__link_provider().read(self.linked_address, self.address_bus_width_bytes, self.width)
             if raw_data is None:
-                raise RuntimeError(f"There is no register at the address {self.linked_address}.")
+                raise ValueError(f"There is no register at the address {self.linked_address}.")
             self.data = raw_data
             self._originial_data = raw_data.copy()
 

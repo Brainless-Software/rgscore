@@ -484,7 +484,7 @@ def test_link():
 
     # if register address is invalid then error "There is no register at the address ..." should be raised
     r.link(store, 0xB)
-    with pytest.raises(RuntimeError):
+    with pytest.raises(ValueError, match="There is no register at the address 11."):
         r.read()
 
     # check that bus_width in Register is correctly used in link
@@ -588,6 +588,9 @@ def test_register_change_def():
     with pytest.raises(ValueError, match='Field "b" extends outside of register width.'):
         r.replace_model([FieldDef.value_of("a@[3:0]U4.1#ro"), FieldDef.value_of("b@[16:14]S3.0")])
 
+    with pytest.raises(ValueError, match="Register model must not be empty list"):
+        r.replace_model([])
+
 
 def model(r) -> Register:
     return r.__model__
@@ -653,6 +656,14 @@ def test_field_enum_accessors():
 
     with pytest.raises(ValueError, match=re.escape("Invalid enum value [STOP(0)] for field b_raw")):
         r.set_field_value("b_raw", f.a(0))
+
+    assert r.get_field_enum_value("a") == EnumValue("STOP", 0, "Stoping...")
+    r.set_field_value("a", 1)
+    assert r.get_field_enum_value("a") == EnumValue("START", 1, "Starting...")
+    r.set_field_value("a", 2)
+    assert r.get_field_enum_value("a") == 2
+
+    assert r.get_field_enum_value("b_raw") == 0
 
 
 def test_embedding_class():
