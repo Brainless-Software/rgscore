@@ -443,7 +443,7 @@ class Register:
         self._model.sort(key=lambda fd: -fd.offset)
         return self
 
-    def copy(self) -> Self:
+    def copy(self) -> "Register":
         """Returns a copy of the register."""
         register_copy = Register(
             bit_len=self.width,

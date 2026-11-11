@@ -14,14 +14,14 @@ from rgscore.model.register import Register, RLink
 class RegList:
     def __init__(
         self,
-        store: RLink | None = None,
+        link: RLink | None = None,
         on_change_callback: Callable[[Self], None] = lambda _: None,
         registers: list[Register] | None = None,
     ):
         """
         Creates instance of RegList. An object that holds an ordered set of registers.
         Args:
-            store: an external store (object that accesses physical hardware) to which to which all registers in
+            link: an external store (object that accesses physical hardware) to which to which all registers in
                 this regList are to be linked. Default is None, meaning that this regList will be an in-memory only
                 representation of register set.
             on_change_callback: function called when registers are added or removed to/from this regList or changed.
@@ -34,7 +34,7 @@ class RegList:
         self._reg_addresses: set[int] = set()
         self._reg_by_names: dict[str, Register] = {}
         self._reg_by_address: dict[int, Register] = {}
-        self._store = store
+        self._store = link
         self._on_change_callback = on_change_callback
 
         if registers is not None:
@@ -178,12 +178,19 @@ class RegList:
         )
 
     @staticmethod
-    def from_json_def(json_str: str) -> "RegList":
+    def from_json_def(json_str: str, link: RLink | None = None) -> "RegList":
         """
         Imports a RegList definition from a json string returning new instance of RegList. Input string must
         be a json document conforming to the regList-scheme.json schema file.
+
+        Args:
+            json_str: string holding json serialization of regList.
+            link: optional RLink connecting this regList to physical hardware. Default is None.
+
+        Returns:
+            New instance of RegList.
         """
-        return RegList().__load_from_json_def(json_str)
+        return RegList(link=link).__load_from_json_def(json_str)
 
     def __load_from_json_def(self, json_str: str) -> Self:
         data = json.loads(json_str)
@@ -197,12 +204,13 @@ class RegList:
         return self
 
     @staticmethod
-    def new_instance_from_file(file: Path | str) -> "RegList":
+    def new_instance_from_file(file: Path | str, link: RLink | None = None) -> "RegList":
         """
         Creates instance of RegList from json data stored in the file.
 
         Args:
             file: name of the file.
+            link: optional RLink connecting this regList to physical hardware. Default is None.
 
         Returns:
             RegList: new instance with data loaded from the file.
@@ -213,12 +221,14 @@ class RegList:
         return RegList.from_json_def(Path(file).read_text())
 
     @staticmethod
-    def new_instance_from_url(url: str, cache: bool = True, force_reload: bool = False) -> "RegList":
+    def new_instance_from_url(url: str, link: RLink | None = None, cache: bool = True,
+                              force_reload: bool = False) -> "RegList":
         """
         Creates instance of RegList from json data stored in the url. Cache directory root will be ~/.rgscore/cache
         unless env. variable RGSCORE_CACHE_DIR is set.
 
         Args:
+            link: optional RLink connecting this regList to physical hardware. Default is None.
             url: URL pointing at the regList json file.
             cache: If True, then load data from local cache or if it is not available in the cache load it
                 from the URL and store results in the cache. If False, then always load from provided URL.
@@ -248,16 +258,16 @@ class RegList:
                 if response.status_code == 200:
                     json_source = response.text
                     cache_file_path.write_text(json_source)
-                    return RegList.from_json_def(json_source)
+                    return RegList.from_json_def(json_source, link)
                 else:
                     raise HTTPError(f"Invalid response code {response.status_code}")
             else:
-                return RegList.from_json_def(cache_file_path.read_text())
+                return RegList.from_json_def(cache_file_path.read_text(), link)
 
         else:
             response = requests.get(url)
             if response.status_code == 200:
-                return RegList.from_json_def(response.text)
+                return RegList.from_json_def(response.text, link)
             else:
                 raise HTTPError(f"Invalid response code {response.status_code}")
 

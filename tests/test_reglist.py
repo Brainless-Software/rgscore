@@ -392,7 +392,7 @@ def test_add_register_duplicate_address():
 def test_add_register_with_store_link():
     """Test that registers are linked to store when store is provided."""
     store = MemLink()
-    rgsl = RegList(store=store)
+    rgsl = RegList(link=store)
     reg = Register(
         bit_len=8,
         name="Foo",
@@ -438,7 +438,7 @@ def test_get_register_by_address():
 def test_read_all():
     """Test reading all registers from linked store."""
     store = MemLink()
-    rgsl = RegList(store=store)
+    rgsl = RegList(link=store)
     reg1 = Register(
         bit_len=8,
         name="Foo",
@@ -470,7 +470,7 @@ def test_read_all():
 def test_write_all():
     """Test writing all registers to linked store."""
     store = MemLink()
-    rgsl = RegList(store=store)
+    rgsl = RegList(link=store)
     reg1 = Register(
         bit_len=8,
         name="Foo",
