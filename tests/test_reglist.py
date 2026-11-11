@@ -1,8 +1,13 @@
 import json
+import os
 import re
+from pathlib import Path
+from tempfile import TemporaryDirectory
 
 import pytest
 from bitstring import BitArray
+from pytest_httpserver import HTTPServer
+from requests import HTTPError
 
 from rgscore import FieldDef, Register, RegList
 from rgscore.model.register import RLink
@@ -528,3 +533,29 @@ def test_register_duplicate_field_names():
     r = Register(bit_len=8, name="Foo", model=[FieldDef.value_of("a@[3:0]U4.1")])
     with pytest.raises(ValueError, match="Duplicate field names in the model"):
         r.replace_model([FieldDef.value_of("a@[3:0]U4.1"), FieldDef.value_of("a@[7:4]U4.1")])
+
+
+def test_new_instance_from_source(httpserver: HTTPServer):
+    regList = RegList(registers=[Register(bit_len=8, name="R11", address=0x0A, reset=7)])
+    with TemporaryDirectory() as tempdir:
+        json_file = Path(tempdir) / "regList.json"
+        regList.save_to_json_file(json_file)
+        regListCopy = RegList.new_instance_from_file(json_file)
+        assert regList.registers == regListCopy.registers
+
+        os.environ["RGSCORE_CACHE_DIR"] = str(Path(tempdir).absolute())
+        httpserver.expect_request("/regList", method="GET").respond_with_data(json_file.read_bytes())
+        regList2 = RegList.new_instance_from_url(httpserver.url_for("/regList"))
+        assert regList.registers == regList2.registers
+
+        regList3 = RegList.new_instance_from_url(httpserver.url_for("/regList"))
+        assert regList.registers == regList3.registers
+
+        regList4 = RegList.new_instance_from_url(httpserver.url_for("/regList"), cache=False)
+        assert regList.registers == regList4.registers
+
+        with pytest.raises(HTTPError, match="Invalid response code 500"):
+            RegList.new_instance_from_url(httpserver.url_for("/regListBad"), cache=True)
+
+        with pytest.raises(HTTPError, match="Invalid response code 500"):
+            RegList.new_instance_from_url(httpserver.url_for("/regListBad"), cache=False)

@@ -1,6 +1,7 @@
 import hashlib
 import json
 from collections.abc import Callable
+from os import getenv
 from pathlib import Path
 from typing import Self
 
@@ -214,7 +215,8 @@ class RegList:
     @staticmethod
     def new_instance_from_url(url: str, cache: bool = True, force_reload: bool = False) -> "RegList":
         """
-        Creates instance of RegList from json data stored in the url.
+        Creates instance of RegList from json data stored in the url. Cache directory root will be ~/.rgscore/cache
+        unless env. variable RGSCORE_CACHE_DIR is set.
 
         Args:
             url: URL pointing at the regList json file.
@@ -234,7 +236,9 @@ class RegList:
         """
         if cache:
             cache_file = hashlib.sha1(url.encode('utf-8')).hexdigest() + ".json"
-            cache_dir = Path.home() / ".rgscore" / "cache" / cache_file[0:2] / cache_file[2:4]
+            rgscore_cache_dir = getenv("RGSCORE_CACHE_DIR")
+            cache_root = Path.home() / ".rgscore" / "cache" if rgscore_cache_dir is None else Path(rgscore_cache_dir)
+            cache_dir = cache_root / cache_file[0:2] / cache_file[2:4]
             cache_file_path = cache_dir / cache_file
             if not cache_dir.exists():
                 cache_dir.mkdir(parents=True, exist_ok=True)
@@ -246,7 +250,7 @@ class RegList:
                     cache_file_path.write_text(json_source)
                     return RegList.from_json_def(json_source)
                 else:
-                    raise HTTPError(f"Invalid responce code {response.status_code}")
+                    raise HTTPError(f"Invalid response code {response.status_code}")
             else:
                 return RegList.from_json_def(cache_file_path.read_text())
 
@@ -255,4 +259,8 @@ class RegList:
             if response.status_code == 200:
                 return RegList.from_json_def(response.text)
             else:
-                raise HTTPError(f"Invalid responce code {response.status_code}")
+                raise HTTPError(f"Invalid response code {response.status_code}")
+
+    def save_to_json_file(self, file: Path | str) -> None:
+        """ Save current RegList to json file. """
+        Path(file).write_text(self.to_json_def())
