@@ -1,5 +1,7 @@
+import io
 import json
 import re
+from contextlib import redirect_stdout
 
 import pytest
 from bitstring import BitArray
@@ -738,10 +740,13 @@ def test_register_replace_model_duplicate_names():
         r.replace_model([FieldDef.value_of("a@[3:0]U4.0"), FieldDef.value_of("a@[7:4]U4.0")])
 
 
-def test_register_get_def():
+def test_register_pretty_print():
     """Test Register.get_def method."""
     r = Register(8, name="TestReg", address=0x42, desc="Test register", model=[FieldDef.value_of("a@[3:0]U4.0")])
-    def_str = r.pretty_print()
+    def_str_buf = io.StringIO()
+    with redirect_stdout(def_str_buf):
+        r.pretty_print()
+    def_str = def_str_buf.getvalue()
     assert "Register" in def_str
     assert "TestReg" in def_str
     assert "0x42" in def_str
@@ -751,7 +756,10 @@ def test_register_get_def():
 
     # Test with no name, no address, no desc
     r2 = Register(8, model=[FieldDef.value_of("b@[7:0]U8.0")])
-    def_str2 = r2.pretty_print()
+    def_str2_buf = io.StringIO()
+    with redirect_stdout(def_str2_buf):
+        r2.pretty_print()
+    def_str2 = def_str2_buf.getvalue()
     assert "Register" in def_str2
     assert "Address:" not in def_str2
     assert "Description:" not in def_str2

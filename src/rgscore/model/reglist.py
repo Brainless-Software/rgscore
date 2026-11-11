@@ -1,6 +1,11 @@
+import hashlib
 import json
 from collections.abc import Callable
+from pathlib import Path
 from typing import Self
+
+import requests
+from requests import HTTPError
 
 from rgscore.model.register import Register, RLink
 
@@ -33,6 +38,9 @@ class RegList:
 
         if registers is not None:
             self.add(registers)
+
+    def __repr__(self):
+        return f"RegList[len(registers)={len(self.registers)}]"
 
     def add(self, rs: Register | list[Register]) -> None:
         """Adds one or more registers to this regList."""
@@ -186,3 +194,65 @@ class RegList:
             self.clear()
             self.add([Register.from_dict_def(d) for d in data["registers"]])
         return self
+
+    @staticmethod
+    def new_instance_from_file(file: Path | str) -> "RegList":
+        """
+        Creates instance of RegList from json data stored in the file.
+
+        Args:
+            file: name of the file.
+
+        Returns:
+            RegList: new instance with data loaded from the file.
+
+        Raises:
+            ValueError: if file contains an invalid json.
+        """
+        return RegList.from_json_def(Path(file).read_text())
+
+    @staticmethod
+    def new_instance_from_url(url: str, cache: bool = True, force_reload: bool = False) -> "RegList":
+        """
+        Creates instance of RegList from json data stored in the url.
+
+        Args:
+            url: URL pointing at the regList json file.
+            cache: If True, then load data from local cache or if it is not available in the cache load it
+                from the URL and store results in the cache. If False, then always load from provided URL.
+                Cache is in a directory ~/.rgscore/cache
+            force_reload: If True and cache==True then load from URL even if data is available in the cache.
+                If False, then load from URL only when data is not available in the cache. If cache==False,
+                then this argument has no effect.
+
+        Returns:
+            RegList: new instance with data loaded from provided URL.
+
+        Raises:
+            ValueError: if file contains an invalid json.
+            HttpError: if response code is not 200.
+        """
+        if cache:
+            cache_file = hashlib.sha1(url.encode('utf-8')).hexdigest() + ".json"
+            cache_dir = Path.home() / ".rgscore" / "cache" / cache_file[0:2] / cache_file[2:4]
+            cache_file_path = cache_dir / cache_file
+            if not cache_dir.exists():
+                cache_dir.mkdir(parents=True, exist_ok=True)
+
+            if force_reload or not cache_file_path.exists():
+                response = requests.get(url)
+                if response.status_code == 200:
+                    json_source = response.text
+                    cache_file_path.write_text(json_source)
+                    return RegList.from_json_def(json_source)
+                else:
+                    raise HTTPError(f"Invalid responce code {response.status_code}")
+            else:
+                return RegList.from_json_def(cache_file_path.read_text())
+
+        else:
+            response = requests.get(url)
+            if response.status_code == 200:
+                return RegList.from_json_def(response.text)
+            else:
+                raise HTTPError(f"Invalid responce code {response.status_code}")

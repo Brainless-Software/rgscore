@@ -176,7 +176,7 @@ class FieldDef:
 
     def read_raw(self, data: BitArray) -> BitArray:
         """Returns a slice of input bit array corresponding to this field."""
-        return data[(len(data) - self.end_offset() - 1) : (len(data) - self.offset)]
+        return data[(len(data) - self.end_offset() - 1): (len(data) - self.offset)]
 
     def next_up_value(self, data: BitArray) -> float | int:
         """
@@ -309,7 +309,7 @@ class Register:
         name: str | None = None,
         link_provider: Callable[[], RLink] | None = None,
         desc: str = "",
-        reset: str | BitArray = "0x0",
+        reset: str | BitArray | int = 0,
     ):
         """
         Register in an object that encapsulates array of bits and field definitions and provides read and write
@@ -323,7 +323,7 @@ class Register:
             name: register name (optional)
             link_provider: provider of link to the external storage (optional)
             desc: register description (optional)
-            reset: bitarray value to which register will be reset; this is also the initial value which register will
+            reset: value to which register will be reset; this is also the initial value which register will
                 have before reading its value from the physical devices.
 
         Raises:
@@ -341,7 +341,15 @@ class Register:
         if bit_len <= 0:
             raise ValueError("Register width must be greater than zero")
 
-        reset_uint_value = BitArray(reset).uint if isinstance(reset, str) else reset.uint
+        def get_reset_uint_value():
+            if isinstance(reset, str):
+                return BitArray(reset).uint
+            elif isinstance(reset, int):
+                return reset
+            else:
+                return reset.uint
+
+        reset_uint_value = get_reset_uint_value()
         self.__reset_data = BitArray(f"uint:{bit_len}={reset_uint_value}")
 
         self.data: BitArray = self.__reset_data.copy()
@@ -456,8 +464,8 @@ class Register:
         """
         return self._originial_data != self.data
 
-    def pretty_print(self) -> str:
-        """Returns human-readable register definition."""
+    def pretty_print(self) -> None:
+        """Prints to stdout human-readable register definition."""
         r = [{1: "Register:", 2: self.name}]
         if self.desc is not None and self.desc.strip() != "":
             r.append({1: "Description:", 2: self.desc})
@@ -497,7 +505,7 @@ class Register:
                     )
 
         r.append({1: "Fields:", 2: fields_table})
-        return tabulate(r, tablefmt="plain", missingval="")
+        print(tabulate(r, tablefmt="plain", missingval=""))
 
     def __eq__(self, another: object) -> bool:
         if not isinstance(another, Register):
@@ -520,8 +528,7 @@ class Register:
         return (
             f"{retval}("
             + ", ".join(
-                [f"{field_def.name}={field_def.format(field_def.read(self.data))}" for field_def in self._model]
-            )
+            [f"{field_def.name}={field_def.format(field_def.read(self.data))}" for field_def in self._model])
             + ")"
         )
 
