@@ -43,7 +43,7 @@ To fulfill above goals this library defines following classes
 
 Registers are grouped into ordered collections known as regList's, represented by `RegList` class. When registers are
 added to the regList this ensures that they are unique (both, with regard to register names and addresses) within a 
-given regList. Registers can be address to the regList at the time of construction or later by 
+given regList. Registers can be added to the regList at the time of construction or later by 
 calling `RegList::add(...)` method.
 
 ```python
