@@ -25,7 +25,7 @@ dependencies = [
 ]
 
 [project.urls]
-Homepage = "https://brainless-software.github.io/rgscore/"
+Homepage = "https://github.com/Brainless-Software/rgscore"
 
 [build-system]
 requires = ["setuptools", "wheel", "setuptools-git-versioning"]
