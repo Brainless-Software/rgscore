@@ -6,7 +6,7 @@ from bitstring import BitArray
 from i2c_api import I2CTransactionBuilder, RegisterAddress
 from i2c_drivers import I2CMasterI2CDriver
 
-from rgscore import FieldDef, Register, RegList, RLink, RLinkI2C, S, U
+from rgscore import FieldDef, Register, AddrMap, RLink, RLinkI2C, S, U
 
 # Attempt to autodetect com port for I2CDriver; This works on Linux only.
 ports = [p.device for p in slp.comports() if p.product == "FT230X Basic UART"]
@@ -25,7 +25,7 @@ def link(bmp581_address: int) -> RLink:
     return RLinkI2C(i2c_master, bmp581_address)
 
 
-rs = RegList(RLinkI2C(I2CMasterI2CDriver(port), 0x47))
+rs = AddrMap(RLinkI2C(I2CMasterI2CDriver(port), 0x47))
 rs.add(
     Register(
         bit_len=8,

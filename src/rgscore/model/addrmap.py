@@ -11,7 +11,7 @@ from requests import HTTPError
 from rgscore.model.register import Register, RLink
 
 
-class RegList:
+class AddrMap:
     def __init__(
         self,
         link: RLink | None = None,
@@ -19,14 +19,14 @@ class RegList:
         registers: list[Register] | None = None,
     ):
         """
-        Creates instance of RegList. An object that holds an ordered set of registers.
+        Creates instance of AddrMap. An object that holds an ordered set of registers.
         Args:
             link: an external store (object that accesses physical hardware) to which to which all registers in
-                this regList are to be linked. Default is None, meaning that this regList will be an in-memory only
+                this AddrMap are to be linked. Default is None, meaning that this AddrMap will be an in-memory only
                 representation of register set.
-            on_change_callback: function called when registers are added or removed to/from this regList or changed.
-            registers: optional list registers to be contained within this regList. Register can later be added by
-                calling RegList.add(...) method.
+            on_change_callback: function called when registers are added or removed to/from this AddrMap or changed.
+            registers: optional list registers to be contained within this AddrMap. Register can later be added by
+                calling AddrMap.add(...) method.
         """
         super().__init__()
         self.registers: list[Register] = []
@@ -41,10 +41,10 @@ class RegList:
             self.add(registers)
 
     def __repr__(self):
-        return f"RegList[len(registers)={len(self.registers)}]"
+        return f"AddrMap[len(registers)={len(self.registers)}]"
 
     def add(self, rs: Register | list[Register]) -> None:
-        """Adds one or more registers to this regList."""
+        """Adds one or more registers to this AddrMap."""
         self.__add(rs, call_on_change_callback=True)
 
     def __add(self, rs: Register | list[Register], call_on_change_callback: bool) -> None:
@@ -61,7 +61,7 @@ class RegList:
                 generated_register_name = f"R{r.address}"
                 if generated_register_name in self._reg_names:
                     raise ValueError(
-                        f"Register under a name [{generated_register_name}] is already preset in the regList"
+                        f"Register under a name [{generated_register_name}] is already preset in the AddrMap"
                     )
                 r.name = generated_register_name
 
@@ -86,28 +86,28 @@ class RegList:
 
     def get_register_by_name(self, name: str) -> Register | None:
         """
-        Returns register contained within this regList by its name. If no such register exist
-        in the regList, then return None.
+        Returns register contained within this AddrMap by its name. If no such register exist
+        in the AddrMap, then return None.
         """
         return self._reg_by_names.get(name)
 
     def get_register_by_address(self, address: int) -> Register | None:
         """
-        Returns register contained within this regList by its address. If no such register exist
-        in the regList, then return None.
+        Returns register contained within this AddrMap by its address. If no such register exist
+        in the AddrMap, then return None.
         """
         return self._reg_by_address.get(address)
 
     def delete_register_by_name(self, name: str) -> None:
         """
-        Deletes (removes) registers identified by register name from this regList. If register under this name
+        Deletes (removes) registers identified by register name from this AddrMap. If register under this name
         does not exist, then this is a NO-OP.
         """
         self.__delete_register_by_name(name, call_on_change_callback=True)
 
     def __delete_register_by_name(self, name: str, call_on_change_callback: bool):
         """
-        Removes register with a given name from this regList. If register with this name not found, then do nothing.
+        Removes register with a given name from this AddrMap. If register with this name not found, then do nothing.
         """
         if name in self._reg_names:
             register = self._reg_by_names[name]
@@ -125,7 +125,7 @@ class RegList:
 
     def update_register_def(self, original_register: Register, new_register: Register) -> None:
         """
-        Updates register in the regList given the original one and a new one which is expected to replace original.
+        Updates register in the AddrMap given the original one and a new one which is expected to replace original.
         """
         if new_register.address is None:
             raise ValueError("To be added Register must have an address")
@@ -154,23 +154,23 @@ class RegList:
         self._on_change_callback(self)
 
     def read_all(self) -> None:
-        """Reads all registers in the regList from linked store if any provided."""
+        """Reads all registers in the AddrMap from linked store if any provided."""
         for r in self.registers:
             r.read()
 
     def write_all(self) -> None:
-        """Writes all registers in the regList to linked store if any provided."""
+        """Writes all registers in the AddrMap to linked store if any provided."""
         for r in self.registers:
             r.write()
 
     def to_json_def(self, indent: int | None = None) -> str:
         """
-        Exports register definition contained within regList as json text. Resulting json
-        will confirm to the regList-scheme.json schema file.
+        Exports register definition contained within AddrMap as json text. Resulting json
+        will confirm to the AddrMap-scheme.json schema file.
         """
         return json.dumps(
             {
-                "class": "RegList",
+                "class": "AddrMap",
                 "version": 1,
                 "registers": [r.to_dict_def() for r in self.registers],
             },
@@ -178,58 +178,58 @@ class RegList:
         )
 
     @staticmethod
-    def from_json_def(json_str: str, link: RLink | None = None) -> "RegList":
+    def from_json_def(json_str: str, link: RLink | None = None) -> "AddrMap":
         """
-        Imports a RegList definition from a json string returning new instance of RegList. Input string must
-        be a json document conforming to the regList-scheme.json schema file.
+        Imports a AddrMap definition from a json string returning new instance of AddrMap. Input string must
+        be a json document conforming to the AddrMap-scheme.json schema file.
 
         Args:
-            json_str: string holding json serialization of regList.
-            link: optional RLink connecting this regList to physical hardware. Default is None.
+            json_str: string holding json serialization of AddrMap.
+            link: optional RLink connecting this AddrMap to physical hardware. Default is None.
 
         Returns:
-            New instance of RegList.
+            New instance of AddrMap.
         """
-        return RegList(link=link).__load_from_json_def(json_str)
+        return AddrMap(link=link).__load_from_json_def(json_str)
 
     def __load_from_json_def(self, json_str: str) -> Self:
         data = json.loads(json_str)
-        if data["class"] != "RegList":
-            raise ValueError("Provided json document does not represent regList")
+        if data["class"] != "AddrMap":
+            raise ValueError("Provided json document does not represent AddrMap")
         elif data["version"] != 1:
-            raise ValueError(f"Provided regList json has unsupported version {data['version']}")
+            raise ValueError(f"Provided AddrMap json has unsupported version {data['version']}")
         else:
             self.clear()
             self.add([Register.from_dict_def(d) for d in data["registers"]])
         return self
 
     @staticmethod
-    def new_instance_from_file(file: Path | str, link: RLink | None = None) -> "RegList":
+    def new_instance_from_file(file: Path | str, link: RLink | None = None) -> "AddrMap":
         """
-        Creates instance of RegList from json data stored in the file.
+        Creates instance of AddrMap from json data stored in the file.
 
         Args:
             file: name of the file.
-            link: optional RLink connecting this regList to physical hardware. Default is None.
+            link: optional RLink connecting this AddrMap to physical hardware. Default is None.
 
         Returns:
-            RegList: new instance with data loaded from the file.
+            AddrMap: new instance with data loaded from the file.
 
         Raises:
             ValueError: if file contains an invalid json.
         """
-        return RegList.from_json_def(Path(file).read_text())
+        return AddrMap.from_json_def(Path(file).read_text())
 
     @staticmethod
     def new_instance_from_url(url: str, link: RLink | None = None, cache: bool = True,
-                              force_reload: bool = False) -> "RegList":
+                              force_reload: bool = False) -> "AddrMap":
         """
-        Creates instance of RegList from json data stored in the url. Cache directory root will be ~/.rgscore/cache
+        Creates instance of AddrMap from json data stored in the url. Cache directory root will be ~/.rgscore/cache
         unless env. variable RGSCORE_CACHE_DIR is set.
 
         Args:
-            link: optional RLink connecting this regList to physical hardware. Default is None.
-            url: URL pointing at the regList json file.
+            link: optional RLink connecting this AddrMap to physical hardware. Default is None.
+            url: URL pointing at the AddrMap json file.
             cache: If True, then load data from local cache or if it is not available in the cache load it
                 from the URL and store results in the cache. If False, then always load from provided URL.
                 Cache is in a directory ~/.rgscore/cache
@@ -238,7 +238,7 @@ class RegList:
                 then this argument has no effect.
 
         Returns:
-            RegList: new instance with data loaded from provided URL.
+            AddrMap: new instance with data loaded from provided URL.
 
         Raises:
             ValueError: if file contains an invalid json.
@@ -258,19 +258,19 @@ class RegList:
                 if response.status_code == 200:
                     json_source = response.text
                     cache_file_path.write_text(json_source)
-                    return RegList.from_json_def(json_source, link)
+                    return AddrMap.from_json_def(json_source, link)
                 else:
                     raise HTTPError(f"Invalid response code {response.status_code}")
             else:
-                return RegList.from_json_def(cache_file_path.read_text(), link)
+                return AddrMap.from_json_def(cache_file_path.read_text(), link)
 
         else:
             response = requests.get(url)
             if response.status_code == 200:
-                return RegList.from_json_def(response.text, link)
+                return AddrMap.from_json_def(response.text, link)
             else:
                 raise HTTPError(f"Invalid response code {response.status_code}")
 
     def save_to_json_file(self, file: Path | str) -> None:
-        """ Save current RegList to json file. """
+        """ Save current AddrMap to json file. """
         Path(file).write_text(self.to_json_def())

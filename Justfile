@@ -6,10 +6,10 @@ mkdocs:
     mkdocs build & sleep 1 & mkdocs gh-deploy
 
 test:
-    pytest tests/test_register.py tests/test_reglist.py
+    pytest tests/test_register.py tests/test_addrmap.py
 
 test-cov:
-    pytest --cov=rgscore --rootdir=src --cov-report=html tests/test_register.py tests/test_reglist.py; xdg-open htmlcov/index.html
+    pytest --cov=rgscore --rootdir=src --cov-report=html tests/test_register.py tests/test_addrmap.py; xdg-open htmlcov/index.html
 
 test-cov-all:
     pytest --cov=rgscore --rootdir=src --cov-report=html; xdg-open htmlcov/index.html

@@ -9,7 +9,7 @@ from bitstring import BitArray
 from pytest_httpserver import HTTPServer
 from requests import HTTPError
 
-from rgscore import FieldDef, Register, RegList
+from rgscore import FieldDef, Register, AddrMap
 from rgscore.model.register import RLink
 
 
@@ -36,7 +36,7 @@ class MemLink(RLink):
 
 
 def test_json_serialization():
-    rgsl = RegList(
+    rgsl = AddrMap(
         registers=[
             Register(
                 bit_len=8,
@@ -61,12 +61,12 @@ def test_json_serialization():
 
     json_def = rgsl.to_json_def()
 
-    rl = RegList.from_json_def(json_def)
+    rl = AddrMap.from_json_def(json_def)
     assert rl.to_json_def() == rgsl.to_json_def()
 
 
 def test_delete_register():
-    rgsl = RegList(
+    rgsl = AddrMap(
         registers=[
             Register(
                 bit_len=8,
@@ -119,7 +119,7 @@ def test_delete_register():
 
 def test_update_register():
     changes = []
-    rgsl = RegList(on_change_callback=lambda rl: changes.append(len(changes)))
+    rgsl = AddrMap(on_change_callback=lambda rl: changes.append(len(changes)))
     assert changes == []
     rgsl.add(
         [
@@ -177,7 +177,7 @@ def test_update_register():
 
 def test_update_register_value_error_no_address():
     """Test ValueError when new_register has no address."""
-    rgsl = RegList(
+    rgsl = AddrMap(
         registers=[
             Register(
                 bit_len=8,
@@ -198,7 +198,7 @@ def test_update_register_value_error_no_address():
 
 def test_update_register_value_error_no_name():
     """Test ValueError when new_register has no name."""
-    rgsl = RegList(
+    rgsl = AddrMap(
         registers=[
             Register(
                 bit_len=8,
@@ -219,7 +219,7 @@ def test_update_register_value_error_no_name():
 
 def test_update_register_value_error_duplicate_name():
     """Test ValueError when new_register name conflicts with existing register."""
-    rgsl = RegList(
+    rgsl = AddrMap(
         registers=[
             Register(
                 bit_len=8,
@@ -246,7 +246,7 @@ def test_update_register_value_error_duplicate_name():
 
 def test_update_register_value_error_duplicate_address():
     """Test ValueError when new_register address conflicts with existing register."""
-    rgsl = RegList(
+    rgsl = AddrMap(
         registers=[
             Register(
                 bit_len=8,
@@ -273,7 +273,7 @@ def test_update_register_value_error_duplicate_address():
 
 def test_update_register_same_name_allowed():
     """Test that keeping the same name is allowed."""
-    rgsl = RegList(
+    rgsl = AddrMap(
         registers=[
             Register(
                 bit_len=8,
@@ -295,7 +295,7 @@ def test_update_register_same_name_allowed():
 
 def test_update_register_same_address_allowed():
     """Test that keeping the same address is allowed."""
-    rgsl = RegList(
+    rgsl = AddrMap(
         registers=[
             Register(
                 bit_len=8,
@@ -317,14 +317,14 @@ def test_update_register_same_address_allowed():
 
 def test_add_empty_list():
     """Test that adding an empty list is a no-op."""
-    rgsl = RegList()
+    rgsl = AddrMap()
     rgsl.add([])
     assert rgsl.registers == []
 
 
 def test_add_register_no_address():
     """Test ValueError when adding a register without an address."""
-    rgsl = RegList()
+    rgsl = AddrMap()
     reg = Register(bit_len=8, name="Foo", model=[FieldDef.value_of("a@[3:0]U4.1")])
     with pytest.raises(ValueError, match="To be added Register must have an address"):
         rgsl.add(reg)
@@ -332,7 +332,7 @@ def test_add_register_no_address():
 
 def test_add_register_implicit_name():
     """Test that implicit name is created when register has no name."""
-    rgsl = RegList()
+    rgsl = AddrMap()
     reg = Register(bit_len=8, address=0x10, model=[FieldDef.value_of("a@[3:0]U4.1")])
     # No name provided
     assert reg.name is None
@@ -345,7 +345,7 @@ def test_add_register_implicit_name():
 
 def test_add_register_duplicate_name():
     """Test ValueError when adding a register with duplicate name."""
-    rgsl = RegList(
+    rgsl = AddrMap(
         registers=[
             Register(
                 bit_len=8,
@@ -368,7 +368,7 @@ def test_add_register_duplicate_name():
 
 def test_add_register_duplicate_address():
     """Test ValueError when adding a register with duplicate address."""
-    rgsl = RegList(
+    rgsl = AddrMap(
         registers=[
             Register(
                 bit_len=8,
@@ -392,7 +392,7 @@ def test_add_register_duplicate_address():
 def test_add_register_with_store_link():
     """Test that registers are linked to store when store is provided."""
     store = MemLink()
-    rgsl = RegList(link=store)
+    rgsl = AddrMap(link=store)
     reg = Register(
         bit_len=8,
         name="Foo",
@@ -410,7 +410,7 @@ def test_add_register_with_store_link():
 
 def test_get_register_by_address():
     """Test getting register by address."""
-    rgsl = RegList(
+    rgsl = AddrMap(
         registers=[
             Register(
                 bit_len=8,
@@ -438,7 +438,7 @@ def test_get_register_by_address():
 def test_read_all():
     """Test reading all registers from linked store."""
     store = MemLink()
-    rgsl = RegList(link=store)
+    rgsl = AddrMap(link=store)
     reg1 = Register(
         bit_len=8,
         name="Foo",
@@ -470,7 +470,7 @@ def test_read_all():
 def test_write_all():
     """Test writing all registers to linked store."""
     store = MemLink()
-    rgsl = RegList(link=store)
+    rgsl = AddrMap(link=store)
     reg1 = Register(
         bit_len=8,
         name="Foo",
@@ -500,27 +500,27 @@ def test_write_all():
 
 
 def test_load_from_json_def_invalid_class():
-    """Test ValueError when JSON class is not RegList."""
-    invalid_json = json.dumps({"class": "NotRegList", "version": 1, "registers": []})
+    """Test ValueError when JSON class is not AddrMap."""
+    invalid_json = json.dumps({"class": "NotAddrMap", "version": 1, "registers": []})
 
-    with pytest.raises(ValueError, match="Provided json document does not represent regList"):
-        RegList.from_json_def(invalid_json)
+    with pytest.raises(ValueError, match="Provided json document does not represent AddrMap"):
+        AddrMap.from_json_def(invalid_json)
 
 
 def test_load_from_json_def_unsupported_version():
     """Test ValueError when JSON version is not supported."""
-    invalid_json = json.dumps({"class": "RegList", "version": 200, "registers": []})
+    invalid_json = json.dumps({"class": "AddrMap", "version": 200, "registers": []})
 
-    with pytest.raises(ValueError, match="Provided regList json has unsupported version 200"):
-        RegList.from_json_def(invalid_json)
+    with pytest.raises(ValueError, match="Provided AddrMap json has unsupported version 200"):
+        AddrMap.from_json_def(invalid_json)
 
 
 def test_insert_auto_name_register_collision():
-    regList = RegList(registers=[Register(bit_len=8, name="R11", address=0x0A)])
+    addrMap = AddrMap(registers=[Register(bit_len=8, name="R11", address=0x0A)])
     r = Register(bit_len=8, address=0x0B)
     assert r.name is None
-    with pytest.raises(ValueError, match=re.escape("Register under a name [R11] is already preset in the regList")):
-        regList.add(r)
+    with pytest.raises(ValueError, match=re.escape("Register under a name [R11] is already preset in the AddrMap")):
+        addrMap.add(r)
 
     # name should have stayed unchanged
     assert r.name is None
@@ -536,26 +536,26 @@ def test_register_duplicate_field_names():
 
 
 def test_new_instance_from_source(httpserver: HTTPServer):
-    regList = RegList(registers=[Register(bit_len=8, name="R11", address=0x0A, reset=7)])
+    addrMap = AddrMap(registers=[Register(bit_len=8, name="R11", address=0x0A, reset=7)])
     with TemporaryDirectory() as tempdir:
-        json_file = Path(tempdir) / "regList.json"
-        regList.save_to_json_file(json_file)
-        regListCopy = RegList.new_instance_from_file(json_file)
-        assert regList.registers == regListCopy.registers
+        json_file = Path(tempdir) / "AddrMap.json"
+        addrMap.save_to_json_file(json_file)
+        addrMapCopy = AddrMap.new_instance_from_file(json_file)
+        assert addrMap.registers == addrMapCopy.registers
 
         os.environ["RGSCORE_CACHE_DIR"] = str(Path(tempdir).absolute())
-        httpserver.expect_request("/regList", method="GET").respond_with_data(json_file.read_bytes())
-        regList2 = RegList.new_instance_from_url(httpserver.url_for("/regList"))
-        assert regList.registers == regList2.registers
+        httpserver.expect_request("/addrMap", method="GET").respond_with_data(json_file.read_bytes())
+        addrMap2 = AddrMap.new_instance_from_url(httpserver.url_for("/addrMap"))
+        assert addrMap.registers == addrMap2.registers
 
-        regList3 = RegList.new_instance_from_url(httpserver.url_for("/regList"))
-        assert regList.registers == regList3.registers
+        addrMap3 = AddrMap.new_instance_from_url(httpserver.url_for("/addrMap"))
+        assert addrMap.registers == addrMap3.registers
 
-        regList4 = RegList.new_instance_from_url(httpserver.url_for("/regList"), cache=False)
-        assert regList.registers == regList4.registers
-
-        with pytest.raises(HTTPError, match="Invalid response code 500"):
-            RegList.new_instance_from_url(httpserver.url_for("/regListBad"), cache=True)
+        addrMap4 = AddrMap.new_instance_from_url(httpserver.url_for("/addrMap"), cache=False)
+        assert addrMap.registers == addrMap4.registers
 
         with pytest.raises(HTTPError, match="Invalid response code 500"):
-            RegList.new_instance_from_url(httpserver.url_for("/regListBad"), cache=False)
+            AddrMap.new_instance_from_url(httpserver.url_for("/addrMapBad"), cache=True)
+
+        with pytest.raises(HTTPError, match="Invalid response code 500"):
+            AddrMap.new_instance_from_url(httpserver.url_for("/addrMapBad"), cache=False)
