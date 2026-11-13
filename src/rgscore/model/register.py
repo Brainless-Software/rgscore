@@ -754,13 +754,16 @@ class Register:
                 register model address.
             Exception: if read failed for any other reason such for example broken physical link and alike.
         """
-        if self.__link_provider is not None:
+        if self.__link_provider is None:
+            return False
+        else:
             assert self.linked_address is not None
             raw_data = self.__link_provider().read(self.linked_address, self.address_bus_width_bytes, self.width)
             if raw_data is None:
                 raise ValueError(f"There is no register at the address {self.linked_address}.")
             self.data = raw_data
             self._originial_data = raw_data.copy()
+            return True
 
     def write(self, read_back: bool = False, if_changed_only: bool = False) -> bool:
         """

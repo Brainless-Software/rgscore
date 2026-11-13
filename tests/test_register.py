@@ -444,10 +444,11 @@ def test_link():
     assert r.write() == False
     assert store.last_used_address_bus_width() == 0
 
+    assert r.read() == False
     assert r.is_changed() == False
     r.link(store)
     assert r.get_field_value("a") == 0.0
-    r.read()
+    assert r.read() == True
     assert store.last_used_address_bus_width() == 1
     assert r.is_changed() == False
     assert r.get_field_value("a") == 1.5
