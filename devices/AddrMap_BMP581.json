@@ -1,5 +1,5 @@
 {
-   "class" : "RegList",
+   "class" : "AddrMap",
    "registers" : [
       {
          "address" : "0x1",
