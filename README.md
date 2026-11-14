@@ -212,7 +212,7 @@ Register(
     reset=0,
     model=[
         FieldDef.value_of("cmd@[7:0]U8.0#rw").with_enum([
-            EnumValue("nvm_write_en", 160), EnumValue("soft_reset", 182)
+            EnumValue("nvm_write_en", 0xA0), EnumValue("soft_reset", 0xB6)
         ])
     ]
 )
@@ -224,4 +224,10 @@ We can then issue soft reset like so
 dut.CMD.cmd = regList.CMD.cmd.soft_reset  # set `cmd` field to 182 (soft_reset enum value) 
 write(dut.CMD)  # write this register to the device.
 time.sleep(0.002) # reset takes 2 milliseconds
+```
+
+Note that you can also set CMD.cmd by simply supplying a number
+
+```python
+dut.CMD.cmd = 0xB6
 ```
