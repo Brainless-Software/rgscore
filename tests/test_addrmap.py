@@ -9,7 +9,8 @@ from bitstring import BitArray
 from pytest_httpserver import HTTPServer
 from requests import HTTPError
 
-from rgscore import FieldDef, Register, AddrMap
+from rgscore import AddrMap, EnumValue, FieldDef, Register
+from rgscore.model.addrmap import read, write
 from rgscore.model.register import RLink
 
 
@@ -397,7 +398,7 @@ def test_add_register_with_store_link():
         bit_len=8,
         name="Foo",
         address=0x0A,
-        model=[FieldDef.value_of("a@[3:0]U4.1")],
+        model=[FieldDef.value_of("a@[3:0]U4.1").with_enum([EnumValue("start", 1), EnumValue("stop", 0)])],
     )
 
     rgsl.add(reg)
@@ -406,6 +407,76 @@ def test_add_register_with_store_link():
     # Verify read works (store has value at 0xA)
     reg.read()
     assert reg.get_field_value("a") == 1.5
+
+
+def test_unable_to_create_dut():
+    addr_map = AddrMap(link=None, registers=[])
+    with pytest.raises(
+        ValueError, match="AddrMap.dut cannot be created because AddrMap does not have a link to hardware."
+    ):
+        addr_map.dut
+
+
+def test_regList_and_dut():
+    store = MemLink()
+    addr_map = AddrMap(
+        link=store,
+        registers=[
+            (
+                Register(
+                    bit_len=8,
+                    name="Foo",
+                    address=0x0A,
+                    model=[
+                        FieldDef.value_of("a@[3:0]U4.1").with_enum([EnumValue("start", 1), EnumValue("stop", 0)]),
+                        FieldDef.value_of("b@[6:4]U3.0"),
+                    ],
+                )
+            )
+        ],
+    )
+
+    regList = addr_map.regList
+    # calling regList as function should return list of register names
+    assert regList() == ["Foo"]
+
+    # calling register as function should return list or field names in descending offset
+    assert regList.Foo() == ["b", "a"]
+
+    # calling field as function should return list of associated enums or None
+    assert regList.Foo.a() == [EnumValue("start", 1), EnumValue("stop", 0)]
+    assert regList.Foo.b() is None
+
+    # calling field as function with number should return matching enum if any
+    assert regList.Foo.a(1) == EnumValue("start", 1)
+    assert regList.Foo.a(3) is None  # no matching enum for value 3
+
+    # if field does not have associated enum values then return supplied number
+    assert regList.Foo.b(7) == 7
+
+    dut = addr_map.dut
+    assert dut.Foo.a == 0
+    read(dut.Foo)
+    assert dut.Foo.a == 1.5
+    dut.Foo.a = 2
+    assert dut.Foo.a == 2
+    read(dut.Foo)
+    assert dut.Foo.a == 1.5
+    dut.Foo.a = 2
+    assert write(dut.Foo)
+    assert dut.Foo.a == 2
+    # calling dut register as function return raw bitarray value of this register
+    assert dut.Foo() == BitArray("uint:8=4")
+    read(dut.Foo)
+    assert dut.Foo.a == 2
+    dut.Foo.a = regList.Foo.a.stop
+    assert regList.Foo.a(dut.Foo.a) == regList.Foo.a.stop
+    assert write(dut.Foo)
+    read(dut.Foo)
+    assert dut.Foo.a == 0
+
+    # calling dut register as function return raw bitarray value of this register
+    assert dut.Foo() == BitArray("uint:8=0")
 
 
 def test_get_register_by_address():

@@ -1,6 +1,7 @@
 import hashlib
 import json
 from collections.abc import Callable
+from functools import cache
 from os import getenv
 from pathlib import Path
 from typing import Self
@@ -8,7 +9,32 @@ from typing import Self
 import requests
 from requests import HTTPError
 
-from rgscore.model.register import Register, RLink
+from rgscore.model.register import FieldModelAccessor, HardwareRegister, Register, RLink
+
+
+class DeviceUnderTest:
+    """Class to access register in a physical hardware."""
+
+    def __init__(self, parent: "AddrMap"):
+        self.__addrmap = parent
+
+        for r in parent.registers:
+            setattr(self, str(r.name), r.mk_embedding_class(parent._store))
+
+
+class RegList:
+    """Class to access basic properties in a register model"""
+
+    def __init__(self, parent: "AddrMap"):
+        self.__addrmap = parent
+        for r in parent.registers:
+            setattr(self, str(r.name), FieldModelAccessor(r))
+
+    def __call__(self) -> list[str]:
+        return [r.name for r in self.__addrmap.registers]  # type: ignore[misc]
+
+    def __repr__(self):
+        return "RegList:: " + ", ".join(self())
 
 
 class AddrMap:
@@ -218,11 +244,12 @@ class AddrMap:
         Raises:
             ValueError: if file contains an invalid json.
         """
-        return AddrMap.from_json_def(Path(file).read_text())
+        return AddrMap.from_json_def(Path(file).read_text(), link)
 
     @staticmethod
-    def new_instance_from_url(url: str, link: RLink | None = None, cache: bool = True,
-                              force_reload: bool = False) -> "AddrMap":
+    def new_instance_from_url(
+        url: str, link: RLink | None = None, cache: bool = True, force_reload: bool = False
+    ) -> "AddrMap":
         """
         Creates instance of AddrMap from json data stored in the url. Cache directory root will be ~/.rgscore/cache
         unless env. variable RGSCORE_CACHE_DIR is set.
@@ -245,7 +272,7 @@ class AddrMap:
             HttpError: if response code is not 200.
         """
         if cache:
-            cache_file = hashlib.sha1(url.encode('utf-8')).hexdigest() + ".json"
+            cache_file = hashlib.sha1(url.encode("utf-8")).hexdigest() + ".json"
             rgscore_cache_dir = getenv("RGSCORE_CACHE_DIR")
             cache_root = Path.home() / ".rgscore" / "cache" if rgscore_cache_dir is None else Path(rgscore_cache_dir)
             cache_dir = cache_root / cache_file[0:2] / cache_file[2:4]
@@ -272,5 +299,46 @@ class AddrMap:
                 raise HTTPError(f"Invalid response code {response.status_code}")
 
     def save_to_json_file(self, file: Path | str) -> None:
-        """ Save current AddrMap to json file. """
+        """Save current AddrMap to json file."""
         Path(file).write_text(self.to_json_def())
+
+    @property
+    @cache
+    def regList(self) -> RegList:
+        return RegList(self)
+
+    @property
+    @cache
+    def dut(self) -> DeviceUnderTest:
+        if self._store is None:
+            raise ValueError("AddrMap.dut cannot be created because AddrMap does not have a link to hardware.")
+        else:
+            return DeviceUnderTest(self)
+
+
+def read(register: HardwareRegister) -> None:
+    """
+    Reads register value from hardware based on the supplied `register` argument. At the end this supplied `register`
+    will be updated with new value.
+
+    Args:
+        register: HardwareRegister to which address will be used to read physical hardware.
+
+    Raises:
+        ValueError: if no link was configured for this register.
+    """
+    if not register.__read_through_link__():
+        raise ValueError("Link to physical hardware is not configured.")
+
+
+def write(register: HardwareRegister) -> bool:
+    """
+    Write into hardware register value at the address, both found in the supplied `register` argument.
+
+    Args:
+        register:
+
+    Returns:
+        True or False indicating of write operation was successful or not.
+    """
+    return register.__write_through_link__()
