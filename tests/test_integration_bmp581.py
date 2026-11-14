@@ -6,7 +6,7 @@ from bitstring import BitArray
 from i2c_api import I2CTransactionBuilder, RegisterAddress
 from i2c_drivers import I2CMasterI2CDriver
 
-from rgscore import FieldDef, Register, AddrMap, RLink, RLinkI2C, S, U
+from rgscore import AddrMap, EnumValue, FieldDef, Register, RLink, RLinkI2C, S, U, read, write
 
 # Attempt to autodetect com port for I2CDriver; This works on Linux only.
 ports = [p.device for p in slp.comports() if p.product == "FT230X Basic UART"]
@@ -27,16 +27,20 @@ def link(bmp581_address: int) -> RLink:
 
 rs = AddrMap(RLinkI2C(I2CMasterI2CDriver(port), 0x47))
 rs.add(
-    Register(
-        bit_len=8,
-        address=0x37,
-        name="ODR_CONFIG",
-        model=[
-            FieldDef.value_of("deep_dis@[7:7]U1.0"),
-            FieldDef.value_of("odr@[6:2]U5.0"),
-            FieldDef.value_of("pwr_mode@[1:0]U2.0"),
-        ],
-    )
+    [
+        Register(
+            bit_len=8,
+            address=0x37,
+            name="ODR_CONFIG",
+            model=[
+                FieldDef.value_of("deep_dis@[7:7]U1.0"),
+                FieldDef.value_of("odr@[6:2]U5.0"),
+                FieldDef.value_of("pwr_mode@[1:0]U2.0").with_enum(
+                    [EnumValue("Standby", 0), EnumValue("Normal", 1), EnumValue("Forced", 2), EnumValue("Non_Stop", 3)]
+                ),
+            ],
+        ),
+    ]
 )
 rs.add(Register(bit_len=8, address=0x7E, name="CMD", model=[FieldDef.value_of("cmd@[7:0]U8.0")]))
 
@@ -47,6 +51,11 @@ class TestBMP581:
         assert asic_id_regval.bin == "01010000"
 
     def test_odr_register(self, link: RLink):
+        cmd_register = rs.get_register_by_name("CMD")
+        cmd_register.set_field_value("cmd", 0xB6)  # triggers soft reset
+        cmd_register.write()
+        time.sleep(0.02)  # 2ms time delay to allow soft rest
+
         odr_register = rs.get_register_by_name("ODR_CONFIG")
         odr_register.read()
 
@@ -94,3 +103,20 @@ class TestBMP581:
         # confirm that we can use U and S with arrays of integers
         assert U(2, result.data[0]) == 5132.5
         assert S(2, result.data[0]) == 5132.5
+
+    def test_dut_and_regList(self):
+        regList = rs.regList
+        dut = rs.dut
+
+        dut.ODR_CONFIG.pwr_mode = regList.ODR_CONFIG.pwr_mode.Standby
+        write(dut.ODR_CONFIG)
+        read(dut.ODR_CONFIG)
+        assert dut.ODR_CONFIG.pwr_mode == 0
+
+        dut.ODR_CONFIG.pwr_mode = regList.ODR_CONFIG.pwr_mode.Non_Stop
+        assert regList.ODR_CONFIG.pwr_mode(dut.ODR_CONFIG.pwr_mode) == regList.ODR_CONFIG.pwr_mode.Non_Stop
+        write(dut.ODR_CONFIG)
+        dut.ODR_CONFIG.pwr_mode = regList.ODR_CONFIG.pwr_mode.Standby
+        assert dut.ODR_CONFIG.pwr_mode == 0
+        read(dut.ODR_CONFIG)
+        assert regList.ODR_CONFIG.pwr_mode(dut.ODR_CONFIG.pwr_mode) == regList.ODR_CONFIG.pwr_mode.Non_Stop
