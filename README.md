@@ -19,8 +19,8 @@ uv add rgscore
 2. To provide access from Python to serialized form of register definitions (aka. addrMap json).
 3. Together with other libraries, such as [i2c-api](https://brainless-software.github.io/i2c_api/)
    and [i2c-drivers](https://github.com/Brainless-Software/i2c_drivers), to provide read and write access from Python to
-   registers
-   in live devices.
+   registers in live devices.
+4. Provide intuitive interactive API for interfacing with live devices.
 
 ## Overall structure
 
@@ -160,9 +160,9 @@ from i2c_drivers import I2CMasterI2CDriver
 
 from rgscore import AddrMap, RLinkI2C
 
-regList = AddrMap.new_instance_from_file("regList-BMP581.json", link=RLinkI2C(I2CMasterI2CDriver(), 0x47))
+addrMap = AddrMap.new_instance_from_file("addrMap-BMP581.json", link=RLinkI2C(I2CMasterI2CDriver(), 0x47))
 
-odr_config = regList.get_register_by_name("ODR_CONFIG")
+odr_config = addrMap.get_register_by_name("ODR_CONFIG")
 odr_config.read()  # read from the chip at I2C address 0x47
 print("pwr_mode", odr_config.get_field_value("pwr_mode"))
 
@@ -170,3 +170,21 @@ print("pwr_mode", odr_config.get_field_value("pwr_mode"))
 odr_config.set_field_value("pwr_mode", 1)
 odr_config.write()
 ```
+
+## Interactive API
+
+API described above is more applicable to developers writing applications on top of this library. For electrical
+engineers using this library there are two other API end points, `dut` (aka. Device Under Test) and `regList` to access
+a minimal necessary subset of register and fields definitions.
+
+```python
+from i2c_drivers import I2CMasterI2CDriver
+
+from rgscore import AddrMap, RLinkI2C, read, write
+
+addrMap = AddrMap.new_instance_from_file("addrMap-BMP581.json", link=RLinkI2C(I2CMasterI2CDriver(), 0x47))
+
+dut = addrMap.dut
+regList = addrMap.regList
+```
+

@@ -1,0 +1,1579 @@
+{
+   "class" : "RegList",
+   "registers" : [
+      {
+         "address" : "0x1",
+         "address_bus_width_bytes" : 1,
+         "desc" : "ASIC identification ID",
+         "fields" : [
+            {
+               "desc" : "ASIC ID",
+               "enum_values" : null,
+               "fractional" : 0,
+               "name" : "chip_id",
+               "offset" : 0,
+               "rw" : false,
+               "signed" : "U",
+               "width" : 8
+            }
+         ],
+         "name" : "CHIP_ID",
+         "width" : 8
+      },
+      {
+         "address" : "0x2",
+         "address_bus_width_bytes" : 1,
+         "desc" : "ASIC revision ID",
+         "fields" : [
+            {
+               "desc" : "ASIC revision",
+               "enum_values" : null,
+               "fractional" : 0,
+               "name" : "asic_rev_id",
+               "offset" : 0,
+               "rw" : false,
+               "signed" : "U",
+               "width" : 8
+            }
+         ],
+         "name" : "REV_ID",
+         "width" : 8
+      },
+      {
+         "address" : "0x11",
+         "address_bus_width_bytes" : 1,
+         "desc" : "ASIC status register",
+         "fields" : [
+            {
+               "desc" : "S0/S1 error occurred. When S0/S1 error occurs, the slave will recover automatically after 60us as if an HDR-exit pattern is executed on the bus. Flag will persist for notification purpose. This flag is clear-on-read type. It is cleared automatically once read.",
+               "enum_values" : null,
+               "fractional" : 0,
+               "name" : "i3c_err_3",
+               "offset" : 3,
+               "rw" : false,
+               "signed" : "U",
+               "width" : 1
+            },
+            {
+               "desc" : "SDR parity error occurred",
+               "enum_values" : null,
+               "fractional" : 0,
+               "name" : "i3c_err_0",
+               "offset" : 2,
+               "rw" : false,
+               "signed" : "U",
+               "width" : 1
+            },
+            {
+               "desc" : "HIF mode (NVM-backed)",
+               "enum_values" : [
+                  {
+                     "desc" : "I2C Mode Only [SPI disabled]",
+                     "name" : "I2C_only",
+                     "value" : 0
+                  },
+                  {
+                     "desc" : "SPI Mode1 and Mode2",
+                     "name" : "SPI_1_2",
+                     "value" : 1
+                  },
+                  {
+                     "desc" : "SPI Mode0 and Mode3",
+                     "name" : "SPI_0_3",
+                     "value" : 2
+                  },
+                  {
+                     "desc" : "SPI and I2C Available (Autoconfig). Interface selection is automatically configured. Default is I2C mode. During Power-on CSB pin should be tied to VDDIO to pull it high at power-on. If CSB goes low during, I2C interface will be disabled until the next power-on-reset.",
+                     "name" : "Autoconfig",
+                     "value" : 3
+                  }
+               ],
+               "fractional" : 0,
+               "name" : "hif_mode",
+               "offset" : 0,
+               "rw" : false,
+               "signed" : "U",
+               "width" : 2
+            }
+         ],
+         "name" : "CHIP_STATUS",
+         "width" : 8
+      },
+      {
+         "address" : "0x13",
+         "address_bus_width_bytes" : 1,
+         "desc" : "Configure host interface related settings (NVM-backed)",
+         "fields" : [
+            {
+               "desc" : "Pad drive strength for serial IO pins SDX, SDO (MSB should be set in I2C mode only). Note: these register fields should be read-back only after waiting at least 1 us after they have been written.",
+               "enum_values" : null,
+               "fractional" : 0,
+               "name" : "pad_if_drv",
+               "offset" : 4,
+               "rw" : true,
+               "signed" : "U",
+               "width" : 4
+            },
+            {
+               "desc" : "SPI 3-wire mode enabling",
+               "enum_values" : [
+                  {
+                     "desc" : "SPI 4-wire mode",
+                     "name" : "SPI_4_wire",
+                     "value" : 0
+                  },
+                  {
+                     "desc" : "SPI 3-wire mode",
+                     "name" : "SPI_3_wire",
+                     "value" : 1
+                  }
+               ],
+               "fractional" : 0,
+               "name" : "spi3_en",
+               "offset" : 1,
+               "rw" : true,
+               "signed" : "U",
+               "width" : 1
+            },
+            {
+               "desc" : "CSB pullup selection (valid in I2C mode only)",
+               "enum_values" : [
+                  {
+                     "desc" : "disabled",
+                     "name" : "disabled",
+                     "value" : 0
+                  },
+                  {
+                     "desc" : "enabled",
+                     "name" : "enabled",
+                     "value" : 1
+                  }
+               ],
+               "fractional" : 0,
+               "name" : "i2c_csb_pup_en",
+               "offset" : 0,
+               "rw" : true,
+               "signed" : "U",
+               "width" : 1
+            }
+         ],
+         "name" : "DRIVE_CONFIG",
+         "width" : 8
+      },
+      {
+         "address" : "0x14",
+         "address_bus_width_bytes" : 1,
+         "desc" : "Interrupt configuration register",
+         "fields" : [
+            {
+               "desc" : "Pad drive strength for INT (MSB should be set in INT open drain config only). Note: these register fields should be read-back only after waiting at least 1 us after they have been written",
+               "enum_values" : null,
+               "fractional" : 0,
+               "name" : "pad_int_drv",
+               "offset" : 4,
+               "rw" : true,
+               "signed" : "U",
+               "width" : 4
+            },
+            {
+               "desc" : "Interrupt enabling",
+               "enum_values" : [
+                  {
+                     "desc" : "disabled",
+                     "name" : "disabled",
+                     "value" : 0
+                  },
+                  {
+                     "desc" : "enabled",
+                     "name" : "enabled",
+                     "value" : 1
+                  }
+               ],
+               "fractional" : 0,
+               "name" : "int_en",
+               "offset" : 3,
+               "rw" : true,
+               "signed" : "U",
+               "width" : 1
+            },
+            {
+               "desc" : "INT pin",
+               "enum_values" : [
+                  {
+                     "desc" : "push-pull",
+                     "name" : "push_pull",
+                     "value" : 0
+                  },
+                  {
+                     "desc" : "Open drain",
+                     "name" : "open_drain",
+                     "value" : 1
+                  }
+               ],
+               "fractional" : 0,
+               "name" : "int_od",
+               "offset" : 2,
+               "rw" : true,
+               "signed" : "U",
+               "width" : 1
+            },
+            {
+               "desc" : "INT polarity",
+               "enum_values" : [
+                  {
+                     "desc" : "active low",
+                     "name" : "active_low",
+                     "value" : 0
+                  },
+                  {
+                     "desc" : "active high",
+                     "name" : "active_high",
+                     "value" : 1
+                  }
+               ],
+               "fractional" : 0,
+               "name" : "int_pol",
+               "offset" : 1,
+               "rw" : true,
+               "signed" : "U",
+               "width" : 1
+            },
+            {
+               "desc" : "INT mode",
+               "enum_values" : [
+                  {
+                     "desc" : "pulsed",
+                     "name" : "pulsed",
+                     "value" : 0
+                  },
+                  {
+                     "desc" : "latched",
+                     "name" : "latched",
+                     "value" : 1
+                  }
+               ],
+               "fractional" : 0,
+               "name" : "int_mode",
+               "offset" : 0,
+               "rw" : true,
+               "signed" : "U",
+               "width" : 1
+            }
+         ],
+         "name" : "INT_CONFIG",
+         "width" : 8
+      },
+      {
+         "address" : "0x15",
+         "address_bus_width_bytes" : 1,
+         "desc" : "INT source selection (0x00: Disable INT, except the POR and Software_reset completion)",
+         "fields" : [
+            {
+               "desc" : "Pressure data out-of-range (OOR_P)",
+               "enum_values" : null,
+               "fractional" : 0,
+               "name" : "oor_p_en",
+               "offset" : 3,
+               "rw" : true,
+               "signed" : "U",
+               "width" : 1
+            },
+            {
+               "desc" : "FIFO Threshold/Watermark (FIFO_THS)",
+               "enum_values" : null,
+               "fractional" : 0,
+               "name" : "fifo_ths_en",
+               "offset" : 2,
+               "rw" : true,
+               "signed" : "U",
+               "width" : 1
+            },
+            {
+               "desc" : "FIFO Full (FIFO_FULL)",
+               "enum_values" : null,
+               "fractional" : 0,
+               "name" : "fifo_full_en",
+               "offset" : 1,
+               "rw" : true,
+               "signed" : "U",
+               "width" : 1
+            },
+            {
+               "desc" : "Data Ready",
+               "enum_values" : null,
+               "fractional" : 0,
+               "name" : "drdy_data_reg_en",
+               "offset" : 0,
+               "rw" : true,
+               "signed" : "U",
+               "width" : 1
+            }
+         ],
+         "name" : "INT_SOURCE",
+         "width" : 8
+      },
+      {
+         "address" : "0x16",
+         "address_bus_width_bytes" : 1,
+         "desc" : "FIFO configuration",
+         "fields" : [
+            {
+               "desc" : "FIFO Mode CTRL",
+               "enum_values" : [
+                  {
+                     "desc" : "Stream-to-FIFO Mode",
+                     "name" : "Stream_to_FIFO",
+                     "value" : 0
+                  },
+                  {
+                     "desc" : "STOP-on-FULL Mode",
+                     "name" : "STOP_on_FULL",
+                     "value" : 1
+                  }
+               ],
+               "fractional" : 0,
+               "name" : "fifo_mode",
+               "offset" : 5,
+               "rw" : true,
+               "signed" : "U",
+               "width" : 1
+            },
+            {
+               "desc" : "FIFO threshold",
+               "enum_values" : [
+                  {
+                     "desc" : "Disable the FIFO threshold",
+                     "name" : "FIFO_th_disabled",
+                     "value" : 0
+                  },
+                  {
+                     "desc" : "Set the FIFO threshold to 31 frames",
+                     "name" : "FIFO_th_31_frames",
+                     "value" : 31
+                  }
+               ],
+               "fractional" : 0,
+               "name" : "fifo_threshold",
+               "offset" : 0,
+               "rw" : true,
+               "signed" : "U",
+               "width" : 5
+            }
+         ],
+         "name" : "FIFO_CONFIG",
+         "width" : 8
+      },
+      {
+         "address" : "0x17",
+         "address_bus_width_bytes" : 1,
+         "desc" : "Number of frames in FIFO",
+         "fields" : [
+            {
+               "desc" : "Number of frames in FIFO",
+               "enum_values" : null,
+               "fractional" : 0,
+               "name" : "fifo_count",
+               "offset" : 0,
+               "rw" : false,
+               "signed" : "U",
+               "width" : 6
+            }
+         ],
+         "name" : "FIFO_COUNT",
+         "width" : 8
+      },
+      {
+         "address" : "0x18",
+         "address_bus_width_bytes" : 1,
+         "desc" : "FIFO selection configuration",
+         "fields" : [
+            {
+               "desc" : "FIFO decimation selection",
+               "enum_values" : null,
+               "fractional" : 0,
+               "name" : "fifo_dec_sel",
+               "offset" : 2,
+               "rw" : true,
+               "signed" : "U",
+               "width" : 3
+            },
+            {
+               "desc" : "FIFO frame data source selection",
+               "enum_values" : [
+                  {
+                     "desc" : "FIFO not enabled",
+                     "name" : "FIFO_not_enabled",
+                     "value" : 0
+                  },
+                  {
+                     "desc" : "Temperature data",
+                     "name" : "Temperature_data",
+                     "value" : 1
+                  },
+                  {
+                     "desc" : "Pressure data",
+                     "name" : "Pressure_data",
+                     "value" : 2
+                  },
+                  {
+                     "desc" : "Pressure and temperature data",
+                     "name" : "Pressure_and_temp",
+                     "value" : 3
+                  }
+               ],
+               "fractional" : 0,
+               "name" : "fifo_frame_sel",
+               "offset" : 0,
+               "rw" : true,
+               "signed" : "U",
+               "width" : 2
+            }
+         ],
+         "name" : "FIFO_SEL",
+         "width" : 8
+      },
+      {
+         "address" : "0x1D",
+         "address_bus_width_bytes" : 1,
+         "desc" : "Temperature XLSB",
+         "fields" : [
+            {
+               "desc" : "Temperature XLSB. Temp_Data arithmetic representation: (signed, 24, 16) [degC]",
+               "enum_values" : null,
+               "fractional" : 0,
+               "name" : "temp_7_0",
+               "offset" : 0,
+               "rw" : false,
+               "signed" : "U",
+               "width" : 8
+            }
+         ],
+         "name" : "TEMP_DATA_XLSB",
+         "width" : 8
+      },
+      {
+         "address" : "0x1E",
+         "address_bus_width_bytes" : 1,
+         "desc" : "Temperature LSB",
+         "fields" : [
+            {
+               "desc" : "Temperature LSB. Temp_Data arithmetic representation: (signed, 24, 16) [degC]",
+               "enum_values" : null,
+               "fractional" : 0,
+               "name" : "temp_15_8",
+               "offset" : 0,
+               "rw" : false,
+               "signed" : "U",
+               "width" : 8
+            }
+         ],
+         "name" : "TEMP_DATA_LSB",
+         "width" : 8
+      },
+      {
+         "address" : "0x1F",
+         "address_bus_width_bytes" : 1,
+         "desc" : "Temperature MSB",
+         "fields" : [
+            {
+               "desc" : "Temperature MSB. Temp_Data arithmetic representation: (signed, 24, 16) [degC]",
+               "enum_values" : null,
+               "fractional" : 0,
+               "name" : "temp_23_16",
+               "offset" : 0,
+               "rw" : false,
+               "signed" : "U",
+               "width" : 8
+            }
+         ],
+         "name" : "TEMP_DATA_MSB",
+         "width" : 8
+      },
+      {
+         "address" : "0x20",
+         "address_bus_width_bytes" : 1,
+         "desc" : "Pressure XLSB",
+         "fields" : [
+            {
+               "desc" : "Pressure XLSB. Press_Data arithmetic representation: (signed, 24, 6) [Pa]",
+               "enum_values" : null,
+               "fractional" : 0,
+               "name" : "press_7_0",
+               "offset" : 0,
+               "rw" : false,
+               "signed" : "U",
+               "width" : 8
+            }
+         ],
+         "name" : "PRESS_DATA_XLSB",
+         "width" : 8
+      },
+      {
+         "address" : "0x21",
+         "address_bus_width_bytes" : 1,
+         "desc" : "Pressure LSB",
+         "fields" : [
+            {
+               "desc" : "Pressure LSB. Press_Data arithmetic representation: (signed, 24, 6) [Pa]",
+               "enum_values" : null,
+               "fractional" : 0,
+               "name" : "press_15_8",
+               "offset" : 0,
+               "rw" : false,
+               "signed" : "U",
+               "width" : 8
+            }
+         ],
+         "name" : "PRESS_DATA_LSB",
+         "width" : 8
+      },
+      {
+         "address" : "0x22",
+         "address_bus_width_bytes" : 1,
+         "desc" : "Pressure MSB",
+         "fields" : [
+            {
+               "desc" : "Pressure MSB. Press_Data arithmetic representation: (signed, 24, 6) [Pa]",
+               "enum_values" : null,
+               "fractional" : 0,
+               "name" : "press_23_16",
+               "offset" : 0,
+               "rw" : false,
+               "signed" : "U",
+               "width" : 8
+            }
+         ],
+         "name" : "PRESS_DATA_MSB",
+         "width" : 8
+      },
+      {
+         "address" : "0x27",
+         "address_bus_width_bytes" : 1,
+         "desc" : "Interrupt status register (clear-on-read)",
+         "fields" : [
+            {
+               "desc" : "Power-on-reset",
+               "enum_values" : null,
+               "fractional" : 0,
+               "name" : "por",
+               "offset" : 4,
+               "rw" : false,
+               "signed" : "U",
+               "width" : 1
+            },
+            {
+               "desc" : "Pressure data out-of-range",
+               "enum_values" : null,
+               "fractional" : 0,
+               "name" : "oor_p",
+               "offset" : 3,
+               "rw" : false,
+               "signed" : "U",
+               "width" : 1
+            },
+            {
+               "desc" : "FIFO Threshold/Watermark",
+               "enum_values" : null,
+               "fractional" : 0,
+               "name" : "fifo_ths",
+               "offset" : 2,
+               "rw" : false,
+               "signed" : "U",
+               "width" : 1
+            },
+            {
+               "desc" : "FIFO Full",
+               "enum_values" : null,
+               "fractional" : 0,
+               "name" : "fifo_full",
+               "offset" : 1,
+               "rw" : false,
+               "signed" : "U",
+               "width" : 1
+            },
+            {
+               "desc" : "Data Ready",
+               "enum_values" : null,
+               "fractional" : 0,
+               "name" : "drdy_data_reg",
+               "offset" : 0,
+               "rw" : false,
+               "signed" : "U",
+               "width" : 1
+            }
+         ],
+         "name" : "INT_STATUS",
+         "width" : 8
+      },
+      {
+         "address" : "0x28",
+         "address_bus_width_bytes" : 1,
+         "desc" : "Status register",
+         "fields" : [
+            {
+               "desc" : "If asserted, crack check has been successfully executed without detecting a crack. Note: this bit is cleared with deasserting ASIC_SELFTEST_CTRL.st_crack_check",
+               "enum_values" : null,
+               "fractional" : 0,
+               "name" : "st_crack_pass",
+               "offset" : 7,
+               "rw" : false,
+               "signed" : "U",
+               "width" : 1
+            },
+            {
+               "desc" : "If asserted, indicates that an error has been corrected by ECC during last boot-loading. Note: This bit is cleared upon a new NVM user command. Additionally, in deep standby (Normal and Forced) the NVM is downloaded at beginning of each measurement. It is valid after DRY until the next measurement starts.",
+               "enum_values" : null,
+               "fractional" : 0,
+               "name" : "status_boot_err_corrected",
+               "offset" : 4,
+               "rw" : false,
+               "signed" : "U",
+               "width" : 1
+            },
+            {
+               "desc" : "If asserted, indicates a boot command error, due to at least one of the following reasons: - nvm_usr_read / nvm_usr_prog command submitted when CFG.STATE.nvm_rdy = 0 (FCU is not in STANDBY mode). Boot command not executed -> Boot.STATUS.* and CFG.status.nvm_err not updated. - nvm_usr_prog command submitted when CFG.MISC.nvm_prog_en = 0. Boot command executed -> Boot.STATUS.* and CFG.status.nvm_err updated. - nvm_usr_prog command submitted with CFG.NVM_ADDR.nvm_row_addr outside valid range (6'h08, 6'h09, 6'h1E-'h622). Boot command executed -> Boot.STATUS.* and CFG.status.nvm_err updated. This bit is cleared upon a new NVM command",
+               "enum_values" : null,
+               "fractional" : 0,
+               "name" : "status_nvm_cmd_err",
+               "offset" : 3,
+               "rw" : false,
+               "signed" : "U",
+               "width" : 1
+            },
+            {
+               "desc" : "If asserted, indicates an NVM error, due to at least one of the following reasons: - PMU power transition fail on NVM power request - NVM timeout errors in P/E - NVM Charge Pump voltage fail in PROGRAM/ERASE - During last boot/load command, ECC has detected 2+ errors. This bit is cleared/updated upon a new NVM command, if Boot command is executed.",
+               "enum_values" : null,
+               "fractional" : 0,
+               "name" : "status_nvm_err",
+               "offset" : 2,
+               "rw" : false,
+               "signed" : "U",
+               "width" : 1
+            },
+            {
+               "desc" : "If asserted, device is ready for NVM operations",
+               "enum_values" : null,
+               "fractional" : 0,
+               "name" : "status_nvm_rdy",
+               "offset" : 1,
+               "rw" : false,
+               "signed" : "U",
+               "width" : 1
+            },
+            {
+               "desc" : "If asserted, the digital core domain is accessible",
+               "enum_values" : null,
+               "fractional" : 0,
+               "name" : "status_core_rdy",
+               "offset" : 0,
+               "rw" : false,
+               "signed" : "U",
+               "width" : 1
+            }
+         ],
+         "name" : "STATUS",
+         "width" : 8
+      },
+      {
+         "address" : "0x29",
+         "address_bus_width_bytes" : 1,
+         "desc" : "FIFO output port",
+         "fields" : [
+            {
+               "desc" : "FIFO read data",
+               "enum_values" : null,
+               "fractional" : 0,
+               "name" : "fifo_data",
+               "offset" : 0,
+               "rw" : false,
+               "signed" : "U",
+               "width" : 8
+            }
+         ],
+         "name" : "FIFO_DATA",
+         "width" : 8
+      },
+      {
+         "address" : "0x2B",
+         "address_bus_width_bytes" : 1,
+         "desc" : "NVM address",
+         "fields" : [
+            {
+               "desc" : "If set, enables NVM programming (Note: this field cannot be written during an ongoing P/T conversion.)",
+               "enum_values" : null,
+               "fractional" : 0,
+               "name" : "nvm_prog_en",
+               "offset" : 6,
+               "rw" : true,
+               "signed" : "U",
+               "width" : 1
+            },
+            {
+               "desc" : "NVM (row) address (Note: this field cannot be written during an ongoing P/T conversion.)",
+               "enum_values" : null,
+               "fractional" : 0,
+               "name" : "nvm_row_address",
+               "offset" : 0,
+               "rw" : true,
+               "signed" : "U",
+               "width" : 6
+            }
+         ],
+         "name" : "NVM_ADDR",
+         "width" : 8
+      },
+      {
+         "address" : "0x2C",
+         "address_bus_width_bytes" : 1,
+         "desc" : "NVM data (LSB)",
+         "fields" : [
+            {
+               "desc" : "NVM Data LSB, bits 7:0. Note: This field cannot be written during an ongoing conversion and should be read-back only after an idle time of at least 1 us.",
+               "enum_values" : null,
+               "fractional" : 0,
+               "name" : "nvm_data_lsb",
+               "offset" : 0,
+               "rw" : true,
+               "signed" : "U",
+               "width" : 8
+            }
+         ],
+         "name" : "NVM_DATA_LSB",
+         "width" : 8
+      },
+      {
+         "address" : "0x2D",
+         "address_bus_width_bytes" : 1,
+         "desc" : "NVM data (MSB)",
+         "fields" : [
+            {
+               "desc" : "NVM Data MSB, bits 15:8. Note: This field cannot be written during an ongoing conversion and should be read-back only after an idle time of at least 1 us.",
+               "enum_values" : null,
+               "fractional" : 0,
+               "name" : "nvm_data_msb",
+               "offset" : 0,
+               "rw" : true,
+               "signed" : "U",
+               "width" : 8
+            }
+         ],
+         "name" : "NVM_DATA_MSB",
+         "width" : 8
+      },
+      {
+         "address" : "0x30",
+         "address_bus_width_bytes" : 1,
+         "desc" : "DSP configuration",
+         "fields" : [
+            {
+               "desc" : "OOR IIR selection (Note: This field cannot be written during an ongoing P/T conversion.)",
+               "enum_values" : [
+                  {
+                     "desc" : "value selected before IIR filter",
+                     "name" : "Before_IIR",
+                     "value" : 0
+                  },
+                  {
+                     "desc" : "value selected after IIR filter",
+                     "name" : "After_IIR",
+                     "value" : 1
+                  }
+               ],
+               "fractional" : 0,
+               "name" : "oor_sel_iir_p",
+               "offset" : 7,
+               "rw" : true,
+               "signed" : "U",
+               "width" : 1
+            },
+            {
+               "desc" : "FIFO IIR selection pressure data (Note: This field cannot be written during an ongoing P/T conversion.)",
+               "enum_values" : [
+                  {
+                     "desc" : "value selected before IIR filter",
+                     "name" : "Before_IIR",
+                     "value" : 0
+                  },
+                  {
+                     "desc" : "value selected after IIR filter",
+                     "name" : "After_IIR",
+                     "value" : 1
+                  }
+               ],
+               "fractional" : 0,
+               "name" : "fifo_sel_iir_p",
+               "offset" : 6,
+               "rw" : true,
+               "signed" : "U",
+               "width" : 1
+            },
+            {
+               "desc" : "Shadow Registers IIR selection pressure data (Note: This field cannot be written during an ongoing P/T conversion.)",
+               "enum_values" : [
+                  {
+                     "desc" : "value selected before IIR filter",
+                     "name" : "Before_IIR",
+                     "value" : 0
+                  },
+                  {
+                     "desc" : "value selected after IIR filter",
+                     "name" : "After_IIR",
+                     "value" : 1
+                  }
+               ],
+               "fractional" : 0,
+               "name" : "shdw_sel_iir_p",
+               "offset" : 5,
+               "rw" : true,
+               "signed" : "U",
+               "width" : 1
+            },
+            {
+               "desc" : "FIFO IIR selection temperature data (Note: This field cannot be written during an ongoing P/T conversion.)",
+               "enum_values" : [
+                  {
+                     "desc" : "value selected before IIR filter",
+                     "name" : "Before_IIR",
+                     "value" : 0
+                  },
+                  {
+                     "desc" : "value selected after IIR filter",
+                     "name" : "After_IIR",
+                     "value" : 1
+                  }
+               ],
+               "fractional" : 0,
+               "name" : "fifo_sel_iir_t",
+               "offset" : 4,
+               "rw" : true,
+               "signed" : "U",
+               "width" : 1
+            },
+            {
+               "desc" : "Temperature Data Registers IIR selection temperature data (Note: This field cannot be written during an ongoing P/T conversion.)",
+               "enum_values" : [
+                  {
+                     "desc" : "value selected before IIR filter",
+                     "name" : "Before_IIR",
+                     "value" : 0
+                  },
+                  {
+                     "desc" : "value selected after IIR filter",
+                     "name" : "After_IIR",
+                     "value" : 1
+                  }
+               ],
+               "fractional" : 0,
+               "name" : "shdw_sel_iir_t",
+               "offset" : 3,
+               "rw" : true,
+               "signed" : "U",
+               "width" : 1
+            },
+            {
+               "desc" : "If set, an IIR filter flush is executed in FORCED mode (Note: This field cannot be written during an ongoing P/T conversion.)",
+               "enum_values" : null,
+               "fractional" : 0,
+               "name" : "iir_flush_forced_en",
+               "offset" : 2,
+               "rw" : true,
+               "signed" : "U",
+               "width" : 1
+            },
+            {
+               "desc" : "Pressure sensor compensation",
+               "enum_values" : [
+                  {
+                     "desc" : "Press.: no compensation, Temp.: no compensation",
+                     "name" : "No_comp",
+                     "value" : 0
+                  },
+                  {
+                     "desc" : "Press.: no compensation, Temp.: compensation",
+                     "name" : "Temp_only",
+                     "value" : 1
+                  },
+                  {
+                     "desc" : "Press.: compensation, Temp.: compensation",
+                     "name" : "Press_and_temp",
+                     "value" : 2
+                  },
+                  {
+                     "desc" : "Press.: compensation, Temp.: compensation",
+                     "name" : "Press_and_temp_2",
+                     "value" : 3
+                  }
+               ],
+               "fractional" : 0,
+               "name" : "comp_pt_en",
+               "offset" : 0,
+               "rw" : true,
+               "signed" : "U",
+               "width" : 2
+            }
+         ],
+         "name" : "DSP_CONFIG",
+         "width" : 8
+      },
+      {
+         "address" : "0x31",
+         "address_bus_width_bytes" : 1,
+         "desc" : "DSP IIR configuration",
+         "fields" : [
+            {
+               "desc" : "Pressure IIR LPF band filter selection. The filter coefficient (Note: This field cannot be written during an ongoing P/T conversion.)",
+               "enum_values" : [
+                  {
+                     "desc" : "Bypass",
+                     "name" : "Bypass",
+                     "value" : 0
+                  },
+                  {
+                     "desc" : "Filter Coefficient: 1",
+                     "name" : "Coeff_1",
+                     "value" : 1
+                  },
+                  {
+                     "desc" : "Filter Coefficient: 3",
+                     "name" : "Coeff_3",
+                     "value" : 2
+                  },
+                  {
+                     "desc" : "Filter Coefficient: 7",
+                     "name" : "Coeff_7",
+                     "value" : 3
+                  },
+                  {
+                     "desc" : "Filter Coefficient: 15",
+                     "name" : "Coeff_15",
+                     "value" : 4
+                  },
+                  {
+                     "desc" : "Filter Coefficient: 31",
+                     "name" : "Coeff_31",
+                     "value" : 5
+                  },
+                  {
+                     "desc" : "Filter Coefficient: 63",
+                     "name" : "Coeff_63",
+                     "value" : 6
+                  },
+                  {
+                     "desc" : "Filter Coefficient: 127",
+                     "name" : "Coeff_127",
+                     "value" : 7
+                  }
+               ],
+               "fractional" : 0,
+               "name" : "set_iir_p",
+               "offset" : 3,
+               "rw" : true,
+               "signed" : "U",
+               "width" : 3
+            },
+            {
+               "desc" : "Temperature IIR LPF band filter selection. The filter coefficient (Note: This field cannot be written during an ongoing P/T conversion.)",
+               "enum_values" : [
+                  {
+                     "desc" : "Bypass",
+                     "name" : "Bypass",
+                     "value" : 0
+                  },
+                  {
+                     "desc" : "Filter Coefficient: 1",
+                     "name" : "Coeff_1",
+                     "value" : 1
+                  },
+                  {
+                     "desc" : "Filter Coefficient: 3",
+                     "name" : "Coeff_3",
+                     "value" : 2
+                  },
+                  {
+                     "desc" : "Filter Coefficient: 7",
+                     "name" : "Coeff_7",
+                     "value" : 3
+                  },
+                  {
+                     "desc" : "Filter Coefficient: 15",
+                     "name" : "Coeff_15",
+                     "value" : 4
+                  },
+                  {
+                     "desc" : "Filter Coefficient: 31",
+                     "name" : "Coeff_31",
+                     "value" : 5
+                  },
+                  {
+                     "desc" : "Filter Coefficient: 63",
+                     "name" : "Coeff_63",
+                     "value" : 6
+                  },
+                  {
+                     "desc" : "Filter Coefficient: 127",
+                     "name" : "Coeff_127",
+                     "value" : 7
+                  }
+               ],
+               "fractional" : 0,
+               "name" : "set_iir_t",
+               "offset" : 0,
+               "rw" : true,
+               "signed" : "U",
+               "width" : 3
+            }
+         ],
+         "name" : "DSP_IIR",
+         "width" : 8
+      },
+      {
+         "address" : "0x32",
+         "address_bus_width_bytes" : 1,
+         "desc" : "Out-of-range (OOR) threshold for pressure (LSB)",
+         "fields" : [
+            {
+               "desc" : "OOR pressure threshold, bits 7:0",
+               "enum_values" : null,
+               "fractional" : 0,
+               "name" : "oor_thr_p_7_0",
+               "offset" : 0,
+               "rw" : true,
+               "signed" : "U",
+               "width" : 8
+            }
+         ],
+         "name" : "OOR_THR_P_LSB",
+         "width" : 8
+      },
+      {
+         "address" : "0x33",
+         "address_bus_width_bytes" : 1,
+         "desc" : "Out-of-range (OOR) threshold for pressure (MSB)",
+         "fields" : [
+            {
+               "desc" : "OOR pressure threshold, bits 15:8",
+               "enum_values" : null,
+               "fractional" : 0,
+               "name" : "oor_thr_p_15_8",
+               "offset" : 0,
+               "rw" : true,
+               "signed" : "U",
+               "width" : 8
+            }
+         ],
+         "name" : "OOR_THR_P_MSB",
+         "width" : 8
+      },
+      {
+         "address" : "0x34",
+         "address_bus_width_bytes" : 1,
+         "desc" : "Out-of-range (OOR) range configuration",
+         "fields" : [
+            {
+               "desc" : "OOR pressure range",
+               "enum_values" : null,
+               "fractional" : 0,
+               "name" : "oor_range_p",
+               "offset" : 0,
+               "rw" : true,
+               "signed" : "U",
+               "width" : 8
+            }
+         ],
+         "name" : "OOR_RANGE",
+         "width" : 8
+      },
+      {
+         "address" : "0x35",
+         "address_bus_width_bytes" : 1,
+         "desc" : "Out-of-range (OOR) configuration",
+         "fields" : [
+            {
+               "desc" : "OOR count limit (Note: This field cannot be written during an ongoing P/T conversion.)",
+               "enum_values" : [
+                  {
+                     "desc" : "Counter limit of 1",
+                     "name" : "Limit_1",
+                     "value" : 0
+                  },
+                  {
+                     "desc" : "Counter limit of 3",
+                     "name" : "Limit_3",
+                     "value" : 1
+                  },
+                  {
+                     "desc" : "Counter limit of 7",
+                     "name" : "Limit_7",
+                     "value" : 2
+                  },
+                  {
+                     "desc" : "Counter limit of 15",
+                     "name" : "Limit_15",
+                     "value" : 3
+                  }
+               ],
+               "fractional" : 0,
+               "name" : "cnt_lim",
+               "offset" : 6,
+               "rw" : true,
+               "signed" : "U",
+               "width" : 2
+            },
+            {
+               "desc" : "OOR pressure threshold, bit 16",
+               "enum_values" : null,
+               "fractional" : 0,
+               "name" : "oor_thr_p_16",
+               "offset" : 0,
+               "rw" : true,
+               "signed" : "U",
+               "width" : 1
+            }
+         ],
+         "name" : "OOR_CONFIG",
+         "width" : 8
+      },
+      {
+         "address" : "0x36",
+         "address_bus_width_bytes" : 1,
+         "desc" : "Over-sampling rate (OSR) configuration",
+         "fields" : [
+            {
+               "desc" : "If set, enables sensor pressure measurements. Otherwise temperature only measurements is done.",
+               "enum_values" : null,
+               "fractional" : 0,
+               "name" : "press_en",
+               "offset" : 6,
+               "rw" : true,
+               "signed" : "U",
+               "width" : 1
+            },
+            {
+               "desc" : "OSR_P selection",
+               "enum_values" : [
+                  {
+                     "desc" : "oversampling rate = 1x",
+                     "name" : "OSR_1x",
+                     "value" : 0
+                  },
+                  {
+                     "desc" : "oversampling rate = 2x",
+                     "name" : "OSR_2x",
+                     "value" : 1
+                  },
+                  {
+                     "desc" : "oversampling rate = 4x",
+                     "name" : "OSR_4x",
+                     "value" : 2
+                  },
+                  {
+                     "desc" : "oversampling rate = 8x",
+                     "name" : "OSR_8x",
+                     "value" : 3
+                  },
+                  {
+                     "desc" : "oversampling rate = 16x",
+                     "name" : "OSR_16x",
+                     "value" : 4
+                  },
+                  {
+                     "desc" : "oversampling rate = 32x",
+                     "name" : "OSR_32x",
+                     "value" : 5
+                  },
+                  {
+                     "desc" : "oversampling rate = 64x",
+                     "name" : "OSR_64x",
+                     "value" : 6
+                  },
+                  {
+                     "desc" : "oversampling rate = 128x",
+                     "name" : "OSR_128x",
+                     "value" : 7
+                  }
+               ],
+               "fractional" : 0,
+               "name" : "osr_p",
+               "offset" : 3,
+               "rw" : true,
+               "signed" : "U",
+               "width" : 3
+            },
+            {
+               "desc" : "OSR_T selection. Note: the configured ODR might be invalid in combination with OSR configuration. This is observable with the ODR_CONFIG.flag odr_is_valid. If configured ODR/OSR settings are invalid, default OSR settings will be used. The effective OSR settings for P/T can be read from osr_t_eff and osr_p_eff.",
+               "enum_values" : [
+                  {
+                     "desc" : "oversampling rate = 1x",
+                     "name" : "OSR_1x",
+                     "value" : 0
+                  },
+                  {
+                     "desc" : "oversampling rate = 2x",
+                     "name" : "OSR_2x",
+                     "value" : 1
+                  },
+                  {
+                     "desc" : "oversampling rate = 4x",
+                     "name" : "OSR_4x",
+                     "value" : 2
+                  },
+                  {
+                     "desc" : "oversampling rate = 8x",
+                     "name" : "OSR_8x",
+                     "value" : 3
+                  },
+                  {
+                     "desc" : "oversampling rate = 16x",
+                     "name" : "OSR_16x",
+                     "value" : 4
+                  },
+                  {
+                     "desc" : "oversampling rate = 32x",
+                     "name" : "OSR_32x",
+                     "value" : 5
+                  },
+                  {
+                     "desc" : "oversampling rate = 64x",
+                     "name" : "OSR_64x",
+                     "value" : 6
+                  },
+                  {
+                     "desc" : "oversampling rate = 128x",
+                     "name" : "OSR_128x",
+                     "value" : 7
+                  }
+               ],
+               "fractional" : 0,
+               "name" : "osr_t",
+               "offset" : 0,
+               "rw" : true,
+               "signed" : "U",
+               "width" : 3
+            }
+         ],
+         "name" : "OSR_CONFIG",
+         "width" : 8
+      },
+      {
+         "address" : "0x37",
+         "address_bus_width_bytes" : 1,
+         "desc" : "Output data rate (ODR) configuration",
+         "fields" : [
+            {
+               "desc" : "If asserted, disables the deep standby (Note: This field cannot be changed during an ongoing P/T conversion.)",
+               "enum_values" : null,
+               "fractional" : 0,
+               "name" : "deep_dis",
+               "offset" : 7,
+               "rw" : true,
+               "signed" : "U",
+               "width" : 1
+            },
+            {
+               "desc" : "ODR Selection. Note: the configured ODR might be invalid in combination with OSR configuration. This is observable with the flag odr_is_valid. If configured ODR/OSR settings are invalid, default OSR settings will be used. The effective OSR settings for P/T can be read from osr_t_eff and osr_p_eff.",
+               "enum_values" : [
+                  {
+                     "desc" : "240.000 Hz",
+                     "name" : "ODR_240Hz",
+                     "value" : 0
+                  },
+                  {
+                     "desc" : "218.537 Hz",
+                     "name" : "ODR_218p537Hz",
+                     "value" : 1
+                  },
+                  {
+                     "desc" : "199.111 Hz",
+                     "name" : "ODR_199p111Hz",
+                     "value" : 2
+                  },
+                  {
+                     "desc" : "179.200 Hz",
+                     "name" : "ODR_179p200Hz",
+                     "value" : 3
+                  },
+                  {
+                     "desc" : "160.000 Hz",
+                     "name" : "ODR_160Hz",
+                     "value" : 4
+                  },
+                  {
+                     "desc" : "149.333 Hz",
+                     "name" : "ODR_149p333Hz",
+                     "value" : 5
+                  },
+                  {
+                     "desc" : "140.000 Hz",
+                     "name" : "ODR_140Hz",
+                     "value" : 6
+                  },
+                  {
+                     "desc" : "129.855 Hz",
+                     "name" : "ODR_129p855Hz",
+                     "value" : 7
+                  },
+                  {
+                     "desc" : "120.000 Hz",
+                     "name" : "ODR_120Hz",
+                     "value" : 8
+                  },
+                  {
+                     "desc" : "110.164 Hz",
+                     "name" : "ODR_110p164Hz",
+                     "value" : 9
+                  },
+                  {
+                     "desc" : "100.299 Hz",
+                     "name" : "ODR_100p299Hz",
+                     "value" : 10
+                  },
+                  {
+                     "desc" : "89.600 Hz",
+                     "name" : "ODR_89p600Hz",
+                     "value" : 11
+                  },
+                  {
+                     "desc" : "80.000 Hz",
+                     "name" : "ODR_80Hz",
+                     "value" : 12
+                  },
+                  {
+                     "desc" : "70.000 Hz",
+                     "name" : "ODR_70Hz",
+                     "value" : 13
+                  },
+                  {
+                     "desc" : "60.000 Hz",
+                     "name" : "ODR_60Hz",
+                     "value" : 14
+                  },
+                  {
+                     "desc" : "50.056 Hz",
+                     "name" : "ODR_50p056Hz",
+                     "value" : 15
+                  },
+                  {
+                     "desc" : "45.025 Hz",
+                     "name" : "ODR_45p025Hz",
+                     "value" : 16
+                  },
+                  {
+                     "desc" : "40.000 Hz",
+                     "name" : "ODR_40Hz",
+                     "value" : 17
+                  },
+                  {
+                     "desc" : "35.000 Hz",
+                     "name" : "ODR_35Hz",
+                     "value" : 18
+                  },
+                  {
+                     "desc" : "30.000 Hz",
+                     "name" : "ODR_30Hz",
+                     "value" : 19
+                  },
+                  {
+                     "desc" : "25.005 Hz",
+                     "name" : "ODR_25p005Hz",
+                     "value" : 20
+                  },
+                  {
+                     "desc" : "20.000 Hz",
+                     "name" : "ODR_20Hz",
+                     "value" : 21
+                  },
+                  {
+                     "desc" : "15.000 Hz",
+                     "name" : "ODR_15Hz",
+                     "value" : 22
+                  },
+                  {
+                     "desc" : "10.000 Hz",
+                     "name" : "ODR_10_000Hz",
+                     "value" : 23
+                  },
+                  {
+                     "desc" : "5.000 Hz",
+                     "name" : "ODR_5_000Hz",
+                     "value" : 24
+                  },
+                  {
+                     "desc" : "4.000 Hz",
+                     "name" : "ODR_4_000Hz",
+                     "value" : 25
+                  },
+                  {
+                     "desc" : "3.000 Hz",
+                     "name" : "ODR_3_000Hz",
+                     "value" : 26
+                  },
+                  {
+                     "desc" : "2.000 Hz",
+                     "name" : "ODR_2_000Hz",
+                     "value" : 27
+                  },
+                  {
+                     "desc" : "1.000 Hz",
+                     "name" : "ODR_1_000Hz",
+                     "value" : 28
+                  },
+                  {
+                     "desc" : "0.500 Hz",
+                     "name" : "ODR_0_500Hz",
+                     "value" : 29
+                  },
+                  {
+                     "desc" : "0.250 Hz",
+                     "name" : "ODR_0_250Hz",
+                     "value" : 30
+                  },
+                  {
+                     "desc" : "0.125 Hz",
+                     "name" : "ODR_0_125Hz",
+                     "value" : 31
+                  }
+               ],
+               "fractional" : 0,
+               "name" : "odr",
+               "offset" : 2,
+               "rw" : true,
+               "signed" : "U",
+               "width" : 5
+            },
+            {
+               "desc" : "Power mode configuration. The user can request a dedicated power mode by writing this field. A read returns the actual mode the device is in. Note: This bit is cleared again upon transition from FORCED to STANDBY mode.",
+               "enum_values" : [
+                  {
+                     "desc" : "Standby mode: no measurement ongoing",
+                     "name" : "Standby",
+                     "value" : 0
+                  },
+                  {
+                     "desc" : "Normal mode: measurement in configured ODR grid",
+                     "name" : "Normal",
+                     "value" : 1
+                  },
+                  {
+                     "desc" : "Forced mode: forced one-time measurement",
+                     "name" : "Forced",
+                     "value" : 2
+                  },
+                  {
+                     "desc" : "Non-Stop mode: repetitive measurements without further duty-cycling",
+                     "name" : "Non_Stop",
+                     "value" : 3
+                  }
+               ],
+               "fractional" : 0,
+               "name" : "pwr_mode",
+               "offset" : 0,
+               "rw" : true,
+               "signed" : "U",
+               "width" : 2
+            }
+         ],
+         "name" : "ODR_CONFIG",
+         "width" : 8
+      },
+      {
+         "address" : "0x38",
+         "address_bus_width_bytes" : 1,
+         "desc" : "Effective over-sampling rate (OSR) configuration",
+         "fields" : [
+            {
+               "desc" : "If asserted, the ODR parametrization is valid (This is checked on every change in ODR and OSR configuration registers.)",
+               "enum_values" : null,
+               "fractional" : 0,
+               "name" : "odr_is_valid",
+               "offset" : 7,
+               "rw" : false,
+               "signed" : "U",
+               "width" : 1
+            },
+            {
+               "desc" : "OSR_P effective selection. Effectively selected OSR for pressure. Please refer to OSR_CONFIG for encodings.",
+               "enum_values" : null,
+               "fractional" : 0,
+               "name" : "osr_p_eff",
+               "offset" : 3,
+               "rw" : false,
+               "signed" : "U",
+               "width" : 3
+            },
+            {
+               "desc" : "OSR_T effective selection. Effectively selected OSR for temperature. Please refer to OSR_CONFIG for encodings.",
+               "enum_values" : null,
+               "fractional" : 0,
+               "name" : "osr_t_eff",
+               "offset" : 0,
+               "rw" : false,
+               "signed" : "U",
+               "width" : 3
+            }
+         ],
+         "name" : "OSR_EFF",
+         "width" : 8
+      },
+      {
+         "address" : "0x7E",
+         "address_bus_width_bytes" : 1,
+         "desc" : "Command Register (Register will always read as 0x00)",
+         "fields" : [
+            {
+               "desc" : "Available commands (Note: Register will always read as 0x00): no other values must be written to this register",
+               "enum_values" : [
+                  {
+                     "desc" : "Reserved. No command.",
+                     "name" : "none",
+                     "value" : 0
+                  },
+                  {
+                     "desc" : "First CMD in the sequence 0x5D, 0xA0/0xA5 which enables the write/read of the NVM. If another CMD is sent within the sequence, the sequence for enabling the NVM prog mode is reset.",
+                     "name" : "nvm_seq_first",
+                     "value" : 93
+                  },
+                  {
+                     "desc" : "Last CMD in the sequence 0x73, 0xB4, 0x69, which enables the extended mode and makes the debug and test pages in the register map visible. If another CMD is sent within the sequence, the sequence for enabling the extended page mode is reset. The pages are changed using the register EXT_MODE. Disabling the extended mode is done by resetting the paging enable bit in the paging register.",
+                     "name" : "ext_mode_first",
+                     "value" : 105
+                  },
+                  {
+                     "desc" : "see extmode_en_last",
+                     "name" : "ext_mode_seq_1",
+                     "value" : 115
+                  },
+                  {
+                     "desc" : "Last CMD in the sequence 0x5D, 0xA0 which enables the write of the NVM. If another CMD is sent within the sequence, the sequence for triggering the NVM programming is reset.",
+                     "name" : "nvm_write_en",
+                     "value" : 160
+                  },
+                  {
+                     "desc" : "Last CMD in the sequence 0x5D, 0xA5 which enables the read of the NVM. If another CMD is sent within the sequence, the sequence for triggering the NVM read is reset.",
+                     "name" : "nvm_read_en",
+                     "value" : 165
+                  },
+                  {
+                     "desc" : "see extmode_en_last",
+                     "name" : "ext_mode_seq_2",
+                     "value" : 180
+                  },
+                  {
+                     "desc" : "Triggers a reset, all user configuration settings are overwritten with their default state. If this register is set using I2C, an ACK will NOT be transmitted to the host.",
+                     "name" : "soft_reset",
+                     "value" : 182
+                  }
+               ],
+               "fractional" : 0,
+               "name" : "cmd",
+               "offset" : 0,
+               "rw" : true,
+               "signed" : "U",
+               "width" : 8
+            }
+         ],
+         "name" : "CMD",
+         "width" : 8
+      }
+   ],
+   "version" : 1
+}
