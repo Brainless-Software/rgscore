@@ -1,3 +1,5 @@
+from timeit import dummy_src_name
+
 # RGSCore
 
 [![License - MIT](https://img.shields.io/badge/License-MIT-blue)](https://github.com/Brainless-Software/rgscore/blob/master/LICENSE)
@@ -174,17 +176,52 @@ odr_config.write()
 ## Interactive API
 
 API described above is more applicable to developers writing applications on top of this library. For electrical
-engineers using this library there are two other API end points, `dut` (aka. Device Under Test) and `regList` to access
-a minimal necessary subset of register and fields definitions.
+engineers using this library there are two other API end points, `dut` (aka. Device Under Test) and `regList`. The first 
+one `dut` is for accessing live registers values, and second one `regLsit` holds minimal necessary subset of register 
+and fields definitions.
+
+Consider an example of accessing 
+device [BMP581](https://www.bosch-sensortec.com/en/products/environmental-sensors/pressure-sensors/bmp581).
+We assume that it is present on the I2C bus at address 0x47. For this chip we do have address map json file
+at https://raw.githubusercontent.com/Brainless-Software/rgscore/refs/heads/master/devices/AddrMap_BMP581.json
+
 
 ```python
 from i2c_drivers import I2CMasterI2CDriver
 
 from rgscore import AddrMap, RLinkI2C, read, write
 
-addrMap = AddrMap.new_instance_from_file("addrMap-BMP581.json", link=RLinkI2C(I2CMasterI2CDriver(), 0x47))
+addrMap = AddrMap.new_instance_from_url(
+    "https://raw.githubusercontent.com/Brainless-Software/rgscore/refs/heads/master/devices/AddrMap_BMP581.json", 
+    link=RLinkI2C(I2CMasterI2CDriver(), 0x47)
+)
 
 dut = addrMap.dut
 regList = addrMap.regList
 ```
 
+The json file loaded above has entries for the following registers
+
+```python
+from rgscore import AddrMap, Register, EnumValue, FieldDef
+
+Register(
+    bit_len=8, 
+    address=0x7E,
+    name="CMD",
+    reset=0,
+    model=[
+        FieldDef.value_of("cmd@[7:0]U8.0#rw").with_enum([
+            EnumValue("nvm_write_en", 160), EnumValue("soft_reset", 182)
+        ])
+    ]
+)
+```
+
+We can then issue soft reset like so
+
+```python
+dut.CMD.cmd = regList.CMD.cmd.soft_reset  # set `cmd` field to 182 (soft_reset enum value) 
+write(dut.CMD)  # write this register to the device.
+time.sleep(0.002) # reset takes 2 milliseconds
+```
