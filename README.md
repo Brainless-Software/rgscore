@@ -226,8 +226,21 @@ write(dut.CMD)  # write this register to the device.
 time.sleep(0.002) # reset takes 2 milliseconds
 ```
 
-Note that you can also set CMD.cmd by simply supplying a number
+Note that you can also set `CMD.cmd` by simply supplying a number
 
 ```python
 dut.CMD.cmd = 0xB6
+```
+
+Accessing `regList.CMD.cmd` returns object with all enum values. But calling `regList.CMD.cmd()` returns 
+list of all enum names for this field.
+
+```python
+print(regList.CMD.cmd())
+```
+
+Prints
+
+```shell
+[nvm_write_en(160.0), soft_reset(182.0)]
 ```
