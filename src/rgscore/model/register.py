@@ -130,10 +130,11 @@ class FieldModelAccessor:
     def __repr__(self) -> str:
         return (
             f"Register: {self.__register.name}\n"
-            f"  Addr: 0x{self.__register.address:X}\n"
-            f"  Desc: {self.__register.desc}\n"
+            f"  Addr:      0x{self.__register.address:X}\n"
+            f"  Desc:      {self.__register.desc}\n"
             f"  Bit Width: {self.__register.width}\n"
-            f"  Fields: [" + ", ".join(self.__register.get_field_names()) + "]"
+            f"  Reset:     0b{self.__register.reset_value.bin}\n"
+            f"  Fields:    [" + ", ".join(self.__register.get_field_names()) + "]"
         )
         return ", ".join(self.__register._fields_by_name.keys())
 

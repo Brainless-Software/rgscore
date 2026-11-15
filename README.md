@@ -216,6 +216,8 @@ For `regList` (instance of `RegList` class) following rules apply:
 4. `regList.$register_name.$field_name()` returns list of enum values if any.
 5. `regList.$register_name.$field_name($number)` returns associated enum value of `$number` matches any enum or just 
     that number if no enums defined otherwise `None`.  
+6. `print(regList.$register_name)` prints basic register model
+
 
 The json file loaded above has entries for the following registers
 
@@ -265,11 +267,28 @@ Prints
 And calling register returns list of field names
 
 ```python
-print(regList.CMD())
+print(regList.DRIVE_CONFIG())
 ```
 
 Prints
 
 ```shell
-['cmd']
+['pad_if_drv', 'spi3_en', 'i2c_csb_pup_en']
+```
+
+while
+
+```python
+print(regList.DRIVE_CONFIG)
+```
+
+prints 
+
+```shell
+Register: DRIVE_CONFIG
+  Addr:      0x13
+  Desc:      Configure host interface related settings (NVM-backed)
+  Bit Width: 8
+  Reset:     0b00110000
+  Fields:    [pad_if_drv, spi3_en, i2c_csb_pup_en]
 ```
