@@ -441,6 +441,8 @@ class Register:
         if bit_len <= 0:
             raise ValueError("Register width must be greater than zero")
 
+        self.name = name
+
         def get_reset_uint_value():
             if isinstance(reset, str):
                 return BitArray(reset).uint
@@ -475,7 +477,6 @@ class Register:
 
         self.address = address
         self.address_bus_width_bytes = address_bus_width_bytes
-        self.name = name
         self.__link = link
         self.linked_address: int | None = address
         if link is not None and self.linked_address is None:
@@ -489,7 +490,7 @@ class Register:
     def __validate_fields_overlapp(self, model: list[FieldDef]):
         fields_idxs = reduce(lambda x, y: x + y, [m.idxs() for m in model], [])
         if len(set(fields_idxs)) != len(fields_idxs):
-            raise ValueError("Overlapping fields in register definition.")
+            raise ValueError(f"Overlapping fields in register [{self.name}].")
 
     @property
     def reset_value(self) -> BitArray:
