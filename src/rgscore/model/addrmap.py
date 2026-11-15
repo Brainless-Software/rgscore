@@ -336,7 +336,7 @@ class AddrMap:
         return self.__dut
 
 
-def read(register: HardwareRegister) -> None:
+def read(*register: HardwareRegister) -> None:
     """
     Reads register value from hardware based on the supplied `register` argument. At the end this supplied `register`
     will be updated with new value.
@@ -347,18 +347,26 @@ def read(register: HardwareRegister) -> None:
     Raises:
         ValueError: if no link was configured for this register.
     """
-    if not register.__read_through_link__():
-        raise ValueError("Link to physical hardware is not configured.")
+    for r in register:
+        if not r.__read_through_link__():
+            raise ValueError("Link to physical hardware is not configured.")
 
 
-def write(register: HardwareRegister) -> bool:
+def write(*register: HardwareRegister) -> bool:
     """
     Write into hardware register value at the address, both found in the supplied `register` argument.
 
     Args:
-        register:
+        register: One or more registers.
 
     Returns:
         True or False indicating of write operation was successful or not.
     """
-    return register.__write_through_link__()
+    success = True
+    for r in register:
+        if success:
+            success = r.__write_through_link__()
+        else:
+            success = False
+            break
+    return success
