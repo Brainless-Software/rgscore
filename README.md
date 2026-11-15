@@ -210,7 +210,7 @@ For `dut` (instance of `DeviceUnderTest` class) following rules apply:
 
 For `regList` (instance of `RegList` class) following rules apply:
 
-1. `regList.$register_name` returns `FieldModelAccessor` class which in turn allows one to access fields model.
+1. `regList.$register_name` returns `FieldModelAccessor` class which in turn allows one to access fields.
 2. `regList.$register_name.$field_name` return object to access associated enum values if any.
 3. `regList.$register_name()` returns list of field names. 
 4. `regList.$register_name.$field_name()` returns list of enum values if any.
