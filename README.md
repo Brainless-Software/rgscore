@@ -200,6 +200,23 @@ dut = addrMap.dut
 regList = addrMap.regList
 ```
 
+For `dut` (instance of `DeviceUnderTest` class) following rules apply:
+
+1. `dut.$register_name` returns a register (instance of `HardwareRegister`)
+2. `dut.$register_name.$field_name` returns value of a field in this register.
+3. `dut.$register_name.$field_name = $number | EnumValue` assigns value to this field. 
+4. `read(dut.$register_name)` reads register value from the connected hardware device.
+5. `write(dut.$register_name)` writes register value to the connected hardware device.
+
+For `regList` (instance of `RegList` class) following rules apply:
+
+1. `regList.$register_name` returns `FieldModelAccessor` class which in turn allows one to access fields model.
+2. `regList.$register_name.$field_name` return object to access associated enum values if any.
+3. `regList.$register_name()` returns list of field names. 
+4. `regList.$register_name.$field_name()` returns list of enum values if any.
+5. `regList.$register_name.$field_name($number)` returns associated enum value of `$number` matches any enum or just 
+    that number if no enums defined otherwise `None`.  
+
 The json file loaded above has entries for the following registers
 
 ```python
@@ -233,7 +250,7 @@ dut.CMD.cmd = 0xB6
 ```
 
 Accessing `regList.CMD.cmd` returns object with all enum values. But calling `regList.CMD.cmd()` returns 
-list of all enum names for this field.
+list of all enums for this field.
 
 ```python
 print(regList.CMD.cmd())
@@ -243,4 +260,16 @@ Prints
 
 ```shell
 [nvm_write_en(160.0), soft_reset(182.0)]
+```
+
+And calling register returns list of field names
+
+```python
+print(regList.CMD())
+```
+
+Prints
+
+```shell
+['cmd']
 ```
