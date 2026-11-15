@@ -9,7 +9,7 @@
   "properties": {
     "class": {
       "type": "string",
-      "const": "RegList",
+      "const": "AddrMap",
       "$comment": "Required element for identification as to the type of this json"
     },
     "version": {
