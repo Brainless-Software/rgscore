@@ -1,9 +1,9 @@
 import hashlib
 import json
 from collections.abc import Callable
-from functools import cache
 from os import getenv
 from pathlib import Path
+from threading import Lock
 from typing import Self
 
 import requests
@@ -62,12 +62,30 @@ class AddrMap:
         self._reg_by_address: dict[int, Register] = {}
         self._store = link
         self._on_change_callback = on_change_callback
+        self.__lock = Lock()
+        self.__reg_list = RegList(self)
+        self.__dut = DeviceUnderTest(self)
 
         if registers is not None:
             self.add(registers)
 
+    def __recreate_reg_list(self):
+        with self.__lock:
+            self.__reg_list = RegList(self)
+
+    def __recreate_dut(self):
+        with self.__lock:
+            self.__dut = DeviceUnderTest(self)
+
     def __repr__(self):
         return f"AddrMap[len(registers)={len(self.registers)}]"
+
+    def link(self, link: RLink) -> None:
+        """Link this address map with external device"""
+        self._store = link
+        for r in self.registers:
+            r.link(link)
+        self.__recreate_dut()
 
     def add(self, rs: Register | list[Register]) -> None:
         """Adds one or more registers to this AddrMap."""
@@ -110,6 +128,9 @@ class AddrMap:
         if call_on_change_callback:
             self._on_change_callback(self)
 
+        self.__recreate_reg_list()
+        self.__recreate_dut()
+
     def get_register_by_name(self, name: str) -> Register | None:
         """
         Returns register contained within this AddrMap by its name. If no such register exist
@@ -146,6 +167,8 @@ class AddrMap:
 
             idx = [r.name for r in self.registers].index(name)
             del self.registers[idx]
+            self.__recreate_reg_list()
+            self.__recreate_dut()
             if call_on_change_callback:
                 self._on_change_callback(self)
 
@@ -177,6 +200,8 @@ class AddrMap:
         self._reg_addresses.clear()
         self._reg_by_names.clear()
         self._reg_by_address.clear()
+        self.__recreate_reg_list()
+        self.__recreate_dut()
         self._on_change_callback(self)
 
     def read_all(self) -> None:
@@ -303,17 +328,12 @@ class AddrMap:
         Path(file).write_text(self.to_json_def())
 
     @property
-    @cache
     def regList(self) -> RegList:
-        return RegList(self)
+        return self.__reg_list
 
     @property
-    @cache
     def dut(self) -> DeviceUnderTest:
-        if self._store is None:
-            raise ValueError("AddrMap.dut cannot be created because AddrMap does not have a link to hardware.")
-        else:
-            return DeviceUnderTest(self)
+        return self.__dut
 
 
 def read(register: HardwareRegister) -> None:

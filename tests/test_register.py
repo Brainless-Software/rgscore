@@ -641,7 +641,10 @@ def test_field_enum_accessors():
     assert repr(f.a) == "Field: a\n  BitRange: [3:0]\n  NumType: U4.1\n  Access: rw\n  Enum Values: [START(1), STOP(0)]"
 
     # repr of field_accessor should show array of field names present in this register
-    assert repr(f) == "Register: AReg\n  Addr: 0xA\n  Desc: \n  Bit Width: 8\n  Fields: [b_raw, a]"
+    assert (
+        repr(f)
+        == "Register: AReg\n  Addr:      0xA\n  Desc:      \n  Bit Width: 8\n  Reset:     0b00000000\n  Fields:    [b_raw, a]"
+    )
 
     # field "a" has associated enums
     assert f.a() == [EnumValue("START", 1, "Starting..."), EnumValue("STOP", 0, "Stoping...")]

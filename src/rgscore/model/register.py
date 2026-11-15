@@ -543,6 +543,9 @@ class Register:
         self._model.clear()
         self._model.extend(new_model)
         self._model.sort(key=lambda fd: -fd.offset)
+        self._fields_by_name.clear()
+        for fd in self._model:
+            self._fields_by_name[fd.name] = fd
         return self
 
     def copy(self) -> "Register":
@@ -892,7 +895,8 @@ class Register:
 
     def mk_embedding_class(self, link: RLink | None) -> HardwareRegister:
         register = self.copy()
-        register.link(link)
+        if link is not None:
+            register.link(link)
 
         class H(HardwareRegister):
             pass

@@ -409,14 +409,6 @@ def test_add_register_with_store_link():
     assert reg.get_field_value("a") == 1.5
 
 
-def test_unable_to_create_dut():
-    addr_map = AddrMap(link=None, registers=[])
-    with pytest.raises(
-        ValueError, match="AddrMap.dut cannot be created because AddrMap does not have a link to hardware."
-    ):
-        addr_map.dut
-
-
 def test_regList_and_dut():
     store = MemLink()
     addr_map = AddrMap(
