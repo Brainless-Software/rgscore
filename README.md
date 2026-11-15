@@ -215,7 +215,7 @@ For `regList` (instance of `RegList` class) following rules apply:
 3. `regList.$register_name()` returns list of field names. 
 4. `regList.$register_name.$field_name()` returns list of enum values if any.
 5. `regList.$register_name.$field_name($number)` returns associated enum value of `$number` matches any enum or just 
-    that number if no enums defined otherwise `None`.  
+    that number if no enums defined, otherwise `None`.  
 6. `print(regList.$register_name)` prints basic register model
 
 
