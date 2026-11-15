@@ -18,6 +18,7 @@
             }
          ],
          "name" : "CHIP_ID",
+         "reset" : "0b01010000",
          "width" : 8
       },
       {
@@ -37,6 +38,7 @@
             }
          ],
          "name" : "REV_ID",
+         "reset" : "0b00110010",
          "width" : 8
       },
       {
@@ -97,6 +99,7 @@
             }
          ],
          "name" : "CHIP_STATUS",
+         "reset" : "0b00000000",
          "width" : 8
       },
       {
@@ -158,6 +161,7 @@
             }
          ],
          "name" : "DRIVE_CONFIG",
+         "reset" : "0b00110000",
          "width" : 8
       },
       {
@@ -261,6 +265,7 @@
             }
          ],
          "name" : "INT_CONFIG",
+         "reset" : "0b00110101",
          "width" : 8
       },
       {
@@ -310,6 +315,7 @@
             }
          ],
          "name" : "INT_SOURCE",
+         "reset" : "0b00000000",
          "width" : 8
       },
       {
@@ -361,6 +367,7 @@
             }
          ],
          "name" : "FIFO_CONFIG",
+         "reset" : "0b00000000",
          "width" : 8
       },
       {
@@ -380,6 +387,7 @@
             }
          ],
          "name" : "FIFO_COUNT",
+         "reset" : "0b00000000",
          "width" : 8
       },
       {
@@ -430,6 +438,7 @@
             }
          ],
          "name" : "FIFO_SEL",
+         "reset" : "0b00000000",
          "width" : 8
       },
       {
@@ -449,6 +458,7 @@
             }
          ],
          "name" : "TEMP_DATA_XLSB",
+         "reset" : "0b01111111",
          "width" : 8
       },
       {
@@ -468,6 +478,7 @@
             }
          ],
          "name" : "TEMP_DATA_LSB",
+         "reset" : "0b01111111",
          "width" : 8
       },
       {
@@ -487,6 +498,7 @@
             }
          ],
          "name" : "TEMP_DATA_MSB",
+         "reset" : "0b01111111",
          "width" : 8
       },
       {
@@ -506,6 +518,7 @@
             }
          ],
          "name" : "PRESS_DATA_XLSB",
+         "reset" : "0b01111111",
          "width" : 8
       },
       {
@@ -525,6 +538,7 @@
             }
          ],
          "name" : "PRESS_DATA_LSB",
+         "reset" : "0b01111111",
          "width" : 8
       },
       {
@@ -544,6 +558,7 @@
             }
          ],
          "name" : "PRESS_DATA_MSB",
+         "reset" : "0b01111111",
          "width" : 8
       },
       {
@@ -603,6 +618,7 @@
             }
          ],
          "name" : "INT_STATUS",
+         "reset" : "0b00000000",
          "width" : 8
       },
       {
@@ -672,6 +688,7 @@
             }
          ],
          "name" : "STATUS",
+         "reset" : "0b00000010",
          "width" : 8
       },
       {
@@ -691,6 +708,7 @@
             }
          ],
          "name" : "FIFO_DATA",
+         "reset" : "0b01111111",
          "width" : 8
       },
       {
@@ -720,6 +738,7 @@
             }
          ],
          "name" : "NVM_ADDR",
+         "reset" : "0b00000000",
          "width" : 8
       },
       {
@@ -739,6 +758,7 @@
             }
          ],
          "name" : "NVM_DATA_LSB",
+         "reset" : "0b00000000",
          "width" : 8
       },
       {
@@ -758,6 +778,7 @@
             }
          ],
          "name" : "NVM_DATA_MSB",
+         "reset" : "0b00000000",
          "width" : 8
       },
       {
@@ -913,6 +934,7 @@
             }
          ],
          "name" : "DSP_CONFIG",
+         "reset" : "0b00000011",
          "width" : 8
       },
       {
@@ -1024,6 +1046,7 @@
             }
          ],
          "name" : "DSP_IIR",
+         "reset" : "0b00000000",
          "width" : 8
       },
       {
@@ -1043,6 +1066,7 @@
             }
          ],
          "name" : "OOR_THR_P_LSB",
+         "reset" : "0b00000000",
          "width" : 8
       },
       {
@@ -1062,6 +1086,7 @@
             }
          ],
          "name" : "OOR_THR_P_MSB",
+         "reset" : "0b00000000",
          "width" : 8
       },
       {
@@ -1081,6 +1106,7 @@
             }
          ],
          "name" : "OOR_RANGE",
+         "reset" : "0b00000000",
          "width" : 8
       },
       {
@@ -1131,6 +1157,7 @@
             }
          ],
          "name" : "OOR_CONFIG",
+         "reset" : "0b00000000",
          "width" : 8
       },
       {
@@ -1252,6 +1279,7 @@
             }
          ],
          "name" : "OSR_CONFIG",
+         "reset" : "0b00000000",
          "width" : 8
       },
       {
@@ -1473,6 +1501,7 @@
             }
          ],
          "name" : "ODR_CONFIG",
+         "reset" : "0b01110000",
          "width" : 8
       },
       {
@@ -1512,6 +1541,7 @@
             }
          ],
          "name" : "OSR_EFF",
+         "reset" : "0b00000000",
          "width" : 8
       },
       {
@@ -1572,6 +1602,7 @@
             }
          ],
          "name" : "CMD",
+         "reset" : "0b00000000",
          "width" : 8
       }
    ],
