@@ -450,15 +450,15 @@ format <code>R${hex_address}</code>.</p>
 <p>Class <code>FieldDef</code> can be created using string description by calling
 <code>FieldDef.value_of(...)</code>. Where description is</p>
 <p>```text
-<field_name>@<bit_range><num_type></p>
+{field_name}@{bit_range}{num_type}</p>
 <p>or</p>
-<p><field_name>@<bit_range><num_type>#<rw_flag>
+<p>{field_name}@{bit_range}{num_type}#{rw_flag}
 ````</p>
-<p>where <code>&lt;bit_range&gt;</code> is <code>[&lt;end_offset&gt;,&lt;start_offset&gt;]</code></p>
-<p><code>&lt;num_type&gt;</code> is fixed point number definition in
+<p>where <code>{bit_range}</code> is <code>[{end_offset},{start_offset}]</code></p>
+<p><code>{num_type}</code> is fixed point number definition in
 simplified <a href="https://en.wikipedia.org/wiki/Q_(number_format)">Q_(number_format)</a>, i.e. <code>U</code> or <code>S</code> (for unsigned or
 signed) followed by bit-width, then dot, and then fraction.</p>
-<p>Flag <code>&lt;rw_flag&gt;</code> is optional and can be <code>"rw"</code> (default) or <code>"ro"</code>.</p>
+<p>Flag <code>{rw_flag}</code> is optional and can be <code>"rw"</code> (default) or <code>"ro"</code>.</p>
 <p>Description can be added by calling <code>with_description(...)</code> and enum values <code>with_enum(...)</code></p>
 
 
