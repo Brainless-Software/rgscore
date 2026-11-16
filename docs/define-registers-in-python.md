@@ -1,5 +1,3 @@
-# Defining registers programmatically
-
 Registers are grouped into ordered collections known as addrMap's, represented by `AddrMap` class. When registers are
 added to the addrMap this ensures that they are unique (both, with regard to register names and addresses) within a
 given addrMap. Registers can be added to the addrMap at the time of construction or later by

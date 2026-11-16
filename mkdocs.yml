@@ -19,7 +19,7 @@ markdown_extensions:
 nav:
   - "Introduction": "index.md"
   - "API Overview": "api-overview.md"
-  - "Define register in Python": "define-registers-in-python.md"
+  - "Define registers in Python": "define-registers-in-python.md"
   - "Initialize address map from json": "init-from-json.md"
   - "Accessing physical devices": "access-physical-hardware.md"
   - "Interactive API": "interactive-api.md"
