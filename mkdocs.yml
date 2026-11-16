@@ -4,7 +4,7 @@ theme:
   palette:
     primary: amber
   logo:
-    images/rgcore-logo.png
+    images/rgscore-logo.png
   features:
     - navigation.sections
 
