@@ -3,6 +3,7 @@
   "type": "object",
   "required": [
     "class",
+    "device",
     "registers",
     "version"
   ],
@@ -15,6 +16,32 @@
     "version": {
       "type": "integer",
       "$comment": "Version of the associated with json schema"
+    },
+    "device": {
+      "$comment": "Defines which device (make, model, revision) corresponds to this address map",
+      "type": "object",
+      "required": [
+        "make",
+        "model",
+        "revision"
+      ],
+      "properties": {
+        "make": {
+          "type": "string",
+          "$comment": "Chip/device maker"
+        },
+        "model": {
+          "type": "string",
+          "$comment": "Chip/device model"
+        },
+        "revision": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "$comment": "Chip/device silicon revision if any"
+        }
+      }
     },
     "registers": {
       "$comment": "Array of registers; Within this array register names and addresses must be unique",
@@ -134,11 +161,17 @@
                         "$comment": "Name for this enum"
                       },
                       "value": {
-                        "type": ["integer", "number"],
+                        "type": [
+                          "integer",
+                          "number"
+                        ],
                         "$comment": "Value associated with this enum"
                       },
                       "desc": {
-                        "type": ["string", "null"],
+                        "type": [
+                          "string",
+                          "null"
+                        ],
                         "$comment": "Optional description for this enum"
                       }
                     }

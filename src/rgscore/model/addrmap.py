@@ -1,3 +1,4 @@
+import dataclasses
 import hashlib
 import json
 from collections.abc import Callable
@@ -9,6 +10,7 @@ from typing import Self
 import requests
 from requests import HTTPError
 
+from rgscore.model.device import Device, default_device
 from rgscore.model.register import FieldModelAccessor, HardwareRegister, Register, RLink
 
 
@@ -40,9 +42,11 @@ class RegList:
 class AddrMap:
     def __init__(
         self,
+        device: Device = default_device,
         link: RLink | None = None,
         on_change_callback: Callable[[Self], None] = lambda _: None,
         registers: list[Register] | None = None,
+        allow_multiple_registers_at_the_same_address: bool = False,
     ):
         """
         Creates instance of AddrMap. An object that holds an ordered set of registers.
@@ -53,18 +57,22 @@ class AddrMap:
             on_change_callback: function called when registers are added or removed to/from this AddrMap or changed.
             registers: optional list registers to be contained within this AddrMap. Register can later be added by
                 calling AddrMap.add(...) method.
+            allow_multiple_registers_at_the_same_address: If set to True (default is False), then this address map
+                may contain more than one register at any given register address.
         """
         super().__init__()
+        self.device = device
         self.registers: list[Register] = []
         self._reg_names: set[str] = set()
         self._reg_addresses: set[int] = set()
         self._reg_by_names: dict[str, Register] = {}
-        self._reg_by_address: dict[int, Register] = {}
+        self._reg_by_address: dict[int, list[Register]] = {}
         self._store = link
         self._on_change_callback = on_change_callback
         self.__lock = Lock()
         self.__reg_list = RegList(self)
         self.__dut = DeviceUnderTest(self)
+        self.__allow_multiple_registers_at_the_same_address = allow_multiple_registers_at_the_same_address
 
         if registers is not None:
             self.add(registers)
@@ -78,7 +86,7 @@ class AddrMap:
             self.__dut = DeviceUnderTest(self)
 
     def __repr__(self):
-        return f"AddrMap[len(registers)={len(self.registers)}]"
+        return f'AddrMap["{self.device!r}", len(registers)={len(self.registers)}]'
 
     def link(self, link: RLink) -> None:
         """Link this address map with external device"""
@@ -112,7 +120,7 @@ class AddrMap:
             if r.name in self._reg_names:
                 raise ValueError(f"Register under a name [{r.name}] is already in the set")
 
-            if r.address in self._reg_addresses:
+            if not self.__allow_multiple_registers_at_the_same_address and r.address in self._reg_addresses:
                 raise ValueError(f"Register at this address [0x{r.address:04X}] is already in the set")
 
             if self._store is not None:
@@ -122,7 +130,11 @@ class AddrMap:
             self._reg_names.add(r.name)
             self._reg_addresses.add(r.address)
             self._reg_by_names[r.name] = r
-            self._reg_by_address[r.address] = r
+
+            if r.address in self._reg_by_address:
+                self._reg_by_address[r.address].append(r)
+            else:
+                self._reg_by_address[r.address] = [r]
 
         self.registers.sort(key=lambda r: r.address)
         if call_on_change_callback:
@@ -138,12 +150,16 @@ class AddrMap:
         """
         return self._reg_by_names.get(name)
 
-    def get_register_by_address(self, address: int) -> Register | None:
+    def get_register_by_address(self, address: int) -> list[Register] | None:
         """
         Returns register contained within this AddrMap by its address. If no such register exist
         in the AddrMap, then return None.
         """
-        return self._reg_by_address.get(address)
+        registers = self._reg_by_address.get(address)
+        if registers is None or registers == []:
+            return None
+        else:
+            return registers
 
     def delete_register_by_name(self, name: str) -> None:
         """
@@ -161,9 +177,15 @@ class AddrMap:
             self._reg_names.remove(name)
 
             assert register.address is not None
-            self._reg_addresses.remove(register.address)
+
             del self._reg_by_names[name]
-            del self._reg_by_address[register.address]
+            if not any([r for r in self._reg_by_names.values() if r.address == register.address]):
+                self._reg_addresses.remove(register.address)
+
+            if register.address in self._reg_by_address:
+                self._reg_by_address[register.address].remove(register)
+                if self._reg_by_address[register.address] == []:
+                    del self._reg_by_address[register.address]
 
             idx = [r.name for r in self.registers].index(name)
             del self.registers[idx]
@@ -185,7 +207,11 @@ class AddrMap:
         if new_register.name != original_register.name and new_register.name in self._reg_names:
             raise ValueError(f"Register under a name [{new_register.name}] is already in the set")
 
-        if new_register.address != original_register.address and new_register.address in self._reg_addresses:
+        if (
+            new_register.address != original_register.address
+            and new_register.address in self._reg_addresses
+            and not self.__allow_multiple_registers_at_the_same_address
+        ):
             raise ValueError(f"Register at this address [{new_register.address}] is already in the set")
 
         assert original_register.name is not None
@@ -223,6 +249,7 @@ class AddrMap:
             {
                 "class": "AddrMap",
                 "version": 1,
+                "device": dataclasses.asdict(self.device),
                 "registers": [r.to_dict_def() for r in self.registers],
             },
             indent=indent,
@@ -251,6 +278,7 @@ class AddrMap:
             raise ValueError(f"Provided AddrMap json has unsupported version {data['version']}")
         else:
             self.clear()
+            self.device = Device(**data["device"])
             self.add([Register.from_dict_def(d) for d in data["registers"]])
         return self
 
@@ -370,3 +398,9 @@ def write(*register: HardwareRegister) -> bool:
             success = False
             break
     return success
+
+
+if __name__ == "__main__":
+    addrMap = AddrMap.new_instance_from_file("/home/priimak/projects/rgscore/devices/AddrMap_BMP581.json")
+
+    print(addrMap)

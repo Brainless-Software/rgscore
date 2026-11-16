@@ -390,6 +390,38 @@ def test_add_register_duplicate_address():
         rgsl.add(reg2)
 
 
+def test_duplicate_addr_allowed_if_requested():
+    rgsl = AddrMap(
+        registers=[
+            Register(
+                bit_len=8,
+                name="Foo",
+                address=0x01,
+                model=[FieldDef.value_of("a@[3:0]U4.1")],
+            ),
+            Register(
+                bit_len=8,
+                name="Moo",
+                address=0x01,
+                model=[FieldDef.value_of("x@[4:0]U5.0")],
+            ),
+        ],
+        allow_multiple_registers_at_the_same_address=True,
+    )
+    assert rgsl.get_register_by_address(0x01) is not None
+    assert len(rgsl.get_register_by_address(0x01)) == 2
+
+    rgsl.add(
+        Register(
+            bit_len=8,
+            name="Voodoo",
+            address=0x01,
+            model=[FieldDef.value_of("z@[4:0]U5.0")],
+        )
+    )
+    assert len(rgsl.get_register_by_address(0x01)) == 3
+
+
 def test_add_register_with_store_link():
     """Test that registers are linked to store when store is provided."""
     store = MemLink()
@@ -492,7 +524,8 @@ def test_get_register_by_address():
 
     reg = rgsl.get_register_by_address(0x02)
     assert reg is not None
-    assert reg.name == "Bar"
+    assert len(reg) == 1
+    assert reg[0].name == "Bar"
 
     # Non-existent address
     assert rgsl.get_register_by_address(0x99) is None
@@ -610,6 +643,7 @@ def test_new_instance_from_source(httpserver: HTTPServer):
         httpserver.expect_request("/addrMap", method="GET").respond_with_data(json_file.read_bytes())
         addrMap2 = AddrMap.new_instance_from_url(httpserver.url_for("/addrMap"))
         assert addrMap.registers == addrMap2.registers
+        assert addrMap.device == addrMap2.device
 
         addrMap3 = AddrMap.new_instance_from_url(httpserver.url_for("/addrMap"))
         assert addrMap.registers == addrMap3.registers
