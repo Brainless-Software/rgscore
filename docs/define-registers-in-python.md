@@ -54,19 +54,19 @@ Class `FieldDef` can be created using string description by calling
 `FieldDef.value_of(...)`. Where description is
 
 ```text
-<field_name>@<bit_range><num_type>
+{field_name}@{bit_range}{num_type}
 
 or
 
-<field_name>@<bit_range><num_type>#<rw_flag>
+{field_name}@{bit_range}{num_type}#{rw_flag}
 ````
 
-where `<bit_range>` is `[<end_offset>,<start_offset>]`
+where `{bit_range}` is `[{end_offset},{start_offset}]`
 
-`<num_type>` is fixed point number definition in
+`{num_type}` is fixed point number definition in
 simplified [Q_(number_format)](https://en.wikipedia.org/wiki/Q_(number_format)), i.e. `U` or `S` (for unsigned or
 signed) followed by bit-width, then dot, and then fraction.
 
-Flag `<rw_flag>` is optional and can be `"rw"` (default) or `"ro"`.
+Flag `{rw_flag}` is optional and can be `"rw"` (default) or `"ro"`.
 
 Description can be added by calling `with_description(...)` and enum values `with_enum(...)`
