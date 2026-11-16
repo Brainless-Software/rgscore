@@ -398,9 +398,3 @@ def write(*register: HardwareRegister) -> bool:
             success = False
             break
     return success
-
-
-if __name__ == "__main__":
-    addrMap = AddrMap.new_instance_from_file("/home/priimak/projects/rgscore/devices/AddrMap_BMP581.json")
-
-    print(addrMap)
