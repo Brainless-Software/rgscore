@@ -1,5 +1,6 @@
 {
   "class": "AddrMap",
+  "allow_multiple_registers_at_the_same_address": false,
   "device": {
     "make": "Bosch",
     "model": "BMP581",

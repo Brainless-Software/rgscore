@@ -632,7 +632,10 @@ def test_register_duplicate_field_names():
 
 
 def test_new_instance_from_source(httpserver: HTTPServer):
-    addrMap = AddrMap(registers=[Register(bit_len=8, name="R11", address=0x0A, reset=7)])
+    addrMap = AddrMap(
+        registers=[Register(bit_len=8, name="R11", address=0x0A, reset=7)],
+        allow_multiple_registers_at_the_same_address=True,
+    )
     with TemporaryDirectory() as tempdir:
         json_file = Path(tempdir) / "AddrMap.json"
         addrMap.save_to_json_file(json_file)
@@ -644,6 +647,11 @@ def test_new_instance_from_source(httpserver: HTTPServer):
         addrMap2 = AddrMap.new_instance_from_url(httpserver.url_for("/addrMap"))
         assert addrMap.registers == addrMap2.registers
         assert addrMap.device == addrMap2.device
+        assert (
+            addrMap.allow_multiple_registers_at_the_same_address
+            == addrMap2.allow_multiple_registers_at_the_same_address
+        )
+        assert addrMap2.allow_multiple_registers_at_the_same_address is True
 
         addrMap3 = AddrMap.new_instance_from_url(httpserver.url_for("/addrMap"))
         assert addrMap.registers == addrMap3.registers

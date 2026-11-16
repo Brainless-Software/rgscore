@@ -3,6 +3,7 @@
   "type": "object",
   "required": [
     "class",
+    "allow_multiple_registers_at_the_same_address",
     "device",
     "registers",
     "version"
@@ -12,6 +13,10 @@
       "type": "string",
       "const": "AddrMap",
       "$comment": "Required element for identification as to the type of this json"
+    },
+    "allow_multiple_registers_at_the_same_address": {
+      "type": "boolean",
+      "$comment": "Indicates if within this address map two different registers can be placed at in the same address"
     },
     "version": {
       "type": "integer",

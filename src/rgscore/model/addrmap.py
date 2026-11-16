@@ -88,6 +88,10 @@ class AddrMap:
     def __repr__(self):
         return f'AddrMap["{self.device!r}", len(registers)={len(self.registers)}]'
 
+    @property
+    def allow_multiple_registers_at_the_same_address(self) -> bool:
+        return self.__allow_multiple_registers_at_the_same_address
+
     def link(self, link: RLink) -> None:
         """Link this address map with external device"""
         self._store = link
@@ -248,6 +252,7 @@ class AddrMap:
         return json.dumps(
             {
                 "class": "AddrMap",
+                "allow_multiple_registers_at_the_same_address": self.__allow_multiple_registers_at_the_same_address,
                 "version": 1,
                 "device": dataclasses.asdict(self.device),
                 "registers": [r.to_dict_def() for r in self.registers],
@@ -278,6 +283,7 @@ class AddrMap:
             raise ValueError(f"Provided AddrMap json has unsupported version {data['version']}")
         else:
             self.clear()
+            self.__allow_multiple_registers_at_the_same_address = data["allow_multiple_registers_at_the_same_address"]
             self.device = Device(**data["device"])
             self.add([Register.from_dict_def(d) for d in data["registers"]])
         return self
