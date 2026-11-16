@@ -1,5 +1,3 @@
-## Interactive API
-
 API described in the previous pages is more applicable to developers writing applications on top of this library. For
 electrical engineers using this library there are two other API end points, `dut` (aka. Device Under Test)
 and `regList`. The first one, `dut`, is for accessing live registers values, and second one, `regLsit`, holds minimal

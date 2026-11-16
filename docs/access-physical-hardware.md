@@ -1,5 +1,3 @@
-## Accessing physical devices
-
 To access physical hardware you need to create instance of `RLink` that
 links `AddrMap` (and therefore registers) to live chip over some physical bus.
 Below is an example of doing that over I2C bus. This requires you to bring in

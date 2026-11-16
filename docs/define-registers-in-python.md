@@ -53,7 +53,7 @@ format `R${hex_address}`.
 Class `FieldDef` can be created using string description by calling
 `FieldDef.value_of(...)`. Where description is
 
-```text
+```shell
 {field_name}@{bit_range}{num_type}
 
 or
