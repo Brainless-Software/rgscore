@@ -441,11 +441,12 @@ present, then adding it to the <code>AddrMap</code> will autogenerate name in th
 format <code>R${hex_address}</code>.</p>
 <p>Class <code>FieldDef</code> can be created using string description by calling
 <code>FieldDef.value_of(...)</code>. Where description is</p>
-<p>```shell
-{field_name}@{bit_range}{num_type}</p>
-<p>or</p>
-<p>{field_name}@{bit_range}{num_type}#{rw_flag}
-````</p>
+<div class="highlight"><pre><span></span><code><span class="o">{</span>field_name<span class="o">}</span>@<span class="o">{</span>bit_range<span class="o">}{</span>num_type<span class="o">}</span>
+
+or
+
+<span class="o">{</span>field_name<span class="o">}</span>@<span class="o">{</span>bit_range<span class="o">}{</span>num_type<span class="o">}</span><span class="c1">#{rw_flag}</span>
+</code></pre></div>
 <p>where <code>{bit_range}</code> is <code>[{end_offset},{start_offset}]</code></p>
 <p><code>{num_type}</code> is fixed point number definition in
 simplified <a href="https://en.wikipedia.org/wiki/Q_(number_format)">Q_(number_format)</a>, i.e. <code>U</code> or <code>S</code> (for unsigned or
