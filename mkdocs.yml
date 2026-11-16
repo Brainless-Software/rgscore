@@ -1,0 +1,25 @@
+site_name: RGSCore
+theme:
+  name: material
+  palette:
+    primary: amber
+  logo:
+    images/rgcore-logo.png
+  features:
+    - navigation.sections
+
+# Markdown extensions
+markdown_extensions:
+  - attr_list
+  - toc:
+      permalink: true
+  - pymdownx.highlight
+  - pymdownx.superfences
+
+nav:
+  - "Introduction": "index.md"
+  - "API Overview": "api-overview.md"
+  - "Define register in Python": "define-registers-in-python.md"
+  - "Initialize address map from json": "init-from-json.md"
+  - "Accessing physical devices": "access-physical-hardware.md"
+  - "Interactive API": "interactive-api.md"
