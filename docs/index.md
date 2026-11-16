@@ -2,6 +2,8 @@
 
 Python library that provides classes for representing, defining and accessing registers in the embedded devices.
 
+Source code for this library can be found here [github/rgscore.git](https://github.com/Brainless-Software/rgscore).
+
 To add this library to your project do
 
 ```shell

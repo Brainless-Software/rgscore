@@ -57,7 +57,7 @@ Class `FieldDef` can be created using string description by calling
 or
 
 {field_name}@{bit_range}{num_type}#{rw_flag}
-````
+```
 
 where `{bit_range}` is `[{end_offset},{start_offset}]`
 
