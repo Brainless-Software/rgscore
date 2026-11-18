@@ -238,6 +238,24 @@
         
       
       
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Overview
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
       <a href="./" class="md-nav__link md-nav__link--active">
         
   
@@ -254,6 +272,47 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#classes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Classes
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#functions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Functions
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
       
     </li>
   
@@ -387,6 +446,36 @@
     
   
   
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#classes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Classes
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#functions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Functions
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
 </nav>
                   </div>
                 </div>
@@ -404,6 +493,7 @@
 
 <h1 id="api-overview">API Overview<a class="headerlink" href="#api-overview" title="Permanent link">&para;</a></h1>
 <p>To fulfill above goals this library defines following classes and functions:</p>
+<h2 id="classes">Classes<a class="headerlink" href="#classes" title="Permanent link">&para;</a></h2>
 <ul>
 <li><code>Register</code> - defines/holds name, address, description, in-memory bitarray storage, reset value
   and a model of fields (list of <code>FieldDef</code> objects).</li>
@@ -417,6 +507,18 @@
   over I2C bus.</li>
 <li><code>AddrMap</code> - grouping of registers ensuring their uniqueness within addrMap. Primary class for (de)serialization
   to/from json file.</li>
+<li><code>DeviceUnderTest</code> - class available at <code>AddrMap::dut</code>. It provided interactive read and write access to registers
+  on physical hardware.</li>
+<li><code>RegList</code> - class available at <code>AddrMap::regList</code>. It provides minimal necessary model information about registers
+  contained in this <code>AddrMap</code>.</li>
+</ul>
+<h2 id="functions">Functions<a class="headerlink" href="#functions" title="Permanent link">&para;</a></h2>
+<ul>
+<li><code>read(...)</code> - reads data from live hardware into register present under <code>dut</code> (Device Under Test).</li>
+<li><code>write(...)</code> - writes data from register present under <code>dut</code> into physical hardware.</li>
+<li><code>AddrMap.new_instance_from_file(...)</code> - creates instance of <code>AddrMap</code> based on json file that holds serialized form of
+  address map.</li>
+<li><code>AddrMap.new_instance_from_url(...)</code> - creates instance of <code>AddrMap</code> based on json file present at the provided url.</li>
 </ul>
 
 
