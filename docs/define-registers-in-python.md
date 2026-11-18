@@ -57,12 +57,15 @@ Class `FieldDef` can be created using string description by calling
 or
 
 {field_name}@{bit_range}{num_type}#{rw_flag}
+
+or
 ```
 
 where `{bit_range}` is `[{end_offset},{start_offset}]`
 
-`{num_type}` is fixed point number definition in
-simplified [Q_(number_format)](https://en.wikipedia.org/wiki/Q_(number_format)), i.e. `U` or `S` (for unsigned or
+`{num_type}` is either a string `"BCD"` (i.e. [Binary Coded Decimal](https://en.wikipedia.org/wiki/Binary-coded_decimal)) 
+or a fixed point number definition in simplified 
+[Q_(number_format)](https://en.wikipedia.org/wiki/Q_(number_format)), i.e. `U` or `S` (for unsigned or
 signed) followed by bit-width, then dot, and then fraction.
 
 Flag `{rw_flag}` is optional and can be `"rw"` (default) or `"ro"`.
