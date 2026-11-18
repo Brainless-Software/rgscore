@@ -6,7 +6,7 @@ necessary subset of register and fields definitions.
 Consider an example of accessing
 device [BMP581](https://www.bosch-sensortec.com/en/products/environmental-sensors/pressure-sensors/bmp581).
 We assume that it is present on the I2C bus at address 0x47. For this chip we do have address map json file
-at https://raw.githubusercontent.com/Brainless-Software/rgscore/refs/heads/master/devices/AddrMap_BMP581.json
+at [http://../AddrMap_BMP581.json](https://raw.githubusercontent.com/Brainless-Software/rgscore/refs/heads/master/devices/AddrMap_BMP581.json)
 
 ```python
 from i2c_drivers import I2CMasterI2CDriver
