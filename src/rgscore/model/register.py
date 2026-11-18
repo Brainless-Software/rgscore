@@ -3,7 +3,7 @@ import json
 import re
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
-from functools import reduce
+from functools import cache, reduce
 from typing import Self, final
 
 from bitstring import BitArray
@@ -152,7 +152,7 @@ class FieldModelEnumAccessor:
         self.__field_repr = (
             f"Field: {field_def.name}\n"
             f"  BitRange: [{field_def.end_offset()}:{field_def.offset}]\n"
-            f"  NumType: {field_def.signed}{field_def.width}.{field_def.fractional}\n"
+            f"  NumType: {field_def.number_format!r}\n"
             f"  Access: {rw}\n"
         )
         if field_def.desc is not None and field_def.desc.strip() != "":
@@ -179,25 +179,95 @@ class FieldModelEnumAccessor:
             return None
 
 
+@dataclass(frozen=True)
+class FixedPointNumber:
+    signed: str  # "U" for unsigned, "S" for signed
+    integer_bits: int
+    fractional_bits: int  # number of fractional bits
+
+    def __post_init__(self):
+        if self.signed not in ("S", "U"):
+            raise ValueError("Invalid signed value")
+
+    def format(self, value: float) -> str:
+        return f"{int(value)}" if self.fractional_bits == 0 else f"{value}"
+
+    def __repr__(self) -> str:
+        return f"{self.signed}{self.integer_bits}.{self.fractional_bits}"
+
+    def to_dict_def(self) -> dict:
+        return {
+            "class": "FixedPointNumber",
+            "signed": self.signed,
+            "integer_bits": self.integer_bits,
+            "fractional_bits": self.fractional_bits,
+        }
+
+
+@dataclass(frozen=True)
+class BinaryCodedDecimal:
+    def format(self, value: float) -> str:
+        return str(int(value))
+
+    def __repr__(self) -> str:
+        return "BCD"
+
+    def to_dict_def(self) -> dict:
+        return {"class": "BinaryCodedDecimal"}
+
+
+type NumberFormat = FixedPointNumber | BinaryCodedDecimal
+
+
+num_type_pegexp = re.compile(r"^(?P<s>U|S)(?P<w>\d+)\.(?P<f>\d+)$")
+
+
+def parse_number_format(text: str) -> NumberFormat:
+    if text == "BCD":
+        return BinaryCodedDecimal()
+    else:
+        m = num_type_pegexp.match(text)
+        if m:
+            return FixedPointNumber(
+                signed=m.group("s"), integer_bits=int(m.group("w")), fractional_bits=int(m.group("f"))
+            )
+    raise ValueError(f"Unknown number format [{text}]")
+
+
+@cache
+def get_max_bcd_value(bits: int) -> int:
+    b = bits // 4
+    rem = bits % 4
+    if rem == 0:
+        return pow(10, b) - 1
+    else:
+        return int(pow(10, b) - 1 + min(pow(2, rem) - 1, 9) * pow(10, b))
+
+
 @dataclass
 class FieldDef:
     name: str
     offset: int
-    signed: str
     width: int
-    fractional: int
+    number_format: NumberFormat
+    rw: bool
+    desc: str
     rw: bool
     desc: str = ""
     enum_values: list[EnumValue] | None = None
+
+    def to_dict_def(self) -> dict:
+        data = dataclasses.asdict(self)
+        data["number_format"] = self.number_format.to_dict_def()
+        return data
 
     def __eq__(self, other: object, /) -> bool:
         eq = (
             isinstance(other, FieldDef)
             and self.name == other.name
             and self.offset == other.offset
-            and self.signed == other.signed
+            and self.number_format == other.number_format
             and self.width == other.width
-            and self.fractional == other.fractional
             and self.rw == other.rw
             and self.desc == other.desc
         )
@@ -220,12 +290,18 @@ class FieldDef:
         self.__validate__()
 
     def num_type(self) -> str:
-        """Returns fixed-point numerical type associatd with this field in the format (U|S)\\\\d+.\\\\d+"""
-        return f"{self.signed}{self.width}.{self.fractional}"
+        """
+        Returns number type associated with this field in the format (U|S)\\\\d+.\\\\d+
+        or BCD for \"Binary Coded Decimal\".
+        """
+        if isinstance(self.number_format, FixedPointNumber):
+            return f"{self.number_format.signed}{self.number_format.integer_bits}.{self.number_format.fractional_bits}"
+        elif isinstance(self.number_format, BinaryCodedDecimal):
+            return "BCD"
+        else:
+            raise ValueError(f"Invalid field number format {self.number_format}")
 
     def __validate__(self):
-        if self.signed not in ("U", "S"):
-            raise ValueError("Invalid signed value")
         if self.offset < 0:
             raise ValueError("Field offset must be a positive integer")
 
@@ -240,19 +316,29 @@ class FieldDef:
             self.valid_name_values = {}
             self.valid_value_values = {}
 
+        if isinstance(self.number_format, FixedPointNumber) and self.number_format.integer_bits != self.width:
+            raise ValueError(
+                f"Fixed point number format width {self.number_format.integer_bits} != field width {self.width}"
+            )
+
     def copy(self) -> Self:
         """Returns a copy of this field definition."""
         return dataclasses.replace(self)
 
     def range(self) -> tuple[float, float]:
         """Return inclusive range of possible values for this field."""
-        if self.signed == "U":
-            return (0.0, (pow(2, self.width) - 1) / pow(2, self.fractional))
-        else:
-            return (
-                -(pow(2, self.width - 1) / pow(2, self.fractional)),
-                (pow(2, self.width - 1) - 1) / pow(2, self.fractional),
-            )
+
+        match self.number_format:
+            case FixedPointNumber(signed, integer_bits, fractional_bits):
+                if signed == "U":
+                    return (0.0, (pow(2, integer_bits) - 1) / pow(2, fractional_bits))
+                else:
+                    return (
+                        -(pow(2, self.width - 1) / pow(2, fractional_bits)),
+                        (pow(2, self.width - 1) - 1) / pow(2, fractional_bits),
+                    )
+            case BinaryCodedDecimal():
+                return (0.0, float(get_max_bcd_value(self.width)))
 
     def end_offset(self) -> int:
         """Returns inclusive end offset where this field ends in the larger bit array."""
@@ -264,7 +350,7 @@ class FieldDef:
 
     def format(self, value: float) -> str:
         """Returns passed value as string formatting it based on numerical field type to be fractional or not."""
-        return f"{int(value)}" if self.fractional == 0 else f"{value}"
+        return self.number_format.format(value)
 
     def bit_range_str(self) -> str:
         """Returns string representation of an inclusive offset range."""
@@ -272,11 +358,16 @@ class FieldDef:
 
     def __repr__(self):
         rw = "rw" if self.rw else "ro"
-        return f"{self.name}@[{self.end_offset()}:{self.offset}]{self.signed}{self.width}.{self.fractional}#{rw}"
+        return f"{self.name}@[{self.end_offset()}:{self.offset}]{self.num_type()}#{rw}"
 
     def read_raw(self, data: BitArray) -> BitArray:
         """Returns a slice of input bit array corresponding to this field."""
-        return data[(len(data) - self.end_offset() - 1) : (len(data) - self.offset)]
+        start_at = len(data) - self.offset
+        end_at = len(data) - self.end_offset() - 1
+        if start_at < 0 or end_at < 0:
+            raise ValueError(f"Field {self.name} extends outside of provided bit array.")
+        else:
+            return data[end_at:start_at]
 
     def next_up_value(self, data: BitArray) -> float | int:
         """
@@ -293,9 +384,10 @@ class FieldDef:
         return self.__next(data, -1)
 
     def __get_next_raw_field(self, data: BitArray, step: int) -> BitArray:
+        assert isinstance(self.number_format, FixedPointNumber)
         raw_field = self.read_raw(data)
         try:
-            if self.signed == "S":
+            if self.number_format.signed == "S":
                 next_in_val = raw_field.int + step
                 return BitArray(f"int:{len(raw_field)}={next_in_val}")
             else:  # unsigned
@@ -306,26 +398,62 @@ class FieldDef:
             return raw_field
 
     def __next(self, data: BitArray, step: int) -> float | int:
-        return self.__read_from_raw_field(self.__get_next_raw_field(data, step))
+        match self.number_format:
+            case FixedPointNumber():
+                return self.__read_from_raw_field(self.__get_next_raw_field(data, step))
+            case BinaryCodedDecimal():
+                next_val = self.read(data) + step
+                if next_val < 0:
+                    return 0
+                else:
+                    return min(next_val, get_max_bcd_value(self.width))
 
     def __read_from_raw_field(self, raw_field: BitArray) -> float | int:
-        if self.fractional == 0:
-            return raw_field.int if self.signed == "S" else raw_field.uint
-        else:
-            return (raw_field.int if self.signed == "S" else raw_field.uint) / pow(2, self.fractional)
+        match self.number_format:
+            case FixedPointNumber(signed, integer_bits, fractional_bits):
+                if fractional_bits == 0:
+                    return raw_field.int if signed == "S" else raw_field.uint
+                else:
+                    return (raw_field.int if signed == "S" else raw_field.uint) / pow(2, fractional_bits)
+            case BinaryCodedDecimal():
+                original_bits = raw_field.bin
+                padding_bits = 4 - len(raw_field) % 4
+                if padding_bits != 0:
+                    raw_field.prepend(BitArray("0b" + ("0" * padding_bits)))
+                try:
+                    return int(raw_field.hex, 10)
+                except ValueError as ex:
+                    raise ValueError(f"Value encoded in 0b{original_bits} is not valid Binary Coded Decimal.") from ex
+            case _:
+                raise ValueError("Uknown field number format.")
 
     def read(self, data: BitArray) -> float | int:
         """Given a complete register data bit array return value of this field as interpreted by its numerical type."""
-        return self.__read_from_raw_field(self.read_raw(data))
+        raw = self.read_raw(data)
+        return self.__read_from_raw_field(raw)
 
     def write(self, data: BitArray, value: float) -> None:
         """
         Given a complete register data bit array write value into it interpreting it as per this field numeric type.
         Exception will be raised if provided value is outside of valid range of values for this field.
         """
-        new_val = int(value * pow(2, self.fractional))
-        tspec = ("int:" if self.signed == "S" else "uint:") + f"{self.width}={new_val}"
-        data.overwrite(len(data) - self.end_offset() - 1, BitArray(tspec))
+        match self.number_format:
+            case FixedPointNumber(signed, integer_bits, fractional_bits):
+                new_val = int(value * pow(2, fractional_bits))
+                tspec = ("int:" if signed == "S" else "uint:") + f"{integer_bits}={new_val}"
+                data.overwrite(len(data) - self.end_offset() - 1, BitArray(tspec))
+            case BinaryCodedDecimal():
+                v = int(value)
+                if v != value:
+                    raise ValueError("Only whole integer values are allowed when assigning value to BCD fields.")
+                if v > get_max_bcd_value(self.width):
+                    raise ValueError(f"Value {v} is outside of valid range for this field.")
+                nibbles = self.width // 4 + (1 if self.width % 4 > 0 else 0)
+                a = BitArray(hex=f"{v:0{nibbles}d}")
+                b = a[-self.width :]
+                data.overwrite(len(data) - self.end_offset() - 1, b)
+            case _:
+                raise ValueError("Uknown field number format.")
 
     @staticmethod
     def value_of(field_definition: str) -> "FieldDef":
@@ -337,7 +465,7 @@ class FieldDef:
 
             <name>             = $string([a-zA-Z_]+[0-9]*)
             <offset_range>     = [<end_offset>] | [<end_offset>:<start_offset>]
-            <numeric_type>     = S<field_width_bits>.<fractional_bits> | U<field_width_bits>.<fractional_bits>
+            <numeric_type>     = S<field_width_bits>.<fractional_bits> | U<field_width_bits>.<fractional_bits> | BCD
             <rw_status>        = "rw" | "rw" | none
             <end_offset>       = $positive_integer
             <start_offset>     = $positive_integer
@@ -355,18 +483,18 @@ class FieldDef:
             start_group = m.group("start")
             start_offset = int(start_group) if start_group else end_offset
 
-            implied_width = end_offset - start_offset + 1
-            width = int(m.group("w"))
-            if implied_width != width:
-                raise ValueError(f"Inconsistent field width {implied_width} != {width}")
+            width = end_offset - start_offset + 1
+            num_format = parse_number_format(m.group("num_type"))
+            if isinstance(num_format, FixedPointNumber):
+                if width != num_format.integer_bits:
+                    raise ValueError(f"Inconsistent field width {width} != {num_format.integer_bits}")
             rw = m.group("rw")
             rw = rw if rw else "rw"
             return FieldDef(
                 name=m.group("name"),
                 offset=start_offset,
-                signed=m.group("s"),
                 width=width,
-                fractional=int(m.group("f")),
+                number_format=num_format,
                 rw=(rw == "rw"),
             )
         else:
@@ -396,7 +524,7 @@ class Register:
     numeric_type_re = re.compile(r"^\s*(?P<s>U|S)(?P<w>\d+)\.(?P<f>\d+)\s*$")
     rw_re = re.compile(r"^\s*(?P<rw>rw|ro)\s*$")
     field_def_re = re.compile(
-        r"^(?P<name>[a-zA-Z_]+[0-9]*)@\[(?P<end>\d+)(:(?P<start>\d+))?\](?P<s>U|S)(?P<w>\d+)\.(?P<f>\d+)(#(?P<rw>rw|ro))?$"
+        r"^(?P<name>[a-zA-Z_]+[0-9]*)@\[(?P<end>\d+)(:(?P<start>\d+))?\](?P<num_type>(?P<s>U|S)(?P<w>\d+)\.(?P<f>\d+)|BCD)(#(?P<rw>rw|ro))?$"
     )
     register_name_re = re.compile("^[a-zA-Z]+[a-zA-Z0-9_]*$")
 
@@ -648,7 +776,7 @@ class Register:
             "width": self.width,
             "desc": self.desc,
             "reset": f"0b{self.reset_value.bin}",
-            "fields": [dataclasses.asdict(field_def) for field_def in self._model],
+            "fields": [field_def.to_dict_def() for field_def in self._model],
         }
 
     def to_json_def(self, indent: int | None = None) -> str:
@@ -722,7 +850,7 @@ class Register:
             field_def.write(self.data, value)
             return field_def.read(self.data)
         else:
-            raise ValueError(f'Value {value} is out of range [{field_def.range()}] for field "{field}"')
+            raise ValueError(f'Value {value} is out of range {field_def.range()} for field "{field}"')
 
     def get_field_enum_value(self, field: str) -> EnumValue | float | int:
         """
@@ -906,7 +1034,13 @@ class Register:
 
 
 def Field(
-    name: str, offset: int, numeric_type: str, rw: str = "rw", desc: str = "", values: list[EnumValue] | None = None
+    name: str,
+    offset: int,
+    numeric_type: str,
+    rw: str = "rw",
+    desc: str = "",
+    values: list[EnumValue] | None = None,
+    width: int | None = None,
 ) -> FieldDef:
     """
     Convinience method for creating instance of `FieldDef`.
@@ -914,28 +1048,41 @@ def Field(
     Args:
         name: field name
         offset: field offset from the right
-        numeric_type: fixed point number type, e.g. U5.7 or S3.0 etc.
+        numeric_type: fixed point number type, e.g. U5.7 or S3.0 etc. or "BCD"
         rw: "rw" (default) or "ro" - read/write or read/only
         desc: optiona field description
         values: optional enum values
+        width: optional bit width for this field. This is redundant if numeric type is fixed point, but
+            is required if numeric type is "BCD".
 
     Returns:
         Instance of `FieldDef`.
     """
-    nt_m = Register.numeric_type_re.match(numeric_type)
-    if nt_m is None:
-        raise ValueError(f"Invalid numeric type: {numeric_type}")
+    num_format = parse_number_format(numeric_type)
 
     rw_m = Register.rw_re.match(rw)
     if rw_m is None:
         raise ValueError(f"Invalid rw: {rw}")
 
+    match num_format:
+        case BinaryCodedDecimal():
+            if width is None:
+                raise ValueError(f"Width of field {name} cannot be None if numeric type is {numeric_type}")
+        case FixedPointNumber(signed, integer_bits, fractional_bits):
+            if width is not None and integer_bits != width:
+                raise ValueError(
+                    f"Width of field {name} does not match value of integer "
+                    f"bits in Fixed Point Number definition [{numeric_type}]"
+                )
+            width = integer_bits
+        case _:
+            raise ValueError(f"Unknown number format {numeric_type}")
+
     return FieldDef(
         name=name,
         offset=offset,
-        width=int(nt_m.group("w")),
-        signed=nt_m.group("s"),
-        fractional=int(nt_m.group("f")),
+        width=width,
+        number_format=num_format,
         rw=(rw == "rw"),
         desc=desc,
         enum_values=values,

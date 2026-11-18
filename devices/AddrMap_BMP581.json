@@ -15,12 +15,16 @@
         {
           "desc": "ASIC ID",
           "enum_values": null,
-          "fractional": 0,
           "name": "chip_id",
           "offset": 0,
           "rw": false,
-          "signed": "U",
-          "width": 8
+          "width": 8,
+          "number_format": {
+            "class": "FixedPointNumber",
+            "signed": "U",
+            "integer_bits": 8,
+            "fractional_bits": 0
+          }
         }
       ],
       "name": "CHIP_ID",
@@ -35,12 +39,16 @@
         {
           "desc": "ASIC revision",
           "enum_values": null,
-          "fractional": 0,
           "name": "asic_rev_id",
           "offset": 0,
           "rw": false,
-          "signed": "U",
-          "width": 8
+          "width": 8,
+          "number_format": {
+            "class": "FixedPointNumber",
+            "signed": "U",
+            "integer_bits": 8,
+            "fractional_bits": 0
+          }
         }
       ],
       "name": "REV_ID",
@@ -55,22 +63,30 @@
         {
           "desc": "S0/S1 error occurred. When S0/S1 error occurs, the slave will recover automatically after 60us as if an HDR-exit pattern is executed on the bus. Flag will persist for notification purpose. This flag is clear-on-read type. It is cleared automatically once read.",
           "enum_values": null,
-          "fractional": 0,
           "name": "i3c_err_3",
           "offset": 3,
           "rw": false,
-          "signed": "U",
-          "width": 1
+          "width": 1,
+          "number_format": {
+            "class": "FixedPointNumber",
+            "signed": "U",
+            "integer_bits": 1,
+            "fractional_bits": 0
+          }
         },
         {
           "desc": "SDR parity error occurred",
           "enum_values": null,
-          "fractional": 0,
           "name": "i3c_err_0",
           "offset": 2,
           "rw": false,
-          "signed": "U",
-          "width": 1
+          "width": 1,
+          "number_format": {
+            "class": "FixedPointNumber",
+            "signed": "U",
+            "integer_bits": 1,
+            "fractional_bits": 0
+          }
         },
         {
           "desc": "HIF mode (NVM-backed)",
@@ -96,12 +112,16 @@
               "value": 3
             }
           ],
-          "fractional": 0,
           "name": "hif_mode",
           "offset": 0,
           "rw": false,
-          "signed": "U",
-          "width": 2
+          "width": 2,
+          "number_format": {
+            "class": "FixedPointNumber",
+            "signed": "U",
+            "integer_bits": 2,
+            "fractional_bits": 0
+          }
         }
       ],
       "name": "CHIP_STATUS",
@@ -116,12 +136,16 @@
         {
           "desc": "Pad drive strength for serial IO pins SDX, SDO (MSB should be set in I2C mode only). Note: these register fields should be read-back only after waiting at least 1 us after they have been written.",
           "enum_values": null,
-          "fractional": 0,
           "name": "pad_if_drv",
           "offset": 4,
           "rw": true,
-          "signed": "U",
-          "width": 4
+          "width": 4,
+          "number_format": {
+            "class": "FixedPointNumber",
+            "signed": "U",
+            "integer_bits": 4,
+            "fractional_bits": 0
+          }
         },
         {
           "desc": "SPI 3-wire mode enabling",
@@ -137,12 +161,16 @@
               "value": 1
             }
           ],
-          "fractional": 0,
           "name": "spi3_en",
           "offset": 1,
           "rw": true,
-          "signed": "U",
-          "width": 1
+          "width": 1,
+          "number_format": {
+            "class": "FixedPointNumber",
+            "signed": "U",
+            "integer_bits": 1,
+            "fractional_bits": 0
+          }
         },
         {
           "desc": "CSB pullup selection (valid in I2C mode only)",
@@ -158,12 +186,16 @@
               "value": 1
             }
           ],
-          "fractional": 0,
           "name": "i2c_csb_pup_en",
           "offset": 0,
           "rw": true,
-          "signed": "U",
-          "width": 1
+          "width": 1,
+          "number_format": {
+            "class": "FixedPointNumber",
+            "signed": "U",
+            "integer_bits": 1,
+            "fractional_bits": 0
+          }
         }
       ],
       "name": "DRIVE_CONFIG",
@@ -178,12 +210,16 @@
         {
           "desc": "Pad drive strength for INT (MSB should be set in INT open drain config only). Note: these register fields should be read-back only after waiting at least 1 us after they have been written",
           "enum_values": null,
-          "fractional": 0,
           "name": "pad_int_drv",
           "offset": 4,
           "rw": true,
-          "signed": "U",
-          "width": 4
+          "width": 4,
+          "number_format": {
+            "class": "FixedPointNumber",
+            "signed": "U",
+            "integer_bits": 4,
+            "fractional_bits": 0
+          }
         },
         {
           "desc": "Interrupt enabling",
@@ -199,12 +235,16 @@
               "value": 1
             }
           ],
-          "fractional": 0,
           "name": "int_en",
           "offset": 3,
           "rw": true,
-          "signed": "U",
-          "width": 1
+          "width": 1,
+          "number_format": {
+            "class": "FixedPointNumber",
+            "signed": "U",
+            "integer_bits": 1,
+            "fractional_bits": 0
+          }
         },
         {
           "desc": "INT pin",
@@ -220,12 +260,16 @@
               "value": 1
             }
           ],
-          "fractional": 0,
           "name": "int_od",
           "offset": 2,
           "rw": true,
-          "signed": "U",
-          "width": 1
+          "width": 1,
+          "number_format": {
+            "class": "FixedPointNumber",
+            "signed": "U",
+            "integer_bits": 1,
+            "fractional_bits": 0
+          }
         },
         {
           "desc": "INT polarity",
@@ -241,12 +285,16 @@
               "value": 1
             }
           ],
-          "fractional": 0,
           "name": "int_pol",
           "offset": 1,
           "rw": true,
-          "signed": "U",
-          "width": 1
+          "width": 1,
+          "number_format": {
+            "class": "FixedPointNumber",
+            "signed": "U",
+            "integer_bits": 1,
+            "fractional_bits": 0
+          }
         },
         {
           "desc": "INT mode",
@@ -262,12 +310,16 @@
               "value": 1
             }
           ],
-          "fractional": 0,
           "name": "int_mode",
           "offset": 0,
           "rw": true,
-          "signed": "U",
-          "width": 1
+          "width": 1,
+          "number_format": {
+            "class": "FixedPointNumber",
+            "signed": "U",
+            "integer_bits": 1,
+            "fractional_bits": 0
+          }
         }
       ],
       "name": "INT_CONFIG",
@@ -282,42 +334,58 @@
         {
           "desc": "Pressure data out-of-range (OOR_P)",
           "enum_values": null,
-          "fractional": 0,
           "name": "oor_p_en",
           "offset": 3,
           "rw": true,
-          "signed": "U",
-          "width": 1
+          "width": 1,
+          "number_format": {
+            "class": "FixedPointNumber",
+            "signed": "U",
+            "integer_bits": 1,
+            "fractional_bits": 0
+          }
         },
         {
           "desc": "FIFO Threshold/Watermark (FIFO_THS)",
           "enum_values": null,
-          "fractional": 0,
           "name": "fifo_ths_en",
           "offset": 2,
           "rw": true,
-          "signed": "U",
-          "width": 1
+          "width": 1,
+          "number_format": {
+            "class": "FixedPointNumber",
+            "signed": "U",
+            "integer_bits": 1,
+            "fractional_bits": 0
+          }
         },
         {
           "desc": "FIFO Full (FIFO_FULL)",
           "enum_values": null,
-          "fractional": 0,
           "name": "fifo_full_en",
           "offset": 1,
           "rw": true,
-          "signed": "U",
-          "width": 1
+          "width": 1,
+          "number_format": {
+            "class": "FixedPointNumber",
+            "signed": "U",
+            "integer_bits": 1,
+            "fractional_bits": 0
+          }
         },
         {
           "desc": "Data Ready",
           "enum_values": null,
-          "fractional": 0,
           "name": "drdy_data_reg_en",
           "offset": 0,
           "rw": true,
-          "signed": "U",
-          "width": 1
+          "width": 1,
+          "number_format": {
+            "class": "FixedPointNumber",
+            "signed": "U",
+            "integer_bits": 1,
+            "fractional_bits": 0
+          }
         }
       ],
       "name": "INT_SOURCE",
@@ -343,12 +411,16 @@
               "value": 1
             }
           ],
-          "fractional": 0,
           "name": "fifo_mode",
           "offset": 5,
           "rw": true,
-          "signed": "U",
-          "width": 1
+          "width": 1,
+          "number_format": {
+            "class": "FixedPointNumber",
+            "signed": "U",
+            "integer_bits": 1,
+            "fractional_bits": 0
+          }
         },
         {
           "desc": "FIFO threshold",
@@ -364,12 +436,16 @@
               "value": 31
             }
           ],
-          "fractional": 0,
           "name": "fifo_threshold",
           "offset": 0,
           "rw": true,
-          "signed": "U",
-          "width": 5
+          "width": 5,
+          "number_format": {
+            "class": "FixedPointNumber",
+            "signed": "U",
+            "integer_bits": 5,
+            "fractional_bits": 0
+          }
         }
       ],
       "name": "FIFO_CONFIG",
@@ -384,12 +460,16 @@
         {
           "desc": "Number of frames in FIFO",
           "enum_values": null,
-          "fractional": 0,
           "name": "fifo_count",
           "offset": 0,
           "rw": false,
-          "signed": "U",
-          "width": 6
+          "width": 6,
+          "number_format": {
+            "class": "FixedPointNumber",
+            "signed": "U",
+            "integer_bits": 6,
+            "fractional_bits": 0
+          }
         }
       ],
       "name": "FIFO_COUNT",
@@ -404,12 +484,16 @@
         {
           "desc": "FIFO decimation selection",
           "enum_values": null,
-          "fractional": 0,
           "name": "fifo_dec_sel",
           "offset": 2,
           "rw": true,
-          "signed": "U",
-          "width": 3
+          "width": 3,
+          "number_format": {
+            "class": "FixedPointNumber",
+            "signed": "U",
+            "integer_bits": 3,
+            "fractional_bits": 0
+          }
         },
         {
           "desc": "FIFO frame data source selection",
@@ -435,12 +519,16 @@
               "value": 3
             }
           ],
-          "fractional": 0,
           "name": "fifo_frame_sel",
           "offset": 0,
           "rw": true,
-          "signed": "U",
-          "width": 2
+          "width": 2,
+          "number_format": {
+            "class": "FixedPointNumber",
+            "signed": "U",
+            "integer_bits": 2,
+            "fractional_bits": 0
+          }
         }
       ],
       "name": "FIFO_SEL",
@@ -455,12 +543,16 @@
         {
           "desc": "Temperature XLSB. Temp_Data arithmetic representation: (signed, 24, 16) [degC]",
           "enum_values": null,
-          "fractional": 0,
           "name": "temp_7_0",
           "offset": 0,
           "rw": false,
-          "signed": "U",
-          "width": 8
+          "width": 8,
+          "number_format": {
+            "class": "FixedPointNumber",
+            "signed": "U",
+            "integer_bits": 8,
+            "fractional_bits": 0
+          }
         }
       ],
       "name": "TEMP_DATA_XLSB",
@@ -475,12 +567,16 @@
         {
           "desc": "Temperature LSB. Temp_Data arithmetic representation: (signed, 24, 16) [degC]",
           "enum_values": null,
-          "fractional": 0,
           "name": "temp_15_8",
           "offset": 0,
           "rw": false,
-          "signed": "U",
-          "width": 8
+          "width": 8,
+          "number_format": {
+            "class": "FixedPointNumber",
+            "signed": "U",
+            "integer_bits": 8,
+            "fractional_bits": 0
+          }
         }
       ],
       "name": "TEMP_DATA_LSB",
@@ -495,12 +591,16 @@
         {
           "desc": "Temperature MSB. Temp_Data arithmetic representation: (signed, 24, 16) [degC]",
           "enum_values": null,
-          "fractional": 0,
           "name": "temp_23_16",
           "offset": 0,
           "rw": false,
-          "signed": "U",
-          "width": 8
+          "width": 8,
+          "number_format": {
+            "class": "FixedPointNumber",
+            "signed": "U",
+            "integer_bits": 8,
+            "fractional_bits": 0
+          }
         }
       ],
       "name": "TEMP_DATA_MSB",
@@ -515,12 +615,16 @@
         {
           "desc": "Pressure XLSB. Press_Data arithmetic representation: (signed, 24, 6) [Pa]",
           "enum_values": null,
-          "fractional": 0,
           "name": "press_7_0",
           "offset": 0,
           "rw": false,
-          "signed": "U",
-          "width": 8
+          "width": 8,
+          "number_format": {
+            "class": "FixedPointNumber",
+            "signed": "U",
+            "integer_bits": 8,
+            "fractional_bits": 0
+          }
         }
       ],
       "name": "PRESS_DATA_XLSB",
@@ -535,12 +639,16 @@
         {
           "desc": "Pressure LSB. Press_Data arithmetic representation: (signed, 24, 6) [Pa]",
           "enum_values": null,
-          "fractional": 0,
           "name": "press_15_8",
           "offset": 0,
           "rw": false,
-          "signed": "U",
-          "width": 8
+          "width": 8,
+          "number_format": {
+            "class": "FixedPointNumber",
+            "signed": "U",
+            "integer_bits": 8,
+            "fractional_bits": 0
+          }
         }
       ],
       "name": "PRESS_DATA_LSB",
@@ -555,12 +663,16 @@
         {
           "desc": "Pressure MSB. Press_Data arithmetic representation: (signed, 24, 6) [Pa]",
           "enum_values": null,
-          "fractional": 0,
           "name": "press_23_16",
           "offset": 0,
           "rw": false,
-          "signed": "U",
-          "width": 8
+          "width": 8,
+          "number_format": {
+            "class": "FixedPointNumber",
+            "signed": "U",
+            "integer_bits": 8,
+            "fractional_bits": 0
+          }
         }
       ],
       "name": "PRESS_DATA_MSB",
@@ -575,52 +687,72 @@
         {
           "desc": "Power-on-reset",
           "enum_values": null,
-          "fractional": 0,
           "name": "por",
           "offset": 4,
           "rw": false,
-          "signed": "U",
-          "width": 1
+          "width": 1,
+          "number_format": {
+            "class": "FixedPointNumber",
+            "signed": "U",
+            "integer_bits": 1,
+            "fractional_bits": 0
+          }
         },
         {
           "desc": "Pressure data out-of-range",
           "enum_values": null,
-          "fractional": 0,
           "name": "oor_p",
           "offset": 3,
           "rw": false,
-          "signed": "U",
-          "width": 1
+          "width": 1,
+          "number_format": {
+            "class": "FixedPointNumber",
+            "signed": "U",
+            "integer_bits": 1,
+            "fractional_bits": 0
+          }
         },
         {
           "desc": "FIFO Threshold/Watermark",
           "enum_values": null,
-          "fractional": 0,
           "name": "fifo_ths",
           "offset": 2,
           "rw": false,
-          "signed": "U",
-          "width": 1
+          "width": 1,
+          "number_format": {
+            "class": "FixedPointNumber",
+            "signed": "U",
+            "integer_bits": 1,
+            "fractional_bits": 0
+          }
         },
         {
           "desc": "FIFO Full",
           "enum_values": null,
-          "fractional": 0,
           "name": "fifo_full",
           "offset": 1,
           "rw": false,
-          "signed": "U",
-          "width": 1
+          "width": 1,
+          "number_format": {
+            "class": "FixedPointNumber",
+            "signed": "U",
+            "integer_bits": 1,
+            "fractional_bits": 0
+          }
         },
         {
           "desc": "Data Ready",
           "enum_values": null,
-          "fractional": 0,
           "name": "drdy_data_reg",
           "offset": 0,
           "rw": false,
-          "signed": "U",
-          "width": 1
+          "width": 1,
+          "number_format": {
+            "class": "FixedPointNumber",
+            "signed": "U",
+            "integer_bits": 1,
+            "fractional_bits": 0
+          }
         }
       ],
       "name": "INT_STATUS",
@@ -635,62 +767,86 @@
         {
           "desc": "If asserted, crack check has been successfully executed without detecting a crack. Note: this bit is cleared with deasserting ASIC_SELFTEST_CTRL.st_crack_check",
           "enum_values": null,
-          "fractional": 0,
           "name": "st_crack_pass",
           "offset": 7,
           "rw": false,
-          "signed": "U",
-          "width": 1
+          "width": 1,
+          "number_format": {
+            "class": "FixedPointNumber",
+            "signed": "U",
+            "integer_bits": 1,
+            "fractional_bits": 0
+          }
         },
         {
           "desc": "If asserted, indicates that an error has been corrected by ECC during last boot-loading. Note: This bit is cleared upon a new NVM user command. Additionally, in deep standby (Normal and Forced) the NVM is downloaded at beginning of each measurement. It is valid after DRY until the next measurement starts.",
           "enum_values": null,
-          "fractional": 0,
           "name": "status_boot_err_corrected",
           "offset": 4,
           "rw": false,
-          "signed": "U",
-          "width": 1
+          "width": 1,
+          "number_format": {
+            "class": "FixedPointNumber",
+            "signed": "U",
+            "integer_bits": 1,
+            "fractional_bits": 0
+          }
         },
         {
           "desc": "If asserted, indicates a boot command error, due to at least one of the following reasons: - nvm_usr_read / nvm_usr_prog command submitted when CFG.STATE.nvm_rdy = 0 (FCU is not in STANDBY mode). Boot command not executed -> Boot.STATUS.* and CFG.status.nvm_err not updated. - nvm_usr_prog command submitted when CFG.MISC.nvm_prog_en = 0. Boot command executed -> Boot.STATUS.* and CFG.status.nvm_err updated. - nvm_usr_prog command submitted with CFG.NVM_ADDR.nvm_row_addr outside valid range (6'h08, 6'h09, 6'h1E-'h622). Boot command executed -> Boot.STATUS.* and CFG.status.nvm_err updated. This bit is cleared upon a new NVM command",
           "enum_values": null,
-          "fractional": 0,
           "name": "status_nvm_cmd_err",
           "offset": 3,
           "rw": false,
-          "signed": "U",
-          "width": 1
+          "width": 1,
+          "number_format": {
+            "class": "FixedPointNumber",
+            "signed": "U",
+            "integer_bits": 1,
+            "fractional_bits": 0
+          }
         },
         {
           "desc": "If asserted, indicates an NVM error, due to at least one of the following reasons: - PMU power transition fail on NVM power request - NVM timeout errors in P/E - NVM Charge Pump voltage fail in PROGRAM/ERASE - During last boot/load command, ECC has detected 2+ errors. This bit is cleared/updated upon a new NVM command, if Boot command is executed.",
           "enum_values": null,
-          "fractional": 0,
           "name": "status_nvm_err",
           "offset": 2,
           "rw": false,
-          "signed": "U",
-          "width": 1
+          "width": 1,
+          "number_format": {
+            "class": "FixedPointNumber",
+            "signed": "U",
+            "integer_bits": 1,
+            "fractional_bits": 0
+          }
         },
         {
           "desc": "If asserted, device is ready for NVM operations",
           "enum_values": null,
-          "fractional": 0,
           "name": "status_nvm_rdy",
           "offset": 1,
           "rw": false,
-          "signed": "U",
-          "width": 1
+          "width": 1,
+          "number_format": {
+            "class": "FixedPointNumber",
+            "signed": "U",
+            "integer_bits": 1,
+            "fractional_bits": 0
+          }
         },
         {
           "desc": "If asserted, the digital core domain is accessible",
           "enum_values": null,
-          "fractional": 0,
           "name": "status_core_rdy",
           "offset": 0,
           "rw": false,
-          "signed": "U",
-          "width": 1
+          "width": 1,
+          "number_format": {
+            "class": "FixedPointNumber",
+            "signed": "U",
+            "integer_bits": 1,
+            "fractional_bits": 0
+          }
         }
       ],
       "name": "STATUS",
@@ -705,12 +861,16 @@
         {
           "desc": "FIFO read data",
           "enum_values": null,
-          "fractional": 0,
           "name": "fifo_data",
           "offset": 0,
           "rw": false,
-          "signed": "U",
-          "width": 8
+          "width": 8,
+          "number_format": {
+            "class": "FixedPointNumber",
+            "signed": "U",
+            "integer_bits": 8,
+            "fractional_bits": 0
+          }
         }
       ],
       "name": "FIFO_DATA",
@@ -725,22 +885,30 @@
         {
           "desc": "If set, enables NVM programming (Note: this field cannot be written during an ongoing P/T conversion.)",
           "enum_values": null,
-          "fractional": 0,
           "name": "nvm_prog_en",
           "offset": 6,
           "rw": true,
-          "signed": "U",
-          "width": 1
+          "width": 1,
+          "number_format": {
+            "class": "FixedPointNumber",
+            "signed": "U",
+            "integer_bits": 1,
+            "fractional_bits": 0
+          }
         },
         {
           "desc": "NVM (row) address (Note: this field cannot be written during an ongoing P/T conversion.)",
           "enum_values": null,
-          "fractional": 0,
           "name": "nvm_row_address",
           "offset": 0,
           "rw": true,
-          "signed": "U",
-          "width": 6
+          "width": 6,
+          "number_format": {
+            "class": "FixedPointNumber",
+            "signed": "U",
+            "integer_bits": 6,
+            "fractional_bits": 0
+          }
         }
       ],
       "name": "NVM_ADDR",
@@ -755,12 +923,16 @@
         {
           "desc": "NVM Data LSB, bits 7:0. Note: This field cannot be written during an ongoing conversion and should be read-back only after an idle time of at least 1 us.",
           "enum_values": null,
-          "fractional": 0,
           "name": "nvm_data_lsb",
           "offset": 0,
           "rw": true,
-          "signed": "U",
-          "width": 8
+          "width": 8,
+          "number_format": {
+            "class": "FixedPointNumber",
+            "signed": "U",
+            "integer_bits": 8,
+            "fractional_bits": 0
+          }
         }
       ],
       "name": "NVM_DATA_LSB",
@@ -775,12 +947,16 @@
         {
           "desc": "NVM Data MSB, bits 15:8. Note: This field cannot be written during an ongoing conversion and should be read-back only after an idle time of at least 1 us.",
           "enum_values": null,
-          "fractional": 0,
           "name": "nvm_data_msb",
           "offset": 0,
           "rw": true,
-          "signed": "U",
-          "width": 8
+          "width": 8,
+          "number_format": {
+            "class": "FixedPointNumber",
+            "signed": "U",
+            "integer_bits": 8,
+            "fractional_bits": 0
+          }
         }
       ],
       "name": "NVM_DATA_MSB",
@@ -806,12 +982,16 @@
               "value": 1
             }
           ],
-          "fractional": 0,
           "name": "oor_sel_iir_p",
           "offset": 7,
           "rw": true,
-          "signed": "U",
-          "width": 1
+          "width": 1,
+          "number_format": {
+            "class": "FixedPointNumber",
+            "signed": "U",
+            "integer_bits": 1,
+            "fractional_bits": 0
+          }
         },
         {
           "desc": "FIFO IIR selection pressure data (Note: This field cannot be written during an ongoing P/T conversion.)",
@@ -827,12 +1007,16 @@
               "value": 1
             }
           ],
-          "fractional": 0,
           "name": "fifo_sel_iir_p",
           "offset": 6,
           "rw": true,
-          "signed": "U",
-          "width": 1
+          "width": 1,
+          "number_format": {
+            "class": "FixedPointNumber",
+            "signed": "U",
+            "integer_bits": 1,
+            "fractional_bits": 0
+          }
         },
         {
           "desc": "Shadow Registers IIR selection pressure data (Note: This field cannot be written during an ongoing P/T conversion.)",
@@ -848,12 +1032,16 @@
               "value": 1
             }
           ],
-          "fractional": 0,
           "name": "shdw_sel_iir_p",
           "offset": 5,
           "rw": true,
-          "signed": "U",
-          "width": 1
+          "width": 1,
+          "number_format": {
+            "class": "FixedPointNumber",
+            "signed": "U",
+            "integer_bits": 1,
+            "fractional_bits": 0
+          }
         },
         {
           "desc": "FIFO IIR selection temperature data (Note: This field cannot be written during an ongoing P/T conversion.)",
@@ -869,12 +1057,16 @@
               "value": 1
             }
           ],
-          "fractional": 0,
           "name": "fifo_sel_iir_t",
           "offset": 4,
           "rw": true,
-          "signed": "U",
-          "width": 1
+          "width": 1,
+          "number_format": {
+            "class": "FixedPointNumber",
+            "signed": "U",
+            "integer_bits": 1,
+            "fractional_bits": 0
+          }
         },
         {
           "desc": "Temperature Data Registers IIR selection temperature data (Note: This field cannot be written during an ongoing P/T conversion.)",
@@ -890,22 +1082,30 @@
               "value": 1
             }
           ],
-          "fractional": 0,
           "name": "shdw_sel_iir_t",
           "offset": 3,
           "rw": true,
-          "signed": "U",
-          "width": 1
+          "width": 1,
+          "number_format": {
+            "class": "FixedPointNumber",
+            "signed": "U",
+            "integer_bits": 1,
+            "fractional_bits": 0
+          }
         },
         {
           "desc": "If set, an IIR filter flush is executed in FORCED mode (Note: This field cannot be written during an ongoing P/T conversion.)",
           "enum_values": null,
-          "fractional": 0,
           "name": "iir_flush_forced_en",
           "offset": 2,
           "rw": true,
-          "signed": "U",
-          "width": 1
+          "width": 1,
+          "number_format": {
+            "class": "FixedPointNumber",
+            "signed": "U",
+            "integer_bits": 1,
+            "fractional_bits": 0
+          }
         },
         {
           "desc": "Pressure sensor compensation",
@@ -931,12 +1131,16 @@
               "value": 3
             }
           ],
-          "fractional": 0,
           "name": "comp_pt_en",
           "offset": 0,
           "rw": true,
-          "signed": "U",
-          "width": 2
+          "width": 2,
+          "number_format": {
+            "class": "FixedPointNumber",
+            "signed": "U",
+            "integer_bits": 2,
+            "fractional_bits": 0
+          }
         }
       ],
       "name": "DSP_CONFIG",
@@ -992,12 +1196,16 @@
               "value": 7
             }
           ],
-          "fractional": 0,
           "name": "set_iir_p",
           "offset": 3,
           "rw": true,
-          "signed": "U",
-          "width": 3
+          "width": 3,
+          "number_format": {
+            "class": "FixedPointNumber",
+            "signed": "U",
+            "integer_bits": 3,
+            "fractional_bits": 0
+          }
         },
         {
           "desc": "Temperature IIR LPF band filter selection. The filter coefficient (Note: This field cannot be written during an ongoing P/T conversion.)",
@@ -1043,12 +1251,16 @@
               "value": 7
             }
           ],
-          "fractional": 0,
           "name": "set_iir_t",
           "offset": 0,
           "rw": true,
-          "signed": "U",
-          "width": 3
+          "width": 3,
+          "number_format": {
+            "class": "FixedPointNumber",
+            "signed": "U",
+            "integer_bits": 3,
+            "fractional_bits": 0
+          }
         }
       ],
       "name": "DSP_IIR",
@@ -1063,12 +1275,16 @@
         {
           "desc": "OOR pressure threshold, bits 7:0",
           "enum_values": null,
-          "fractional": 0,
           "name": "oor_thr_p_7_0",
           "offset": 0,
           "rw": true,
-          "signed": "U",
-          "width": 8
+          "width": 8,
+          "number_format": {
+            "class": "FixedPointNumber",
+            "signed": "U",
+            "integer_bits": 8,
+            "fractional_bits": 0
+          }
         }
       ],
       "name": "OOR_THR_P_LSB",
@@ -1083,12 +1299,16 @@
         {
           "desc": "OOR pressure threshold, bits 15:8",
           "enum_values": null,
-          "fractional": 0,
           "name": "oor_thr_p_15_8",
           "offset": 0,
           "rw": true,
-          "signed": "U",
-          "width": 8
+          "width": 8,
+          "number_format": {
+            "class": "FixedPointNumber",
+            "signed": "U",
+            "integer_bits": 8,
+            "fractional_bits": 0
+          }
         }
       ],
       "name": "OOR_THR_P_MSB",
@@ -1103,12 +1323,16 @@
         {
           "desc": "OOR pressure range",
           "enum_values": null,
-          "fractional": 0,
           "name": "oor_range_p",
           "offset": 0,
           "rw": true,
-          "signed": "U",
-          "width": 8
+          "width": 8,
+          "number_format": {
+            "class": "FixedPointNumber",
+            "signed": "U",
+            "integer_bits": 8,
+            "fractional_bits": 0
+          }
         }
       ],
       "name": "OOR_RANGE",
@@ -1144,22 +1368,30 @@
               "value": 3
             }
           ],
-          "fractional": 0,
           "name": "cnt_lim",
           "offset": 6,
           "rw": true,
-          "signed": "U",
-          "width": 2
+          "width": 2,
+          "number_format": {
+            "class": "FixedPointNumber",
+            "signed": "U",
+            "integer_bits": 2,
+            "fractional_bits": 0
+          }
         },
         {
           "desc": "OOR pressure threshold, bit 16",
           "enum_values": null,
-          "fractional": 0,
           "name": "oor_thr_p_16",
           "offset": 0,
           "rw": true,
-          "signed": "U",
-          "width": 1
+          "width": 1,
+          "number_format": {
+            "class": "FixedPointNumber",
+            "signed": "U",
+            "integer_bits": 1,
+            "fractional_bits": 0
+          }
         }
       ],
       "name": "OOR_CONFIG",
@@ -1174,12 +1406,16 @@
         {
           "desc": "If set, enables sensor pressure measurements. Otherwise temperature only measurements is done.",
           "enum_values": null,
-          "fractional": 0,
           "name": "press_en",
           "offset": 6,
           "rw": true,
-          "signed": "U",
-          "width": 1
+          "width": 1,
+          "number_format": {
+            "class": "FixedPointNumber",
+            "signed": "U",
+            "integer_bits": 1,
+            "fractional_bits": 0
+          }
         },
         {
           "desc": "OSR_P selection",
@@ -1225,12 +1461,16 @@
               "value": 7
             }
           ],
-          "fractional": 0,
           "name": "osr_p",
           "offset": 3,
           "rw": true,
-          "signed": "U",
-          "width": 3
+          "width": 3,
+          "number_format": {
+            "class": "FixedPointNumber",
+            "signed": "U",
+            "integer_bits": 3,
+            "fractional_bits": 0
+          }
         },
         {
           "desc": "OSR_T selection. Note: the configured ODR might be invalid in combination with OSR configuration. This is observable with the ODR_CONFIG.flag odr_is_valid. If configured ODR/OSR settings are invalid, default OSR settings will be used. The effective OSR settings for P/T can be read from osr_t_eff and osr_p_eff.",
@@ -1276,12 +1516,16 @@
               "value": 7
             }
           ],
-          "fractional": 0,
           "name": "osr_t",
           "offset": 0,
           "rw": true,
-          "signed": "U",
-          "width": 3
+          "width": 3,
+          "number_format": {
+            "class": "FixedPointNumber",
+            "signed": "U",
+            "integer_bits": 3,
+            "fractional_bits": 0
+          }
         }
       ],
       "name": "OSR_CONFIG",
@@ -1296,12 +1540,16 @@
         {
           "desc": "If asserted, disables the deep standby (Note: This field cannot be changed during an ongoing P/T conversion.)",
           "enum_values": null,
-          "fractional": 0,
           "name": "deep_dis",
           "offset": 7,
           "rw": true,
-          "signed": "U",
-          "width": 1
+          "width": 1,
+          "number_format": {
+            "class": "FixedPointNumber",
+            "signed": "U",
+            "integer_bits": 1,
+            "fractional_bits": 0
+          }
         },
         {
           "desc": "ODR Selection. Note: the configured ODR might be invalid in combination with OSR configuration. This is observable with the flag odr_is_valid. If configured ODR/OSR settings are invalid, default OSR settings will be used. The effective OSR settings for P/T can be read from osr_t_eff and osr_p_eff.",
@@ -1467,12 +1715,16 @@
               "value": 31
             }
           ],
-          "fractional": 0,
           "name": "odr",
           "offset": 2,
           "rw": true,
-          "signed": "U",
-          "width": 5
+          "width": 5,
+          "number_format": {
+            "class": "FixedPointNumber",
+            "signed": "U",
+            "integer_bits": 5,
+            "fractional_bits": 0
+          }
         },
         {
           "desc": "Power mode configuration. The user can request a dedicated power mode by writing this field. A read returns the actual mode the device is in. Note: This bit is cleared again upon transition from FORCED to STANDBY mode.",
@@ -1498,12 +1750,16 @@
               "value": 3
             }
           ],
-          "fractional": 0,
           "name": "pwr_mode",
           "offset": 0,
           "rw": true,
-          "signed": "U",
-          "width": 2
+          "width": 2,
+          "number_format": {
+            "class": "FixedPointNumber",
+            "signed": "U",
+            "integer_bits": 2,
+            "fractional_bits": 0
+          }
         }
       ],
       "name": "ODR_CONFIG",
@@ -1518,32 +1774,44 @@
         {
           "desc": "If asserted, the ODR parametrization is valid (This is checked on every change in ODR and OSR configuration registers.)",
           "enum_values": null,
-          "fractional": 0,
           "name": "odr_is_valid",
           "offset": 7,
           "rw": false,
-          "signed": "U",
-          "width": 1
+          "width": 1,
+          "number_format": {
+            "class": "FixedPointNumber",
+            "signed": "U",
+            "integer_bits": 1,
+            "fractional_bits": 0
+          }
         },
         {
           "desc": "OSR_P effective selection. Effectively selected OSR for pressure. Please refer to OSR_CONFIG for encodings.",
           "enum_values": null,
-          "fractional": 0,
           "name": "osr_p_eff",
           "offset": 3,
           "rw": false,
-          "signed": "U",
-          "width": 3
+          "width": 3,
+          "number_format": {
+            "class": "FixedPointNumber",
+            "signed": "U",
+            "integer_bits": 3,
+            "fractional_bits": 0
+          }
         },
         {
           "desc": "OSR_T effective selection. Effectively selected OSR for temperature. Please refer to OSR_CONFIG for encodings.",
           "enum_values": null,
-          "fractional": 0,
           "name": "osr_t_eff",
           "offset": 0,
           "rw": false,
-          "signed": "U",
-          "width": 3
+          "width": 3,
+          "number_format": {
+            "class": "FixedPointNumber",
+            "signed": "U",
+            "integer_bits": 3,
+            "fractional_bits": 0
+          }
         }
       ],
       "name": "OSR_EFF",
@@ -1599,12 +1867,16 @@
               "value": 182
             }
           ],
-          "fractional": 0,
           "name": "cmd",
           "offset": 0,
           "rw": true,
-          "signed": "U",
-          "width": 8
+          "width": 8,
+          "number_format": {
+            "class": "FixedPointNumber",
+            "signed": "U",
+            "integer_bits": 8,
+            "fractional_bits": 0
+          }
         }
       ],
       "name": "CMD",

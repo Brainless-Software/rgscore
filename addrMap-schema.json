@@ -100,15 +100,58 @@
               "type": "object",
               "required": [
                 "name",
+                "number_format",
                 "desc",
-                "fractional",
                 "offset",
                 "rw",
-                "signed",
                 "width",
                 "enum_values"
               ],
               "properties": {
+                "number_format": {
+                  "type": "object",
+                  "required": [
+                    "class"
+                  ],
+                  "if": {
+                    "properties": {
+                      "class": {
+                        "const": "FixedPointNumber"
+                      }
+                    }
+                  },
+                  "then": {
+                    "required": [
+                      "signed",
+                      "integer_bits",
+                      "fractional_bits"
+                    ]
+                  },
+                  "properties": {
+                    "class": {
+                      "type": "string",
+                      "enum": [
+                        "FixedPointNumber",
+                        "BinaryCodedDecimal"
+                      ]
+                    },
+                    "signed": {
+                      "type": "string",
+                      "pattern": "^[SU]$",
+                      "$comment": "Letter 'S' or 'U' indicating of numeric value stored in this field is signed or unsigned"
+                    },
+                    "integer_bits": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "$comment": "Must match number of bits in this field"
+                    },
+                    "fractional_bits": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "$comment": "Fractional part in the fixed point number representation for this field"
+                    }
+                  }
+                },
                 "name": {
                   "type": "string",
                   "minLength": 1,
@@ -121,11 +164,6 @@
                   ],
                   "$comment": "Optional field description"
                 },
-                "fractional": {
-                  "type": "integer",
-                  "minimum": 0,
-                  "$comment": "Fractional part in the fixed point number representation for this field"
-                },
                 "offset": {
                   "type": "integer",
                   "minimum": 0,
@@ -134,11 +172,6 @@
                 "rw": {
                   "type": "boolean",
                   "$comment": "Boolean flag indicating of this field is read-write (true) or read-only (false)"
-                },
-                "signed": {
-                  "type": "string",
-                  "pattern": "^[SU]$",
-                  "$comment": "Letter 'S' or 'U' indicating of numeric value stored in this field is signed or unsigned"
                 },
                 "width": {
                   "type": "integer",

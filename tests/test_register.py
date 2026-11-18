@@ -6,7 +6,8 @@ from contextlib import redirect_stdout
 import pytest
 from bitstring import BitArray
 
-from rgscore.model.register import EnumValue, Field, FieldDef, HardwareRegister, Register, RLink
+from rgscore import FixedPointNumber
+from rgscore.model.register import BinaryCodedDecimal, EnumValue, Field, FieldDef, HardwareRegister, Register, RLink
 
 
 class MemLink(RLink):
@@ -45,7 +46,13 @@ def test_bare_register_valid():
 
     # implicit field named "val" is created occupying the whole of the register of type U{r.width}.0
     assert r.get_field_names() == ["val"]
-    assert r.get_field_definition("val") == FieldDef(name="val", offset=0, signed="U", width=7, fractional=0, rw=True)
+    assert r.get_field_definition("val") == FieldDef(
+        name="val",
+        offset=0,
+        number_format=FixedPointNumber(signed="U", integer_bits=7, fractional_bits=0),
+        width=7,
+        rw=True,
+    )
 
 
 def test_bare_register_invalid():
@@ -198,18 +205,19 @@ def test_field_def():
     assert fd.name == "a"
     assert fd.width == 8
     assert fd.offset == 3
-    assert fd.signed == "U"
-    assert fd.fractional == 3
+    assert isinstance(fd.number_format, FixedPointNumber)
+    assert fd.number_format.signed == "U"
+    assert fd.number_format.integer_bits == 8
+    assert fd.number_format.fractional_bits == 3
     assert not fd.rw
     assert fd.num_type() == "U8.3"
 
     # omitting rw flag implies "rw"
-    fd = FieldDef.value_of("a@[10:3]U8.3")
+    fd = FieldDef.value_of("a@[10:3]BCD")
     assert fd.name == "a"
     assert fd.width == 8
     assert fd.offset == 3
-    assert fd.signed == "U"
-    assert fd.fractional == 3
+    assert isinstance(fd.number_format, BinaryCodedDecimal)
     assert fd.rw
 
     # field with width of 1 bit can be written as [offset] or [offset:offset]
@@ -231,9 +239,8 @@ def test_field_def():
         FieldDef(
             name="a",
             offset=0,
-            signed="U",
+            number_format=BinaryCodedDecimal(),
             width=2,
-            fractional=0,
             rw=True,
             enum_values=[EnumValue("Yes", 1, "Do it"), EnumValue("No", 1, "Do not")],
         )
@@ -245,9 +252,8 @@ def test_field_def():
         FieldDef(
             name="a",
             offset=0,
-            signed="U",
+            number_format=BinaryCodedDecimal(),
             width=2,
-            fractional=0,
             rw=True,
             enum_values=[EnumValue("Yes", 1, "Do it"), EnumValue("Yes", 0, "Do not")],
         )
@@ -297,25 +303,48 @@ def test_field_def():
     with pytest.raises(ValueError):
         Field(name="a", offset=0, numeric_type="Z4.1")
 
+    with pytest.raises(ValueError, match="Width of field a cannot be None if numeric type is BCD"):
+        Field(name="a", offset=0, numeric_type="BCD")
+
     with pytest.raises(ValueError):
         Field(name="a", offset=0, numeric_type="U4.1", rw="rz")
+
+    with pytest.raises(
+        ValueError,
+        match=re.escape(
+            "Width of field a does not match value of integer bits in Fixed Point Number definition [U4.1]"
+        ),
+    ):
+        Field(name="a", offset=0, numeric_type="U4.1", rw="rw", width=5)
 
 
 def test_fielddef_validate_invalid_signed():
     """Test FieldDef.__validate__ raises ValueError for invalid signed value."""
     with pytest.raises(ValueError, match="Invalid signed value"):
-        FieldDef(name="a", offset=0, signed="X", width=4, fractional=0, rw=True)
+        FieldDef(
+            name="a",
+            offset=0,
+            number_format=FixedPointNumber(signed="X", integer_bits=4, fractional_bits=0),
+            width=4,
+            rw=True,
+        )
 
 
 def test_fielddef_validate_negative_offset():
     """Test FieldDef.__validate__ raises ValueError for negative offset."""
     with pytest.raises(ValueError, match="Field offset must be a positive integer"):
-        FieldDef(name="a", offset=-1, signed="U", width=4, fractional=0, rw=True)
+        FieldDef(name="a", offset=-1, number_format=BinaryCodedDecimal(), width=4, rw=True)
 
 
 def test_fielddef_format_fractional_zero():
     """Test FieldDef.format with fractional == 0 returns int string."""
-    fd = FieldDef(name="a", offset=0, signed="U", width=4, fractional=0, rw=True)
+    fd = FieldDef(
+        name="a",
+        offset=0,
+        number_format=FixedPointNumber(signed="U", integer_bits=4, fractional_bits=0),
+        width=4,
+        rw=True,
+    )
     # fractional == 0 should return int string
     assert fd.format(3.0) == "3"
     assert fd.format(3.5) == "3"  # int(3.5) == 3
@@ -323,17 +352,29 @@ def test_fielddef_format_fractional_zero():
 
 def test_fielddef_repr():
     """Test FieldDef.__repr__ method."""
-    fd = FieldDef(name="test_field", offset=2, signed="U", width=4, fractional=1, rw=True)
+    fd = FieldDef(
+        name="test_field",
+        offset=2,
+        number_format=FixedPointNumber(signed="U", integer_bits=4, fractional_bits=1),
+        width=4,
+        rw=True,
+    )
     repr_str = repr(fd)
     assert "test_field" in repr_str
     assert "U4.1" in repr_str
     assert "#rw" in repr_str
 
     # Test read-only
-    fd_ro = FieldDef(name="ro_field", offset=0, signed="S", width=3, fractional=0, rw=False)
+    fd_ro = FieldDef(
+        name="ro_field",
+        offset=0,
+        number_format=BinaryCodedDecimal(),
+        width=3,
+        rw=False,
+    )
     repr_str_ro = repr(fd_ro)
     assert "ro_field" in repr_str_ro
-    assert "S3.0" in repr_str_ro
+    assert "BCD" in repr_str_ro
     assert "#ro" in repr_str_ro
 
 
@@ -342,15 +383,51 @@ def test_fielddef_next_up_value():
     from bitstring import BitArray
 
     # Unsigned field
-    fd = FieldDef(name="a", offset=0, signed="U", width=4, fractional=0, rw=True)
+    fd = FieldDef(
+        name="a",
+        offset=0,
+        number_format=FixedPointNumber(signed="U", integer_bits=4, fractional_bits=0),
+        width=4,
+        rw=True,
+    )
     data = BitArray("uint:4=5")
     # next_up_value should return 6
     assert fd.next_up_value(data) == 6
 
     # Signed field
-    fd_signed = FieldDef(name="b", offset=0, signed="S", width=4, fractional=0, rw=True)
+    fd_signed = FieldDef(
+        name="b",
+        offset=0,
+        number_format=FixedPointNumber(signed="S", integer_bits=4, fractional_bits=0),
+        width=4,
+        rw=True,
+    )
     data_signed = BitArray("int:4=2")
     assert fd_signed.next_up_value(data_signed) == 3
+
+    fd_bcd = FieldDef(
+        name="b",
+        offset=0,
+        number_format=BinaryCodedDecimal(),
+        width=4,
+        rw=True,
+    )
+    data = BitArray("0b0111")
+    assert fd_bcd.next_up_value(data) == 8
+
+    data = BitArray("0b1001")
+    assert fd_bcd.next_up_value(data) == 9
+
+
+def test_fielddef_number_format_width_mismatch():
+    with pytest.raises(ValueError, match="Fixed point number format width 4 != field width 5"):
+        FieldDef(
+            name="b",
+            offset=0,
+            number_format=FixedPointNumber(signed="S", integer_bits=4, fractional_bits=0),
+            width=5,
+            rw=True,
+        )
 
 
 def test_fielddef_next_down_value():
@@ -358,15 +435,40 @@ def test_fielddef_next_down_value():
     from bitstring import BitArray
 
     # Unsigned field
-    fd = FieldDef(name="a", offset=0, signed="U", width=4, fractional=0, rw=True)
+    fd = FieldDef(
+        name="a",
+        offset=0,
+        number_format=FixedPointNumber(signed="U", integer_bits=4, fractional_bits=0),
+        width=4,
+        rw=True,
+    )
     data = BitArray("uint:4=5")
     # next_down_value should return 4
     assert fd.next_down_value(data) == 4
 
     # Signed field
-    fd_signed = FieldDef(name="b", offset=0, signed="S", width=4, fractional=0, rw=True)
+    fd_signed = FieldDef(
+        name="b",
+        offset=0,
+        number_format=FixedPointNumber(signed="S", integer_bits=4, fractional_bits=0),
+        width=4,
+        rw=True,
+    )
     data_signed = BitArray("int:4=-2")
     assert fd_signed.next_down_value(data_signed) == -3
+
+    fd_bcd = FieldDef(
+        name="b",
+        offset=0,
+        number_format=BinaryCodedDecimal(),
+        width=4,
+        rw=True,
+    )
+    data = BitArray("0b1000")
+    assert fd_bcd.next_down_value(data) == 7
+
+    data = BitArray("0b0000")
+    assert fd_bcd.next_down_value(data) == 0
 
 
 def test_fielddef_get_next_raw_field_out_of_range():
@@ -374,13 +476,25 @@ def test_fielddef_get_next_raw_field_out_of_range():
     from bitstring import BitArray
 
     # Unsigned field at max value - next up should wrap/return same
-    fd = FieldDef(name="a", offset=0, signed="U", width=4, fractional=0, rw=True)
+    fd = FieldDef(
+        name="a",
+        offset=0,
+        number_format=FixedPointNumber(signed="U", integer_bits=4, fractional_bits=0),
+        width=4,
+        rw=True,
+    )
     data = BitArray("uint:4=15")  # max value for 4 bits unsigned
     # next_up_value should return same value (15) since 16 is out of range
     assert fd.next_up_value(data) == 15
 
     # Signed field at max value
-    fd_signed = FieldDef(name="b", offset=0, signed="S", width=4, fractional=0, rw=True)
+    fd_signed = FieldDef(
+        name="b",
+        offset=0,
+        number_format=FixedPointNumber(signed="S", integer_bits=4, fractional_bits=0),
+        width=4,
+        rw=True,
+    )
     data_signed = BitArray("int:4=7")  # max value for 4 bits signed
     assert fd_signed.next_up_value(data_signed) == 7
 
@@ -514,6 +628,7 @@ def test_json_serialization():
         model=[
             FieldDef.value_of("a@[3:0]U4.1#ro").with_description("A field").with_enum([EnumValue("A", 3.0, "a value")]),
             FieldDef.value_of("b@[6:4]S3.0"),
+            FieldDef.value_of("c@[7:7]BCD"),
         ],
     )
     assert r1.reset_value == BitArray("0x07")
@@ -524,7 +639,7 @@ def test_json_serialization():
     assert data["name"] == "Foo"
     assert data["address"] == "0x1"
     assert data["width"] == 8
-    assert len(data["fields"]) == 2
+    assert len(data["fields"]) == 3
     assert data["reset"] == "0b00000111"
 
     # now create new instance of Register from the json string
@@ -536,10 +651,7 @@ def test_json_serialization():
     assert r2.address == 1
     assert r2.address_bus_width_bytes == 2
     assert r2.width == 8
-    assert r2.get_field_names() == [
-        "b",
-        "a",
-    ]  # fields are resorted by decreasing offset
+    assert r2.get_field_names() == ["c", "b", "a"]  # fields are resorted by decreasing offset
     assert r_json == r2.to_json_def()
     assert r1 == r2
     assert r1 != ""
@@ -824,6 +936,26 @@ def test_register_get_field_value_raw_error():
         r.get_field_value_raw("nonexistent")
 
 
+def test_register_bcd_out_of_range():
+    r = Register(
+        bit_len=8,
+        address=0xC,
+        name="TestReg",
+        model=[FieldDef.value_of("x@[7:3]BCD")],
+    )
+
+    # max value is 19
+    r.set_field_value("x", 19)
+    assert r.get_field_value_raw("x") == BitArray("0b1_1001")
+
+    with pytest.raises(ValueError, match=re.escape('Value 20 is out of range (0.0, 19.0) for field "x"')):
+        r.set_field_value("x", 20)
+
+    r.set_field_value("x", 7.0)
+    assert r.get_field_value("x") == 7
+    assert r.get_field_value_raw("x") == BitArray("0b0_0111")
+
+
 def test_register_write_read_back():
     """Test Register.write with read_back=True."""
     store = MemLink()
@@ -831,9 +963,13 @@ def test_register_write_read_back():
         bit_len=8,
         address=0xC,
         name="TestReg",
-        model=[FieldDef.value_of("a@[3:0]U4.0")],
+        model=[FieldDef.value_of("x@[7:4]BCD"), FieldDef.value_of("a@[3:0]U4.0")],
         link=store,
     )
+    assert r.get_field_value("x") == 0
+    r.set_field_value("x", 9)
+    assert r.get_field_value("x") == 9
+
     r.set_field_value("a", 5)
     assert r.get_field_value("a") == 5
 
@@ -843,37 +979,7 @@ def test_register_write_read_back():
     assert result is True
     # Value should be read back from store (which now contains the written value 5)
     assert r.get_field_value("a") == 6
-
-
-# def test_register_mk_embedding_class_auto_sync():
-#     """Test Register.mk_embedding_class with auto_sync=True."""
-#     store = MemLink()
-#     r = Register(
-#         bit_len=8,
-#         address=0xA,
-#         name="AutoSyncReg",
-#         model=[FieldDef.value_of("a@[3:0]U4.0")],
-#     )
-#     # Create embedding class with auto_sync=True
-#     embed_cls = r.mk_embedding_class(lambda: store, auto_sync=True)
-#     reg_instance = embed_cls()
-#
-#     # Accessing field should auto-read from store
-#     # store has 0xA = 3 (uint:8=3), lower 4 bits = 3, U4.0 = 3
-#     val = reg_instance.a
-#     assert val == 3
-#     assert store.store[0xA] == BitArray("uint:8=3")
-#
-#     # Setting field should auto-write
-#     reg_instance.a = 7
-#     assert store.store[0xA] == BitArray("uint:8=7")
-#
-#     # Raw accessor should also auto-read
-#     store.store[0xA] = BitArray("uint:8=5")
-#     assert reg_instance.a_raw == BitArray("uint:4=5")
-#
-#     store.store[0xA] = BitArray("uint:8=6")
-#     assert reg_instance.a == 6
+    assert r.get_field_value("x") == 9
 
 
 def test_register_from_dict_def_missing_desc():
@@ -883,7 +989,20 @@ def test_register_from_dict_def_missing_desc():
         "address": "0x10",
         "address_bus_width_bytes": 1,
         "width": 8,
-        "fields": [{"name": "a", "offset": 0, "signed": "U", "width": 4, "fractional": 0, "rw": True}],
+        "fields": [
+            {
+                "name": "a",
+                "offset": 0,
+                "width": 4,
+                "number_format": {
+                    "class": "FixedPointNumber",
+                    "signed": "U",
+                    "integer_bits": 4,
+                    "fractional_bits": 0,
+                },
+                "rw": True,
+            }
+        ],
     }
     r = Register.from_dict_def(data)
     assert r.name == "TestReg"
