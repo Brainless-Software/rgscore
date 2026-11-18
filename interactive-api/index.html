@@ -400,7 +400,7 @@ necessary subset of register and fields definitions.</p>
 <p>Consider an example of accessing
 device <a href="https://www.bosch-sensortec.com/en/products/environmental-sensors/pressure-sensors/bmp581">BMP581</a>.
 We assume that it is present on the I2C bus at address 0x47. For this chip we do have address map json file
-at https://raw.githubusercontent.com/Brainless-Software/rgscore/refs/heads/master/devices/AddrMap_BMP581.json</p>
+at <a href="https://raw.githubusercontent.com/Brainless-Software/rgscore/refs/heads/master/devices/AddrMap_BMP581.json">http://../AddrMap_BMP581.json</a></p>
 <div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">i2c_drivers</span><span class="w"> </span><span class="kn">import</span> <span class="n">I2CMasterI2CDriver</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">rgscore</span><span class="w"> </span><span class="kn">import</span> <span class="n">AddrMap</span><span class="p">,</span> <span class="n">RLinkI2C</span><span class="p">,</span> <span class="n">read</span><span class="p">,</span> <span class="n">write</span>
