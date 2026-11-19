@@ -23,3 +23,4 @@ nav:
   - "Initialize address map from json": "init-from-json.md"
   - "Accessing physical devices": "access-physical-hardware.md"
   - "Interactive API": "interactive-api.md"
+  - "Using from Jupyter Notebook": "jupytet-notebook.md"
