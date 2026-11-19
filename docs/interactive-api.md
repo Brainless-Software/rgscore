@@ -113,3 +113,8 @@ Register: DRIVE_CONFIG
   Reset:     0b00110000
   Fields:    [pad_if_drv, spi3_en, i2c_csb_pup_en]
 ```
+
+## Links
+
+* [BMP581_Example.ipynb](https://github.com/Brainless-Software/rgscore/blob/master/BMP581_Example.ipynb) - Example of
+  Jupyter Notebook that uses interactive API.
