@@ -1023,14 +1023,13 @@ class Register:
             return write_success
 
     def mk_embedding_class(self, link: RLink | None) -> HardwareRegister:
-        register = self.copy()
         if link is not None:
-            register.link(link)
+            self.link(link)
 
         class H(HardwareRegister):
             pass
 
-        return H(register)
+        return H(self)
 
 
 def Field(

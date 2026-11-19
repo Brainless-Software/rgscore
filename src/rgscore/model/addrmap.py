@@ -70,20 +70,10 @@ class AddrMap:
         self._store = link
         self._on_change_callback = on_change_callback
         self.__lock = Lock()
-        self.__reg_list = RegList(self)
-        self.__dut = DeviceUnderTest(self)
         self.__allow_multiple_registers_at_the_same_address = allow_multiple_registers_at_the_same_address
 
         if registers is not None:
             self.add(registers)
-
-    def __recreate_reg_list(self):
-        with self.__lock:
-            self.__reg_list = RegList(self)
-
-    def __recreate_dut(self):
-        with self.__lock:
-            self.__dut = DeviceUnderTest(self)
 
     def __repr__(self):
         return f'AddrMap["{self.device!r}", len(registers)={len(self.registers)}]'
@@ -97,7 +87,6 @@ class AddrMap:
         self._store = link
         for r in self.registers:
             r.link(link)
-        self.__recreate_dut()
 
     def add(self, rs: Register | list[Register]) -> None:
         """Adds one or more registers to this AddrMap."""
@@ -143,9 +132,6 @@ class AddrMap:
         self.registers.sort(key=lambda r: r.address)
         if call_on_change_callback:
             self._on_change_callback(self)
-
-        self.__recreate_reg_list()
-        self.__recreate_dut()
 
     def get_register_by_name(self, name: str) -> Register | None:
         """
@@ -193,8 +179,6 @@ class AddrMap:
 
             idx = [r.name for r in self.registers].index(name)
             del self.registers[idx]
-            self.__recreate_reg_list()
-            self.__recreate_dut()
             if call_on_change_callback:
                 self._on_change_callback(self)
 
@@ -230,8 +214,6 @@ class AddrMap:
         self._reg_addresses.clear()
         self._reg_by_names.clear()
         self._reg_by_address.clear()
-        self.__recreate_reg_list()
-        self.__recreate_dut()
         self._on_change_callback(self)
 
     def read_all(self) -> None:
@@ -363,11 +345,11 @@ class AddrMap:
 
     @property
     def regList(self) -> RegList:
-        return self.__reg_list
+        return RegList(self)
 
     @property
     def dut(self) -> DeviceUnderTest:
-        return self.__dut
+        return DeviceUnderTest(self)
 
 
 def read(*register: HardwareRegister) -> None:
