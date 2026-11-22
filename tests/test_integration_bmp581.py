@@ -15,7 +15,9 @@ port = "/dev/ttyUSB0" if ports == [] else ports[0]
 
 @pytest.fixture(scope="session")
 def i2c_master():
-    return I2CMasterI2CDriver(port)
+    i2c_master = I2CMasterI2CDriver(port)
+    yield i2c_master
+    i2c_master.close()
 
 
 @pytest.fixture(scope="session")

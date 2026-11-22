@@ -1,0 +1,2022 @@
+{
+  "class": "AddrMap",
+  "allow_multiple_registers_at_the_same_address": false,
+  "device": {
+    "make": "Micro Crystal",
+    "model": "RV-8803-C7",
+    "revision": null
+  },
+  "registers": [
+    {
+      "address": "0x00",
+      "address_bus_width_bytes": 1,
+      "desc": "Seconds counter. Holds the count of seconds in BCD format (00 to 59). Writing to this register clears the 100th Seconds register.",
+      "name": "SECONDS",
+      "width": 8,
+      "fields": [
+        {
+          "name": "SECONDS",
+          "number_format": {
+            "class": "BinaryCodedDecimal"
+          },
+          "desc": "Holds the count of seconds, coded in BCD format (00 to 59). When writing to the Seconds register the 100th Seconds register is cleared to 00.",
+          "offset": 0,
+          "rw": true,
+          "width": 7,
+          "enum_values": null
+        }
+      ]
+    },
+    {
+      "address": "0x01",
+      "address_bus_width_bytes": 1,
+      "desc": "Minutes counter. Holds the count of minutes in BCD format (00 to 59).",
+      "name": "MINUTES",
+      "width": 8,
+      "fields": [
+        {
+          "name": "MINUTES",
+          "number_format": {
+            "class": "BinaryCodedDecimal"
+          },
+          "desc": "Holds the count of minutes, coded in BCD format (00 to 59).",
+          "offset": 0,
+          "rw": true,
+          "width": 7,
+          "enum_values": null
+        }
+      ]
+    },
+    {
+      "address": "0x02",
+      "address_bus_width_bytes": 1,
+      "desc": "Hours counter. Holds the count of hours in BCD format (00 to 23).",
+      "name": "HOURS",
+      "width": 8,
+      "fields": [
+        {
+          "name": "HOURS",
+          "number_format": {
+            "class": "BinaryCodedDecimal"
+          },
+          "desc": "Holds the count of hours, coded in BCD format (00 to 23).",
+          "offset": 0,
+          "rw": true,
+          "width": 6,
+          "enum_values": null
+        }
+      ]
+    },
+    {
+      "address": "0x03",
+      "address_bus_width_bytes": 1,
+      "desc": "Weekday register. Holds the current day of the week as a one-hot bit field (values 1 to 7). Do not set 1 to more than one bit.",
+      "name": "WEEKDAY",
+      "width": 8,
+      "fields": [
+        {
+          "name": "WEEKDAY",
+          "number_format": {
+            "class": "FixedPointNumber",
+            "signed": "U",
+            "integer_bits": 7,
+            "fractional_bits": 0
+          },
+          "desc": "Holds the weekday counter value as a one-hot bit field (1 to 7). Do not set 1 to more than one bit.",
+          "offset": 0,
+          "rw": true,
+          "width": 7,
+          "enum_values": [
+            {
+              "name": "WEEKDAY_1",
+              "value": 1,
+              "desc": "Weekday 1 selected"
+            },
+            {
+              "name": "WEEKDAY_2",
+              "value": 2,
+              "desc": "Weekday 2 selected"
+            },
+            {
+              "name": "WEEKDAY_3",
+              "value": 4,
+              "desc": "Weekday 3 selected"
+            },
+            {
+              "name": "WEEKDAY_4",
+              "value": 8,
+              "desc": "Weekday 4 selected"
+            },
+            {
+              "name": "WEEKDAY_5",
+              "value": 16,
+              "desc": "Weekday 5 selected"
+            },
+            {
+              "name": "WEEKDAY_6",
+              "value": 32,
+              "desc": "Weekday 6 selected"
+            },
+            {
+              "name": "WEEKDAY_7",
+              "value": 64,
+              "desc": "Weekday 7 selected"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "address": "0x04",
+      "address_bus_width_bytes": 1,
+      "desc": "Date register. Holds the current day of the month in BCD format (00 to 31). The reset value has to be replaced by a valid initial value (01 to 31).",
+      "name": "DATE",
+      "width": 8,
+      "fields": [
+        {
+          "name": "DATE",
+          "number_format": {
+            "class": "BinaryCodedDecimal"
+          },
+          "desc": "Holds the current day of the month, coded in BCD format (00 to 31). The reset value XX after POR has to be replaced by a valid initial value (01 to 31).",
+          "offset": 0,
+          "rw": true,
+          "width": 6,
+          "enum_values": null
+        }
+      ]
+    },
+    {
+      "address": "0x05",
+      "address_bus_width_bytes": 1,
+      "desc": "Month register. Holds the current month in BCD format (01 to 12).",
+      "name": "MONTH",
+      "width": 8,
+      "fields": [
+        {
+          "name": "MONTH",
+          "number_format": {
+            "class": "BinaryCodedDecimal"
+          },
+          "desc": "Holds the current month, coded in BCD format (01 to 12).",
+          "offset": 0,
+          "rw": true,
+          "width": 5,
+          "enum_values": null
+        }
+      ]
+    },
+    {
+      "address": "0x06",
+      "address_bus_width_bytes": 1,
+      "desc": "Year register. Holds the current year in BCD format (00 to 99). Leap years are correctly handled from 2000 to 2099.",
+      "name": "YEAR",
+      "width": 8,
+      "fields": [
+        {
+          "name": "YEAR",
+          "number_format": {
+            "class": "BinaryCodedDecimal"
+          },
+          "desc": "Holds the current year, coded in BCD format (00 to 99). Leap years are correctly handled from 2000 to 2099.",
+          "offset": 0,
+          "rw": true,
+          "width": 8,
+          "enum_values": null
+        }
+      ]
+    },
+    {
+      "address": "0x07",
+      "address_bus_width_bytes": 1,
+      "desc": "General purpose RAM register.",
+      "name": "RAM",
+      "width": 8,
+      "fields": [
+        {
+          "name": "RAM",
+          "number_format": {
+            "class": "FixedPointNumber",
+            "signed": "U",
+            "integer_bits": 8,
+            "fractional_bits": 0
+          },
+          "desc": "User RAM, for general purpose use (00h to FFh).",
+          "offset": 0,
+          "rw": true,
+          "width": 8,
+          "enum_values": null
+        }
+      ],
+      "reset": "0b00000000"
+    },
+    {
+      "address": "0x08",
+      "address_bus_width_bytes": 1,
+      "desc": "Minutes Alarm register. Holds the Minutes Alarm Enable bit AE_M and the alarm value for minutes in BCD format (00 to 59).",
+      "name": "MINUTES_ALARM",
+      "width": 8,
+      "fields": [
+        {
+          "name": "AE_M",
+          "number_format": {
+            "class": "FixedPointNumber",
+            "signed": "U",
+            "integer_bits": 1,
+            "fractional_bits": 0
+          },
+          "desc": "Minutes Alarm Enable bit. Enables the alarm together with AE_H and AE_WD. 0: Minutes alarm enabled (default). 1: Minutes alarm disabled.",
+          "offset": 7,
+          "rw": true,
+          "width": 1,
+          "enum_values": [
+            {
+              "name": "ALARM_ENABLED",
+              "value": 0,
+              "desc": "Alarm enabled. Default value."
+            },
+            {
+              "name": "ALARM_DISABLED",
+              "value": 1,
+              "desc": "Alarm disabled."
+            }
+          ]
+        },
+        {
+          "name": "MINUTES_ALARM",
+          "number_format": {
+            "class": "BinaryCodedDecimal"
+          },
+          "desc": "Holds the alarm value for minutes, coded in BCD format (00 to 59).",
+          "offset": 0,
+          "rw": true,
+          "width": 7,
+          "enum_values": null
+        }
+      ],
+      "reset": "0b00000000"
+    },
+    {
+      "address": "0x09",
+      "address_bus_width_bytes": 1,
+      "desc": "Hours Alarm register. Holds the Hours Alarm Enable bit AE_H, general purpose bit GP0 and the alarm value for hours in BCD format (00 to 23).",
+      "name": "HOURS_ALARM",
+      "width": 8,
+      "fields": [
+        {
+          "name": "AE_H",
+          "number_format": {
+            "class": "FixedPointNumber",
+            "signed": "U",
+            "integer_bits": 1,
+            "fractional_bits": 0
+          },
+          "desc": "Hours Alarm Enable bit. Enables the alarm together with AE_M and AE_WD. 0: Hours alarm enabled (default). 1: Hours alarm disabled.",
+          "offset": 7,
+          "rw": true,
+          "width": 1,
+          "enum_values": [
+            {
+              "name": "ALARM_ENABLED",
+              "value": 0,
+              "desc": "Alarm enabled. Default value."
+            },
+            {
+              "name": "ALARM_DISABLED",
+              "value": 1,
+              "desc": "Alarm disabled."
+            }
+          ]
+        },
+        {
+          "name": "GP0",
+          "number_format": {
+            "class": "FixedPointNumber",
+            "signed": "U",
+            "integer_bits": 1,
+            "fractional_bits": 0
+          },
+          "desc": "Register bit for general purpose use.",
+          "offset": 6,
+          "rw": true,
+          "width": 1,
+          "enum_values": null
+        },
+        {
+          "name": "HOURS_ALARM",
+          "number_format": {
+            "class": "BinaryCodedDecimal"
+          },
+          "desc": "Holds the alarm value for hours, coded in BCD format (00 to 23).",
+          "offset": 0,
+          "rw": true,
+          "width": 6,
+          "enum_values": null
+        }
+      ],
+      "reset": "0b00000000"
+    },
+    {
+      "address": "0x0A",
+      "address_bus_width_bytes": 1,
+      "desc": "Weekday/Date Alarm register. Holds the Weekday/Date Alarm Enable bit AE_WD. When WADA = 0 it holds a one-hot weekday alarm value; when WADA = 1 it holds the date alarm in BCD format (bit 6 is then GP1).",
+      "name": "WEEKDAY_DATE_ALARM",
+      "width": 8,
+      "fields": [
+        {
+          "name": "AE_WD",
+          "number_format": {
+            "class": "FixedPointNumber",
+            "signed": "U",
+            "integer_bits": 1,
+            "fractional_bits": 0
+          },
+          "desc": "Weekday/Date Alarm Enable bit. Enables the alarm together with AE_M and AE_H. 0: Weekday/Date alarm enabled (default). 1: Weekday/Date alarm disabled.",
+          "offset": 7,
+          "rw": true,
+          "width": 1,
+          "enum_values": [
+            {
+              "name": "ALARM_ENABLED",
+              "value": 0,
+              "desc": "Alarm enabled. Default value."
+            },
+            {
+              "name": "ALARM_DISABLED",
+              "value": 1,
+              "desc": "Alarm disabled."
+            }
+          ]
+        },
+        {
+          "name": "WEEKDAY_ALARM",
+          "number_format": {
+            "class": "FixedPointNumber",
+            "signed": "U",
+            "integer_bits": 7,
+            "fractional_bits": 0
+          },
+          "desc": "Holds the weekday alarm value as a one-hot bit field. Multiple days can be selected. When WADA = 1 (Date Alarm mode) bit 6 is GP1 and bits 5:0 hold the date alarm coded in BCD format (01 to 31).",
+          "offset": 0,
+          "rw": true,
+          "width": 7,
+          "enum_values": [
+            {
+              "name": "ANY_WEEKDAY",
+              "value": 0,
+              "desc": "Any weekday selected. Default value."
+            },
+            {
+              "name": "WEEKDAY_1_ALARM",
+              "value": 1,
+              "desc": "Weekday 1 alarm selected"
+            },
+            {
+              "name": "WEEKDAY_2_ALARM",
+              "value": 2,
+              "desc": "Weekday 2 alarm selected"
+            },
+            {
+              "name": "WEEKDAY_3_ALARM",
+              "value": 4,
+              "desc": "Weekday 3 alarm selected"
+            },
+            {
+              "name": "WEEKDAY_4_ALARM",
+              "value": 8,
+              "desc": "Weekday 4 alarm selected"
+            },
+            {
+              "name": "WEEKDAY_5_ALARM",
+              "value": 16,
+              "desc": "Weekday 5 alarm selected"
+            },
+            {
+              "name": "WEEKDAY_6_ALARM",
+              "value": 32,
+              "desc": "Weekday 6 alarm selected"
+            },
+            {
+              "name": "WEEKDAY_7_ALARM",
+              "value": 64,
+              "desc": "Weekday 7 alarm selected"
+            }
+          ]
+        }
+      ],
+      "reset": "0b00000000"
+    },
+    {
+      "address": "0x0B",
+      "address_bus_width_bytes": 1,
+      "desc": "Timer Counter 0 register. Sets the lower 8 bits of the Timer Value (preset value) for the Periodic Countdown Timer.",
+      "name": "TIMER_COUNTER_0",
+      "width": 8,
+      "fields": [
+        {
+          "name": "TIMER_COUNTER_0",
+          "number_format": {
+            "class": "FixedPointNumber",
+            "signed": "U",
+            "integer_bits": 8,
+            "fractional_bits": 0
+          },
+          "desc": "Lower 8 bits of the Timer Value (preset value) for the Periodic Countdown Timer. When read, only the preset value is returned and not the actual value.",
+          "offset": 0,
+          "rw": true,
+          "width": 8,
+          "enum_values": null
+        }
+      ],
+      "reset": "0b00000000"
+    },
+    {
+      "address": "0x0C",
+      "address_bus_width_bytes": 1,
+      "desc": "Timer Counter 1 register. Sets the upper 4 bits of the Timer Value (preset value) for the Periodic Countdown Timer; bits 7:4 are general purpose bits GP5-GP2.",
+      "name": "TIMER_COUNTER_1",
+      "width": 8,
+      "fields": [
+        {
+          "name": "GP5",
+          "number_format": {
+            "class": "FixedPointNumber",
+            "signed": "U",
+            "integer_bits": 1,
+            "fractional_bits": 0
+          },
+          "desc": "Register bit for general purpose use.",
+          "offset": 7,
+          "rw": true,
+          "width": 1,
+          "enum_values": null
+        },
+        {
+          "name": "GP4",
+          "number_format": {
+            "class": "FixedPointNumber",
+            "signed": "U",
+            "integer_bits": 1,
+            "fractional_bits": 0
+          },
+          "desc": "Register bit for general purpose use.",
+          "offset": 6,
+          "rw": true,
+          "width": 1,
+          "enum_values": null
+        },
+        {
+          "name": "GP3",
+          "number_format": {
+            "class": "FixedPointNumber",
+            "signed": "U",
+            "integer_bits": 1,
+            "fractional_bits": 0
+          },
+          "desc": "Register bit for general purpose use.",
+          "offset": 5,
+          "rw": true,
+          "width": 1,
+          "enum_values": null
+        },
+        {
+          "name": "GP2",
+          "number_format": {
+            "class": "FixedPointNumber",
+            "signed": "U",
+            "integer_bits": 1,
+            "fractional_bits": 0
+          },
+          "desc": "Register bit for general purpose use.",
+          "offset": 4,
+          "rw": true,
+          "width": 1,
+          "enum_values": null
+        },
+        {
+          "name": "TIMER_COUNTER_1",
+          "number_format": {
+            "class": "FixedPointNumber",
+            "signed": "U",
+            "integer_bits": 4,
+            "fractional_bits": 0
+          },
+          "desc": "Upper 4 bits of the Timer Value (preset value) for the Periodic Countdown Timer. When read, only the preset value is returned and not the actual value.",
+          "offset": 0,
+          "rw": true,
+          "width": 4,
+          "enum_values": null
+        }
+      ],
+      "reset": "0b00000000"
+    },
+    {
+      "address": "0x0D",
+      "address_bus_width_bytes": 1,
+      "desc": "Extension Register. Specifies the target for the Alarm Interrupt and Periodic Time Update Interrupt functions and selects/sets operations for the Periodic Countdown Timer.",
+      "name": "EXTENSION_REGISTER",
+      "width": 8,
+      "fields": [
+        {
+          "name": "TEST",
+          "number_format": {
+            "class": "FixedPointNumber",
+            "signed": "U",
+            "integer_bits": 1,
+            "fractional_bits": 0
+          },
+          "desc": "Manufacturer's test bit. Its value should always be 0. Avoid writing a 1 to this bit. Zero for normal operation.",
+          "offset": 7,
+          "rw": true,
+          "width": 1,
+          "enum_values": null
+        },
+        {
+          "name": "WADA",
+          "number_format": {
+            "class": "FixedPointNumber",
+            "signed": "U",
+            "integer_bits": 1,
+            "fractional_bits": 0
+          },
+          "desc": "Weekday Alarm / Date Alarm selection bit. Selects the source for the Alarm Interrupt function. 0: Weekday is the source (default). 1: Date is the source.",
+          "offset": 6,
+          "rw": true,
+          "width": 1,
+          "enum_values": [
+            {
+              "name": "WEEKDAY_SOURCE",
+              "value": 0,
+              "desc": "Weekday is the source for the Alarm Interrupt function. Default value."
+            },
+            {
+              "name": "DATE_SOURCE",
+              "value": 1,
+              "desc": "Date is the source for the Alarm Interrupt function."
+            }
+          ]
+        },
+        {
+          "name": "USEL",
+          "number_format": {
+            "class": "FixedPointNumber",
+            "signed": "U",
+            "integer_bits": 1,
+            "fractional_bits": 0
+          },
+          "desc": "Update Interrupt Select bit. Selects Second or Minute update for the Periodic Time Update Interrupt function. If RESET = 1 the interrupt function is stopped. 0: Second update (default). 1: Minute update.",
+          "offset": 5,
+          "rw": true,
+          "width": 1,
+          "enum_values": [
+            {
+              "name": "SECOND_UPDATE",
+              "value": 0,
+              "desc": "Second update (auto reset time t_RTN2 = 500 ms). Default value."
+            },
+            {
+              "name": "MINUTE_UPDATE",
+              "value": 1,
+              "desc": "Minute update (auto reset time t_RTN2 = 15.6 ms)."
+            }
+          ]
+        },
+        {
+          "name": "TE",
+          "number_format": {
+            "class": "FixedPointNumber",
+            "signed": "U",
+            "integer_bits": 1,
+            "fractional_bits": 0
+          },
+          "desc": "Periodic Countdown Timer Enable bit. Controls the start/stop setting for the Periodic Countdown Timer Interrupt function. 0: Stops the timer (default). 1: Starts the timer.",
+          "offset": 4,
+          "rw": true,
+          "width": 1,
+          "enum_values": [
+            {
+              "name": "TIMER_STOPPED",
+              "value": 0,
+              "desc": "Stops the Periodic Countdown Timer Interrupt function. Default value."
+            },
+            {
+              "name": "TIMER_STARTED",
+              "value": 1,
+              "desc": "Starts the Periodic Countdown Timer Interrupt function (a countdown starts from a preset value)."
+            }
+          ]
+        },
+        {
+          "name": "FD",
+          "number_format": {
+            "class": "FixedPointNumber",
+            "signed": "U",
+            "integer_bits": 2,
+            "fractional_bits": 0
+          },
+          "desc": "CLKOUT frequency selection. Sets the output frequency on the CLKOUT pin. 00: 32.768 kHz (default). 01: 1024 Hz. 10: 1 Hz. 11: 32.768 kHz.",
+          "offset": 2,
+          "rw": true,
+          "width": 2,
+          "enum_values": [
+            {
+              "name": "CLKOUT_32K768HZ",
+              "value": 0,
+              "desc": "32.768 kHz. Default value."
+            },
+            {
+              "name": "CLKOUT_1024HZ",
+              "value": 1,
+              "desc": "1024 Hz."
+            },
+            {
+              "name": "CLKOUT_1HZ",
+              "value": 2,
+              "desc": "1 Hz."
+            },
+            {
+              "name": "CLKOUT_32K768HZ_ALT",
+              "value": 3,
+              "desc": "32.768 kHz."
+            }
+          ]
+        },
+        {
+          "name": "TD",
+          "number_format": {
+            "class": "FixedPointNumber",
+            "signed": "U",
+            "integer_bits": 2,
+            "fractional_bits": 0
+          },
+          "desc": "Timer Clock Frequency selection. Sets the countdown source clock for the Periodic Countdown Timer Interrupt function and defines auto reset time t_RTN1. 00: 4096 Hz (default). 01: 64 Hz. 10: 1 Hz. 11: 1/60 Hz.",
+          "offset": 0,
+          "rw": true,
+          "width": 2,
+          "enum_values": [
+            {
+              "name": "TIMER_CLOCK_4096HZ",
+              "value": 0,
+              "desc": "4096 Hz; countdown period 244.14 us; t_RTN1 = 122 us. Default value."
+            },
+            {
+              "name": "TIMER_CLOCK_64HZ",
+              "value": 1,
+              "desc": "64 Hz; countdown period 15.625 ms; t_RTN1 = 7.813 ms."
+            },
+            {
+              "name": "TIMER_CLOCK_1HZ",
+              "value": 2,
+              "desc": "1 Hz; countdown period 1 s; t_RTN1 = 7.813 ms."
+            },
+            {
+              "name": "TIMER_CLOCK_1_60HZ",
+              "value": 3,
+              "desc": "1/60 Hz; countdown period 60 s; t_RTN1 = 7.813 ms."
+            }
+          ]
+        }
+      ],
+      "reset": "0b00000000"
+    },
+    {
+      "address": "0x0E",
+      "address_bus_width_bytes": 1,
+      "desc": "Flag Register. Holds status bits for the periodic time update, countdown timer, alarm, external event and low-voltage detections. May be written at any time to clear status flags.",
+      "name": "FLAG_REGISTER",
+      "width": 8,
+      "fields": [
+        {
+          "name": "UF",
+          "number_format": {
+            "class": "FixedPointNumber",
+            "signed": "U",
+            "integer_bits": 1,
+            "fractional_bits": 0
+          },
+          "desc": "Periodic Time Update Flag. Write 0 to clear. If set to 0 beforehand, 1 indicates the occurrence of a Periodic Time Update Interrupt event.",
+          "offset": 5,
+          "rw": true,
+          "width": 1,
+          "enum_values": null
+        },
+        {
+          "name": "TF",
+          "number_format": {
+            "class": "FixedPointNumber",
+            "signed": "U",
+            "integer_bits": 1,
+            "fractional_bits": 0
+          },
+          "desc": "Periodic Countdown Timer Flag. Write 0 to clear. If set to 0 beforehand, 1 indicates the occurrence of a Periodic Countdown Timer Interrupt event.",
+          "offset": 4,
+          "rw": true,
+          "width": 1,
+          "enum_values": null
+        },
+        {
+          "name": "AF",
+          "number_format": {
+            "class": "FixedPointNumber",
+            "signed": "U",
+            "integer_bits": 1,
+            "fractional_bits": 0
+          },
+          "desc": "Alarm Flag. Write 0 to clear. If set to 0 beforehand, 1 indicates the occurrence of an Alarm Interrupt event.",
+          "offset": 3,
+          "rw": true,
+          "width": 1,
+          "enum_values": null
+        },
+        {
+          "name": "EVF",
+          "number_format": {
+            "class": "FixedPointNumber",
+            "signed": "U",
+            "integer_bits": 1,
+            "fractional_bits": 0
+          },
+          "desc": "External Event Flag. Write 0 to clear. If set to 0 beforehand, 1 indicates the occurrence of an External Event. The POR value depends on the EVI pin level (1 if a LOW level was detected, 0 otherwise).",
+          "offset": 2,
+          "rw": true,
+          "width": 1,
+          "enum_values": null
+        },
+        {
+          "name": "V2F",
+          "number_format": {
+            "class": "FixedPointNumber",
+            "signed": "U",
+            "integer_bits": 1,
+            "fractional_bits": 0
+          },
+          "desc": "Voltage Low Flag 2. Read 1 if the voltage crossed V_LOW2 and the data in the device are no longer valid (all registers must be initialized). Cleared by writing 0; automatically set to 1 at power on reset. Writing 0 also clears V1F.",
+          "offset": 1,
+          "rw": true,
+          "width": 1,
+          "enum_values": null
+        },
+        {
+          "name": "V1F",
+          "number_format": {
+            "class": "FixedPointNumber",
+            "signed": "U",
+            "integer_bits": 1,
+            "fractional_bits": 0
+          },
+          "desc": "Voltage Low Flag 1. Read 1 if the voltage crossed V_LOW1 and temperature compensation is stopped. Cleared by writing 0; automatically set to 1 at power on reset. Writing 0 also clears V2F.",
+          "offset": 0,
+          "rw": true,
+          "width": 1,
+          "enum_values": null
+        }
+      ]
+    },
+    {
+      "address": "0x0F",
+      "address_bus_width_bytes": 1,
+      "desc": "Control Register. Controls the interrupt event output from the INT pin and the stop/start status of clock and calendar operations.",
+      "name": "CONTROL_REGISTER",
+      "width": 8,
+      "fields": [
+        {
+          "name": "RESERVED_7_6",
+          "number_format": {
+            "class": "FixedPointNumber",
+            "signed": "U",
+            "integer_bits": 2,
+            "fractional_bits": 0
+          },
+          "desc": "Unused, but has to be 0 to avoid extraneous leakage.",
+          "offset": 6,
+          "rw": true,
+          "width": 2,
+          "enum_values": null
+        },
+        {
+          "name": "UIE",
+          "number_format": {
+            "class": "FixedPointNumber",
+            "signed": "U",
+            "integer_bits": 1,
+            "fractional_bits": 0
+          },
+          "desc": "Periodic Time Update Interrupt Enable. 0: no interrupt signal and UF is not set (default). 1: an interrupt signal is generated and UF is set when a Periodic Time Update event occurs.",
+          "offset": 5,
+          "rw": true,
+          "width": 1,
+          "enum_values": [
+            {
+              "name": "INTERRUPT_DISABLED",
+              "value": 0,
+              "desc": "No interrupt signal is generated on the INT pin. Default value."
+            },
+            {
+              "name": "INTERRUPT_ENABLED",
+              "value": 1,
+              "desc": "An interrupt signal is generated on the INT pin."
+            }
+          ]
+        },
+        {
+          "name": "TIE",
+          "number_format": {
+            "class": "FixedPointNumber",
+            "signed": "U",
+            "integer_bits": 1,
+            "fractional_bits": 0
+          },
+          "desc": "Periodic Countdown Timer Interrupt Enable. 0: no interrupt signal (default). 1: an interrupt signal is generated when a Periodic Countdown Timer event occurs.",
+          "offset": 4,
+          "rw": true,
+          "width": 1,
+          "enum_values": [
+            {
+              "name": "INTERRUPT_DISABLED",
+              "value": 0,
+              "desc": "No interrupt signal is generated on the INT pin. Default value."
+            },
+            {
+              "name": "INTERRUPT_ENABLED",
+              "value": 1,
+              "desc": "An interrupt signal is generated on the INT pin."
+            }
+          ]
+        },
+        {
+          "name": "AIE",
+          "number_format": {
+            "class": "FixedPointNumber",
+            "signed": "U",
+            "integer_bits": 1,
+            "fractional_bits": 0
+          },
+          "desc": "Alarm Interrupt Enable. 0: no interrupt signal (default). 1: an interrupt signal is generated when an Alarm event occurs. Retained until AF is cleared to 0.",
+          "offset": 3,
+          "rw": true,
+          "width": 1,
+          "enum_values": [
+            {
+              "name": "INTERRUPT_DISABLED",
+              "value": 0,
+              "desc": "No interrupt signal is generated on the INT pin. Default value."
+            },
+            {
+              "name": "INTERRUPT_ENABLED",
+              "value": 1,
+              "desc": "An interrupt signal is generated on the INT pin."
+            }
+          ]
+        },
+        {
+          "name": "EIE",
+          "number_format": {
+            "class": "FixedPointNumber",
+            "signed": "U",
+            "integer_bits": 1,
+            "fractional_bits": 0
+          },
+          "desc": "External Event Interrupt Enable. 0: no interrupt signal (default). 1: an interrupt signal is generated when an External Event on the EVI pin occurs. Retained until EVF is cleared to 0.",
+          "offset": 2,
+          "rw": true,
+          "width": 1,
+          "enum_values": [
+            {
+              "name": "INTERRUPT_DISABLED",
+              "value": 0,
+              "desc": "No interrupt signal is generated on the INT pin. Default value."
+            },
+            {
+              "name": "INTERRUPT_ENABLED",
+              "value": 1,
+              "desc": "An interrupt signal is generated on the INT pin."
+            }
+          ]
+        },
+        {
+          "name": "RESET",
+          "number_format": {
+            "class": "FixedPointNumber",
+            "signed": "U",
+            "integer_bits": 1,
+            "fractional_bits": 0
+          },
+          "desc": "Reset/Stop. Used for a software-based time adjustment (synchronizing). 0: no reset (default). 1: resets the divider chain, stops the 1 Hz clock and resets the 100th Seconds register to 00.",
+          "offset": 0,
+          "rw": true,
+          "width": 1,
+          "enum_values": [
+            {
+              "name": "NO_RESET",
+              "value": 0,
+              "desc": "No reset. Default value."
+            },
+            {
+              "name": "RESET_DIVIDER_CHAIN",
+              "value": 1,
+              "desc": "Resets the divider chain and stops the 1 Hz clock."
+            }
+          ]
+        }
+      ],
+      "reset": "0b00000000"
+    },
+    {
+      "address": "0x10",
+      "address_bus_width_bytes": 1,
+      "desc": "100th Seconds register (read only). Holds the count of hundredths of seconds in BCD format (00 to 99). Cleared to 00 when writing to the Seconds register, when RESET = 1, or when ERST = 1 and an External Event is detected.",
+      "name": "HUNDREDTH_SECONDS",
+      "width": 8,
+      "fields": [
+        {
+          "name": "HUNDREDTH_SECONDS",
+          "number_format": {
+            "class": "BinaryCodedDecimal"
+          },
+          "desc": "Holds the count of hundredths of seconds, coded in BCD format (00 to 99).",
+          "offset": 0,
+          "rw": false,
+          "width": 8,
+          "enum_values": null
+        }
+      ]
+    },
+    {
+      "address": "0x11",
+      "address_bus_width_bytes": 1,
+      "desc": "Mirror of register 0x00. The function is automatically updated in both address ranges 00h-0Fh and 10h-1Fh.",
+      "name": "SECONDS_MIRROR",
+      "width": 8,
+      "fields": [
+        {
+          "name": "SECONDS",
+          "number_format": {
+            "class": "BinaryCodedDecimal"
+          },
+          "desc": "Holds the count of seconds, coded in BCD format (00 to 59). When writing to the Seconds register the 100th Seconds register is cleared to 00.",
+          "offset": 0,
+          "rw": true,
+          "width": 7,
+          "enum_values": null
+        }
+      ]
+    },
+    {
+      "address": "0x12",
+      "address_bus_width_bytes": 1,
+      "desc": "Mirror of register 0x01. The function is automatically updated in both address ranges 00h-0Fh and 10h-1Fh.",
+      "name": "MINUTES_MIRROR",
+      "width": 8,
+      "fields": [
+        {
+          "name": "MINUTES",
+          "number_format": {
+            "class": "BinaryCodedDecimal"
+          },
+          "desc": "Holds the count of minutes, coded in BCD format (00 to 59).",
+          "offset": 0,
+          "rw": true,
+          "width": 7,
+          "enum_values": null
+        }
+      ]
+    },
+    {
+      "address": "0x13",
+      "address_bus_width_bytes": 1,
+      "desc": "Mirror of register 0x02. The function is automatically updated in both address ranges 00h-0Fh and 10h-1Fh.",
+      "name": "HOURS_MIRROR",
+      "width": 8,
+      "fields": [
+        {
+          "name": "HOURS",
+          "number_format": {
+            "class": "BinaryCodedDecimal"
+          },
+          "desc": "Holds the count of hours, coded in BCD format (00 to 23).",
+          "offset": 0,
+          "rw": true,
+          "width": 6,
+          "enum_values": null
+        }
+      ]
+    },
+    {
+      "address": "0x14",
+      "address_bus_width_bytes": 1,
+      "desc": "Mirror of register 0x03. The function is automatically updated in both address ranges 00h-0Fh and 10h-1Fh.",
+      "name": "WEEKDAY_MIRROR",
+      "width": 8,
+      "fields": [
+        {
+          "name": "WEEKDAY",
+          "number_format": {
+            "class": "FixedPointNumber",
+            "signed": "U",
+            "integer_bits": 7,
+            "fractional_bits": 0
+          },
+          "desc": "Holds the weekday counter value as a one-hot bit field (1 to 7). Do not set 1 to more than one bit.",
+          "offset": 0,
+          "rw": true,
+          "width": 7,
+          "enum_values": [
+            {
+              "name": "WEEKDAY_1",
+              "value": 1,
+              "desc": "Weekday 1 selected"
+            },
+            {
+              "name": "WEEKDAY_2",
+              "value": 2,
+              "desc": "Weekday 2 selected"
+            },
+            {
+              "name": "WEEKDAY_3",
+              "value": 4,
+              "desc": "Weekday 3 selected"
+            },
+            {
+              "name": "WEEKDAY_4",
+              "value": 8,
+              "desc": "Weekday 4 selected"
+            },
+            {
+              "name": "WEEKDAY_5",
+              "value": 16,
+              "desc": "Weekday 5 selected"
+            },
+            {
+              "name": "WEEKDAY_6",
+              "value": 32,
+              "desc": "Weekday 6 selected"
+            },
+            {
+              "name": "WEEKDAY_7",
+              "value": 64,
+              "desc": "Weekday 7 selected"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "address": "0x15",
+      "address_bus_width_bytes": 1,
+      "desc": "Mirror of register 0x04. The function is automatically updated in both address ranges 00h-0Fh and 10h-1Fh.",
+      "name": "DATE_MIRROR",
+      "width": 8,
+      "fields": [
+        {
+          "name": "DATE",
+          "number_format": {
+            "class": "BinaryCodedDecimal"
+          },
+          "desc": "Holds the current day of the month, coded in BCD format (00 to 31). The reset value XX after POR has to be replaced by a valid initial value (01 to 31).",
+          "offset": 0,
+          "rw": true,
+          "width": 6,
+          "enum_values": null
+        }
+      ]
+    },
+    {
+      "address": "0x16",
+      "address_bus_width_bytes": 1,
+      "desc": "Mirror of register 0x05. The function is automatically updated in both address ranges 00h-0Fh and 10h-1Fh.",
+      "name": "MONTH_MIRROR",
+      "width": 8,
+      "fields": [
+        {
+          "name": "MONTH",
+          "number_format": {
+            "class": "BinaryCodedDecimal"
+          },
+          "desc": "Holds the current month, coded in BCD format (01 to 12).",
+          "offset": 0,
+          "rw": true,
+          "width": 5,
+          "enum_values": null
+        }
+      ]
+    },
+    {
+      "address": "0x17",
+      "address_bus_width_bytes": 1,
+      "desc": "Mirror of register 0x06. The function is automatically updated in both address ranges 00h-0Fh and 10h-1Fh.",
+      "name": "YEAR_MIRROR",
+      "width": 8,
+      "fields": [
+        {
+          "name": "YEAR",
+          "number_format": {
+            "class": "BinaryCodedDecimal"
+          },
+          "desc": "Holds the current year, coded in BCD format (00 to 99). Leap years are correctly handled from 2000 to 2099.",
+          "offset": 0,
+          "rw": true,
+          "width": 8,
+          "enum_values": null
+        }
+      ]
+    },
+    {
+      "address": "0x18",
+      "address_bus_width_bytes": 1,
+      "desc": "Mirror of register 0x08. The function is automatically updated in both address ranges 00h-0Fh and 10h-1Fh.",
+      "name": "MINUTES_ALARM_MIRROR",
+      "width": 8,
+      "fields": [
+        {
+          "name": "AE_M",
+          "number_format": {
+            "class": "FixedPointNumber",
+            "signed": "U",
+            "integer_bits": 1,
+            "fractional_bits": 0
+          },
+          "desc": "Minutes Alarm Enable bit. Enables the alarm together with AE_H and AE_WD. 0: Minutes alarm enabled (default). 1: Minutes alarm disabled.",
+          "offset": 7,
+          "rw": true,
+          "width": 1,
+          "enum_values": [
+            {
+              "name": "ALARM_ENABLED",
+              "value": 0,
+              "desc": "Alarm enabled. Default value."
+            },
+            {
+              "name": "ALARM_DISABLED",
+              "value": 1,
+              "desc": "Alarm disabled."
+            }
+          ]
+        },
+        {
+          "name": "MINUTES_ALARM",
+          "number_format": {
+            "class": "BinaryCodedDecimal"
+          },
+          "desc": "Holds the alarm value for minutes, coded in BCD format (00 to 59).",
+          "offset": 0,
+          "rw": true,
+          "width": 7,
+          "enum_values": null
+        }
+      ],
+      "reset": "0b00000000"
+    },
+    {
+      "address": "0x19",
+      "address_bus_width_bytes": 1,
+      "desc": "Mirror of register 0x09. The function is automatically updated in both address ranges 00h-0Fh and 10h-1Fh.",
+      "name": "HOURS_ALARM_MIRROR",
+      "width": 8,
+      "fields": [
+        {
+          "name": "AE_H",
+          "number_format": {
+            "class": "FixedPointNumber",
+            "signed": "U",
+            "integer_bits": 1,
+            "fractional_bits": 0
+          },
+          "desc": "Hours Alarm Enable bit. Enables the alarm together with AE_M and AE_WD. 0: Hours alarm enabled (default). 1: Hours alarm disabled.",
+          "offset": 7,
+          "rw": true,
+          "width": 1,
+          "enum_values": [
+            {
+              "name": "ALARM_ENABLED",
+              "value": 0,
+              "desc": "Alarm enabled. Default value."
+            },
+            {
+              "name": "ALARM_DISABLED",
+              "value": 1,
+              "desc": "Alarm disabled."
+            }
+          ]
+        },
+        {
+          "name": "GP0",
+          "number_format": {
+            "class": "FixedPointNumber",
+            "signed": "U",
+            "integer_bits": 1,
+            "fractional_bits": 0
+          },
+          "desc": "Register bit for general purpose use.",
+          "offset": 6,
+          "rw": true,
+          "width": 1,
+          "enum_values": null
+        },
+        {
+          "name": "HOURS_ALARM",
+          "number_format": {
+            "class": "BinaryCodedDecimal"
+          },
+          "desc": "Holds the alarm value for hours, coded in BCD format (00 to 23).",
+          "offset": 0,
+          "rw": true,
+          "width": 6,
+          "enum_values": null
+        }
+      ],
+      "reset": "0b00000000"
+    },
+    {
+      "address": "0x1A",
+      "address_bus_width_bytes": 1,
+      "desc": "Mirror of register 0x0A. The function is automatically updated in both address ranges 00h-0Fh and 10h-1Fh.",
+      "name": "WEEKDAY_DATE_ALARM_MIRROR",
+      "width": 8,
+      "fields": [
+        {
+          "name": "AE_WD",
+          "number_format": {
+            "class": "FixedPointNumber",
+            "signed": "U",
+            "integer_bits": 1,
+            "fractional_bits": 0
+          },
+          "desc": "Weekday/Date Alarm Enable bit. Enables the alarm together with AE_M and AE_H. 0: Weekday/Date alarm enabled (default). 1: Weekday/Date alarm disabled.",
+          "offset": 7,
+          "rw": true,
+          "width": 1,
+          "enum_values": [
+            {
+              "name": "ALARM_ENABLED",
+              "value": 0,
+              "desc": "Alarm enabled. Default value."
+            },
+            {
+              "name": "ALARM_DISABLED",
+              "value": 1,
+              "desc": "Alarm disabled."
+            }
+          ]
+        },
+        {
+          "name": "WEEKDAY_ALARM",
+          "number_format": {
+            "class": "FixedPointNumber",
+            "signed": "U",
+            "integer_bits": 7,
+            "fractional_bits": 0
+          },
+          "desc": "Holds the weekday alarm value as a one-hot bit field. Multiple days can be selected. When WADA = 1 (Date Alarm mode) bit 6 is GP1 and bits 5:0 hold the date alarm coded in BCD format (01 to 31).",
+          "offset": 0,
+          "rw": true,
+          "width": 7,
+          "enum_values": [
+            {
+              "name": "ANY_WEEKDAY",
+              "value": 0,
+              "desc": "Any weekday selected. Default value."
+            },
+            {
+              "name": "WEEKDAY_1_ALARM",
+              "value": 1,
+              "desc": "Weekday 1 alarm selected"
+            },
+            {
+              "name": "WEEKDAY_2_ALARM",
+              "value": 2,
+              "desc": "Weekday 2 alarm selected"
+            },
+            {
+              "name": "WEEKDAY_3_ALARM",
+              "value": 4,
+              "desc": "Weekday 3 alarm selected"
+            },
+            {
+              "name": "WEEKDAY_4_ALARM",
+              "value": 8,
+              "desc": "Weekday 4 alarm selected"
+            },
+            {
+              "name": "WEEKDAY_5_ALARM",
+              "value": 16,
+              "desc": "Weekday 5 alarm selected"
+            },
+            {
+              "name": "WEEKDAY_6_ALARM",
+              "value": 32,
+              "desc": "Weekday 6 alarm selected"
+            },
+            {
+              "name": "WEEKDAY_7_ALARM",
+              "value": 64,
+              "desc": "Weekday 7 alarm selected"
+            }
+          ]
+        }
+      ],
+      "reset": "0b00000000"
+    },
+    {
+      "address": "0x1B",
+      "address_bus_width_bytes": 1,
+      "desc": "Mirror of register 0x0B. The function is automatically updated in both address ranges 00h-0Fh and 10h-1Fh.",
+      "name": "TIMER_COUNTER_0_MIRROR",
+      "width": 8,
+      "fields": [
+        {
+          "name": "TIMER_COUNTER_0",
+          "number_format": {
+            "class": "FixedPointNumber",
+            "signed": "U",
+            "integer_bits": 8,
+            "fractional_bits": 0
+          },
+          "desc": "Lower 8 bits of the Timer Value (preset value) for the Periodic Countdown Timer. When read, only the preset value is returned and not the actual value.",
+          "offset": 0,
+          "rw": true,
+          "width": 8,
+          "enum_values": null
+        }
+      ],
+      "reset": "0b00000000"
+    },
+    {
+      "address": "0x1C",
+      "address_bus_width_bytes": 1,
+      "desc": "Mirror of register 0x0C. The function is automatically updated in both address ranges 00h-0Fh and 10h-1Fh.",
+      "name": "TIMER_COUNTER_1_MIRROR",
+      "width": 8,
+      "fields": [
+        {
+          "name": "GP5",
+          "number_format": {
+            "class": "FixedPointNumber",
+            "signed": "U",
+            "integer_bits": 1,
+            "fractional_bits": 0
+          },
+          "desc": "Register bit for general purpose use.",
+          "offset": 7,
+          "rw": true,
+          "width": 1,
+          "enum_values": null
+        },
+        {
+          "name": "GP4",
+          "number_format": {
+            "class": "FixedPointNumber",
+            "signed": "U",
+            "integer_bits": 1,
+            "fractional_bits": 0
+          },
+          "desc": "Register bit for general purpose use.",
+          "offset": 6,
+          "rw": true,
+          "width": 1,
+          "enum_values": null
+        },
+        {
+          "name": "GP3",
+          "number_format": {
+            "class": "FixedPointNumber",
+            "signed": "U",
+            "integer_bits": 1,
+            "fractional_bits": 0
+          },
+          "desc": "Register bit for general purpose use.",
+          "offset": 5,
+          "rw": true,
+          "width": 1,
+          "enum_values": null
+        },
+        {
+          "name": "GP2",
+          "number_format": {
+            "class": "FixedPointNumber",
+            "signed": "U",
+            "integer_bits": 1,
+            "fractional_bits": 0
+          },
+          "desc": "Register bit for general purpose use.",
+          "offset": 4,
+          "rw": true,
+          "width": 1,
+          "enum_values": null
+        },
+        {
+          "name": "TIMER_COUNTER_1",
+          "number_format": {
+            "class": "FixedPointNumber",
+            "signed": "U",
+            "integer_bits": 4,
+            "fractional_bits": 0
+          },
+          "desc": "Upper 4 bits of the Timer Value (preset value) for the Periodic Countdown Timer. When read, only the preset value is returned and not the actual value.",
+          "offset": 0,
+          "rw": true,
+          "width": 4,
+          "enum_values": null
+        }
+      ],
+      "reset": "0b00000000"
+    },
+    {
+      "address": "0x1D",
+      "address_bus_width_bytes": 1,
+      "desc": "Mirror of register 0x0D. The function is automatically updated in both address ranges 00h-0Fh and 10h-1Fh.",
+      "name": "EXTENSION_REGISTER_MIRROR",
+      "width": 8,
+      "fields": [
+        {
+          "name": "TEST",
+          "number_format": {
+            "class": "FixedPointNumber",
+            "signed": "U",
+            "integer_bits": 1,
+            "fractional_bits": 0
+          },
+          "desc": "Manufacturer's test bit. Its value should always be 0. Avoid writing a 1 to this bit. Zero for normal operation.",
+          "offset": 7,
+          "rw": true,
+          "width": 1,
+          "enum_values": null
+        },
+        {
+          "name": "WADA",
+          "number_format": {
+            "class": "FixedPointNumber",
+            "signed": "U",
+            "integer_bits": 1,
+            "fractional_bits": 0
+          },
+          "desc": "Weekday Alarm / Date Alarm selection bit. Selects the source for the Alarm Interrupt function. 0: Weekday is the source (default). 1: Date is the source.",
+          "offset": 6,
+          "rw": true,
+          "width": 1,
+          "enum_values": [
+            {
+              "name": "WEEKDAY_SOURCE",
+              "value": 0,
+              "desc": "Weekday is the source for the Alarm Interrupt function. Default value."
+            },
+            {
+              "name": "DATE_SOURCE",
+              "value": 1,
+              "desc": "Date is the source for the Alarm Interrupt function."
+            }
+          ]
+        },
+        {
+          "name": "USEL",
+          "number_format": {
+            "class": "FixedPointNumber",
+            "signed": "U",
+            "integer_bits": 1,
+            "fractional_bits": 0
+          },
+          "desc": "Update Interrupt Select bit. Selects Second or Minute update for the Periodic Time Update Interrupt function. If RESET = 1 the interrupt function is stopped. 0: Second update (default). 1: Minute update.",
+          "offset": 5,
+          "rw": true,
+          "width": 1,
+          "enum_values": [
+            {
+              "name": "SECOND_UPDATE",
+              "value": 0,
+              "desc": "Second update (auto reset time t_RTN2 = 500 ms). Default value."
+            },
+            {
+              "name": "MINUTE_UPDATE",
+              "value": 1,
+              "desc": "Minute update (auto reset time t_RTN2 = 15.6 ms)."
+            }
+          ]
+        },
+        {
+          "name": "TE",
+          "number_format": {
+            "class": "FixedPointNumber",
+            "signed": "U",
+            "integer_bits": 1,
+            "fractional_bits": 0
+          },
+          "desc": "Periodic Countdown Timer Enable bit. Controls the start/stop setting for the Periodic Countdown Timer Interrupt function. 0: Stops the timer (default). 1: Starts the timer.",
+          "offset": 4,
+          "rw": true,
+          "width": 1,
+          "enum_values": [
+            {
+              "name": "TIMER_STOPPED",
+              "value": 0,
+              "desc": "Stops the Periodic Countdown Timer Interrupt function. Default value."
+            },
+            {
+              "name": "TIMER_STARTED",
+              "value": 1,
+              "desc": "Starts the Periodic Countdown Timer Interrupt function (a countdown starts from a preset value)."
+            }
+          ]
+        },
+        {
+          "name": "FD",
+          "number_format": {
+            "class": "FixedPointNumber",
+            "signed": "U",
+            "integer_bits": 2,
+            "fractional_bits": 0
+          },
+          "desc": "CLKOUT frequency selection. Sets the output frequency on the CLKOUT pin. 00: 32.768 kHz (default). 01: 1024 Hz. 10: 1 Hz. 11: 32.768 kHz.",
+          "offset": 2,
+          "rw": true,
+          "width": 2,
+          "enum_values": [
+            {
+              "name": "CLKOUT_32K768HZ",
+              "value": 0,
+              "desc": "32.768 kHz. Default value."
+            },
+            {
+              "name": "CLKOUT_1024HZ",
+              "value": 1,
+              "desc": "1024 Hz."
+            },
+            {
+              "name": "CLKOUT_1HZ",
+              "value": 2,
+              "desc": "1 Hz."
+            },
+            {
+              "name": "CLKOUT_32K768HZ_ALT",
+              "value": 3,
+              "desc": "32.768 kHz."
+            }
+          ]
+        },
+        {
+          "name": "TD",
+          "number_format": {
+            "class": "FixedPointNumber",
+            "signed": "U",
+            "integer_bits": 2,
+            "fractional_bits": 0
+          },
+          "desc": "Timer Clock Frequency selection. Sets the countdown source clock for the Periodic Countdown Timer Interrupt function and defines auto reset time t_RTN1. 00: 4096 Hz (default). 01: 64 Hz. 10: 1 Hz. 11: 1/60 Hz.",
+          "offset": 0,
+          "rw": true,
+          "width": 2,
+          "enum_values": [
+            {
+              "name": "TIMER_CLOCK_4096HZ",
+              "value": 0,
+              "desc": "4096 Hz; countdown period 244.14 us; t_RTN1 = 122 us. Default value."
+            },
+            {
+              "name": "TIMER_CLOCK_64HZ",
+              "value": 1,
+              "desc": "64 Hz; countdown period 15.625 ms; t_RTN1 = 7.813 ms."
+            },
+            {
+              "name": "TIMER_CLOCK_1HZ",
+              "value": 2,
+              "desc": "1 Hz; countdown period 1 s; t_RTN1 = 7.813 ms."
+            },
+            {
+              "name": "TIMER_CLOCK_1_60HZ",
+              "value": 3,
+              "desc": "1/60 Hz; countdown period 60 s; t_RTN1 = 7.813 ms."
+            }
+          ]
+        }
+      ],
+      "reset": "0b00000000"
+    },
+    {
+      "address": "0x1E",
+      "address_bus_width_bytes": 1,
+      "desc": "Mirror of register 0x0E. The function is automatically updated in both address ranges 00h-0Fh and 10h-1Fh.",
+      "name": "FLAG_REGISTER_MIRROR",
+      "width": 8,
+      "fields": [
+        {
+          "name": "UF",
+          "number_format": {
+            "class": "FixedPointNumber",
+            "signed": "U",
+            "integer_bits": 1,
+            "fractional_bits": 0
+          },
+          "desc": "Periodic Time Update Flag. Write 0 to clear. If set to 0 beforehand, 1 indicates the occurrence of a Periodic Time Update Interrupt event.",
+          "offset": 5,
+          "rw": true,
+          "width": 1,
+          "enum_values": null
+        },
+        {
+          "name": "TF",
+          "number_format": {
+            "class": "FixedPointNumber",
+            "signed": "U",
+            "integer_bits": 1,
+            "fractional_bits": 0
+          },
+          "desc": "Periodic Countdown Timer Flag. Write 0 to clear. If set to 0 beforehand, 1 indicates the occurrence of a Periodic Countdown Timer Interrupt event.",
+          "offset": 4,
+          "rw": true,
+          "width": 1,
+          "enum_values": null
+        },
+        {
+          "name": "AF",
+          "number_format": {
+            "class": "FixedPointNumber",
+            "signed": "U",
+            "integer_bits": 1,
+            "fractional_bits": 0
+          },
+          "desc": "Alarm Flag. Write 0 to clear. If set to 0 beforehand, 1 indicates the occurrence of an Alarm Interrupt event.",
+          "offset": 3,
+          "rw": true,
+          "width": 1,
+          "enum_values": null
+        },
+        {
+          "name": "EVF",
+          "number_format": {
+            "class": "FixedPointNumber",
+            "signed": "U",
+            "integer_bits": 1,
+            "fractional_bits": 0
+          },
+          "desc": "External Event Flag. Write 0 to clear. If set to 0 beforehand, 1 indicates the occurrence of an External Event. The POR value depends on the EVI pin level (1 if a LOW level was detected, 0 otherwise).",
+          "offset": 2,
+          "rw": true,
+          "width": 1,
+          "enum_values": null
+        },
+        {
+          "name": "V2F",
+          "number_format": {
+            "class": "FixedPointNumber",
+            "signed": "U",
+            "integer_bits": 1,
+            "fractional_bits": 0
+          },
+          "desc": "Voltage Low Flag 2. Read 1 if the voltage crossed V_LOW2 and the data in the device are no longer valid (all registers must be initialized). Cleared by writing 0; automatically set to 1 at power on reset. Writing 0 also clears V1F.",
+          "offset": 1,
+          "rw": true,
+          "width": 1,
+          "enum_values": null
+        },
+        {
+          "name": "V1F",
+          "number_format": {
+            "class": "FixedPointNumber",
+            "signed": "U",
+            "integer_bits": 1,
+            "fractional_bits": 0
+          },
+          "desc": "Voltage Low Flag 1. Read 1 if the voltage crossed V_LOW1 and temperature compensation is stopped. Cleared by writing 0; automatically set to 1 at power on reset. Writing 0 also clears V2F.",
+          "offset": 0,
+          "rw": true,
+          "width": 1,
+          "enum_values": null
+        }
+      ]
+    },
+    {
+      "address": "0x1F",
+      "address_bus_width_bytes": 1,
+      "desc": "Mirror of register 0x0F. The function is automatically updated in both address ranges 00h-0Fh and 10h-1Fh.",
+      "name": "CONTROL_REGISTER_MIRROR",
+      "width": 8,
+      "fields": [
+        {
+          "name": "RESERVED_7_6",
+          "number_format": {
+            "class": "FixedPointNumber",
+            "signed": "U",
+            "integer_bits": 2,
+            "fractional_bits": 0
+          },
+          "desc": "Unused, but has to be 0 to avoid extraneous leakage.",
+          "offset": 6,
+          "rw": true,
+          "width": 2,
+          "enum_values": null
+        },
+        {
+          "name": "UIE",
+          "number_format": {
+            "class": "FixedPointNumber",
+            "signed": "U",
+            "integer_bits": 1,
+            "fractional_bits": 0
+          },
+          "desc": "Periodic Time Update Interrupt Enable. 0: no interrupt signal and UF is not set (default). 1: an interrupt signal is generated and UF is set when a Periodic Time Update event occurs.",
+          "offset": 5,
+          "rw": true,
+          "width": 1,
+          "enum_values": [
+            {
+              "name": "INTERRUPT_DISABLED",
+              "value": 0,
+              "desc": "No interrupt signal is generated on the INT pin. Default value."
+            },
+            {
+              "name": "INTERRUPT_ENABLED",
+              "value": 1,
+              "desc": "An interrupt signal is generated on the INT pin."
+            }
+          ]
+        },
+        {
+          "name": "TIE",
+          "number_format": {
+            "class": "FixedPointNumber",
+            "signed": "U",
+            "integer_bits": 1,
+            "fractional_bits": 0
+          },
+          "desc": "Periodic Countdown Timer Interrupt Enable. 0: no interrupt signal (default). 1: an interrupt signal is generated when a Periodic Countdown Timer event occurs.",
+          "offset": 4,
+          "rw": true,
+          "width": 1,
+          "enum_values": [
+            {
+              "name": "INTERRUPT_DISABLED",
+              "value": 0,
+              "desc": "No interrupt signal is generated on the INT pin. Default value."
+            },
+            {
+              "name": "INTERRUPT_ENABLED",
+              "value": 1,
+              "desc": "An interrupt signal is generated on the INT pin."
+            }
+          ]
+        },
+        {
+          "name": "AIE",
+          "number_format": {
+            "class": "FixedPointNumber",
+            "signed": "U",
+            "integer_bits": 1,
+            "fractional_bits": 0
+          },
+          "desc": "Alarm Interrupt Enable. 0: no interrupt signal (default). 1: an interrupt signal is generated when an Alarm event occurs. Retained until AF is cleared to 0.",
+          "offset": 3,
+          "rw": true,
+          "width": 1,
+          "enum_values": [
+            {
+              "name": "INTERRUPT_DISABLED",
+              "value": 0,
+              "desc": "No interrupt signal is generated on the INT pin. Default value."
+            },
+            {
+              "name": "INTERRUPT_ENABLED",
+              "value": 1,
+              "desc": "An interrupt signal is generated on the INT pin."
+            }
+          ]
+        },
+        {
+          "name": "EIE",
+          "number_format": {
+            "class": "FixedPointNumber",
+            "signed": "U",
+            "integer_bits": 1,
+            "fractional_bits": 0
+          },
+          "desc": "External Event Interrupt Enable. 0: no interrupt signal (default). 1: an interrupt signal is generated when an External Event on the EVI pin occurs. Retained until EVF is cleared to 0.",
+          "offset": 2,
+          "rw": true,
+          "width": 1,
+          "enum_values": [
+            {
+              "name": "INTERRUPT_DISABLED",
+              "value": 0,
+              "desc": "No interrupt signal is generated on the INT pin. Default value."
+            },
+            {
+              "name": "INTERRUPT_ENABLED",
+              "value": 1,
+              "desc": "An interrupt signal is generated on the INT pin."
+            }
+          ]
+        },
+        {
+          "name": "RESET",
+          "number_format": {
+            "class": "FixedPointNumber",
+            "signed": "U",
+            "integer_bits": 1,
+            "fractional_bits": 0
+          },
+          "desc": "Reset/Stop. Used for a software-based time adjustment (synchronizing). 0: no reset (default). 1: resets the divider chain, stops the 1 Hz clock and resets the 100th Seconds register to 00.",
+          "offset": 0,
+          "rw": true,
+          "width": 1,
+          "enum_values": [
+            {
+              "name": "NO_RESET",
+              "value": 0,
+              "desc": "No reset. Default value."
+            },
+            {
+              "name": "RESET_DIVIDER_CHAIN",
+              "value": 1,
+              "desc": "Resets the divider chain and stops the 1 Hz clock."
+            }
+          ]
+        }
+      ],
+      "reset": "0b00000000"
+    },
+    {
+      "address": "0x20",
+      "address_bus_width_bytes": 1,
+      "desc": "100th Seconds CP register (read only). Holds the captured (copied) value of the 100th Seconds register in BCD format (00 to 99).",
+      "name": "HUNDREDTH_SECONDS_CAPTURE",
+      "width": 8,
+      "fields": [
+        {
+          "name": "HUNDREDTH_SECONDS_CP",
+          "number_format": {
+            "class": "BinaryCodedDecimal"
+          },
+          "desc": "Captured value of the 100th Seconds register, coded in BCD format (00 to 99). Cleared to 00 when ERST = 1 and an External Event is detected on the EVI pin.",
+          "offset": 0,
+          "rw": false,
+          "width": 8,
+          "enum_values": null
+        }
+      ],
+      "reset": "0b00000000"
+    },
+    {
+      "address": "0x21",
+      "address_bus_width_bytes": 1,
+      "desc": "Seconds CP register (read only). Holds the captured (copied) value of the Seconds register in BCD format (00 to 59).",
+      "name": "SECONDS_CAPTURE",
+      "width": 8,
+      "fields": [
+        {
+          "name": "SECONDS_CP",
+          "number_format": {
+            "class": "BinaryCodedDecimal"
+          },
+          "desc": "Captured value of the Seconds register, coded in BCD format (00 to 59). Cleared to 00 when ERST = 1 and an External Event is detected on the EVI pin.",
+          "offset": 0,
+          "rw": false,
+          "width": 7,
+          "enum_values": null
+        }
+      ],
+      "reset": "0b00000000"
+    },
+    {
+      "address": "0x2C",
+      "address_bus_width_bytes": 1,
+      "desc": "Offset Register. Holds the OFFSET value used for aging correction.",
+      "name": "OFFSET_REGISTER",
+      "width": 8,
+      "fields": [
+        {
+          "name": "OFFSET",
+          "number_format": {
+            "class": "FixedPointNumber",
+            "signed": "S",
+            "integer_bits": 6,
+            "fractional_bits": 0
+          },
+          "desc": "Amount of the effective frequency offset. Two's complement number with a range of -32 to +31 adjustment steps (maximum correction range roughly +/-7.4 ppm). One LSB corresponds to 1/(32768*128) = 0.2384 ppm.",
+          "offset": 0,
+          "rw": true,
+          "width": 6,
+          "enum_values": null
+        }
+      ],
+      "reset": "0b00000000"
+    },
+    {
+      "address": "0x2F",
+      "address_bus_width_bytes": 1,
+      "desc": "Event Control register. Controls event detection on the EVI pin, including edge polarity, digital glitch filtering and time-stamp capture.",
+      "name": "EVENT_CONTROL",
+      "width": 8,
+      "fields": [
+        {
+          "name": "ECP",
+          "number_format": {
+            "class": "FixedPointNumber",
+            "signed": "U",
+            "integer_bits": 1,
+            "fractional_bits": 0
+          },
+          "desc": "Event Capture Enable (Time Stamp Enable). 0: disabled (default). 1: an External Event on the EVI pin captures the Seconds and 100th Seconds into the CP registers.",
+          "offset": 7,
+          "rw": true,
+          "width": 1,
+          "enum_values": [
+            {
+              "name": "EVENT_CAPTURE_DISABLED",
+              "value": 0,
+              "desc": "Disables the Event Capture. Default value."
+            },
+            {
+              "name": "EVENT_CAPTURE_ENABLED",
+              "value": 1,
+              "desc": "An External Event on EVI captures Seconds and 100th Seconds."
+            }
+          ]
+        },
+        {
+          "name": "EHL",
+          "number_format": {
+            "class": "FixedPointNumber",
+            "signed": "U",
+            "integer_bits": 1,
+            "fractional_bits": 0
+          },
+          "desc": "Event High/Low detection Select. 0: the Low level (negative edge) is the External Event (default). 1: the High level (positive edge) is the External Event.",
+          "offset": 6,
+          "rw": true,
+          "width": 1,
+          "enum_values": [
+            {
+              "name": "LOW_LEVEL_EVENT",
+              "value": 0,
+              "desc": "Low level (negative edge) is regarded as the External Event. Default value."
+            },
+            {
+              "name": "HIGH_LEVEL_EVENT",
+              "value": 1,
+              "desc": "High level (positive edge) is regarded as the External Event."
+            }
+          ]
+        },
+        {
+          "name": "ET",
+          "number_format": {
+            "class": "FixedPointNumber",
+            "signed": "U",
+            "integer_bits": 2,
+            "fractional_bits": 0
+          },
+          "desc": "Event Filtering Time set. Applies digital filtering to the EVI pin by sampling the signal. 00: no filtering (default), minimal pulse time 30.5 us. 01: 3.9 ms. 10: 15.6 ms. 11: 125 ms.",
+          "offset": 4,
+          "rw": true,
+          "width": 2,
+          "enum_values": [
+            {
+              "name": "NO_FILTER",
+              "value": 0,
+              "desc": "No filtering; edge detection with minimal pulse time 30.5 us. Default value."
+            },
+            {
+              "name": "FILTER_3_9MS",
+              "value": 1,
+              "desc": "3.9 ms sampling period (256 Hz)."
+            },
+            {
+              "name": "FILTER_15_6MS",
+              "value": 2,
+              "desc": "15.6 ms sampling period (64 Hz)."
+            },
+            {
+              "name": "FILTER_125MS",
+              "value": 3,
+              "desc": "125 ms sampling period (8 Hz)."
+            }
+          ]
+        },
+        {
+          "name": "ERST",
+          "number_format": {
+            "class": "FixedPointNumber",
+            "signed": "U",
+            "integer_bits": 1,
+            "fractional_bits": 0
+          },
+          "desc": "Event Reset. Used for a hardware-based time adjustment (synchronizing). 0: no reset on External Event (default). 1: on an External Event the 100th Seconds register and the 100th Seconds CP and Seconds CP registers are reset to 0; ERST is then automatically reset to 0.",
+          "offset": 0,
+          "rw": true,
+          "width": 1,
+          "enum_values": [
+            {
+              "name": "NO_RESET",
+              "value": 0,
+              "desc": "No reset if an External Event is detected. Default value."
+            },
+            {
+              "name": "RESET_ON_EVENT",
+              "value": 1,
+              "desc": "Resets the 100th Seconds and CP registers when an External Event is detected."
+            }
+          ]
+        }
+      ],
+      "reset": "0b00000000"
+    }
+  ],
+  "version": 1
+}
