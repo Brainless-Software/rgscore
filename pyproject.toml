@@ -1,6 +1,6 @@
 [project]
 name = "rgscore"
-authors = [{name = "Dmitri Priimak", email = "priimak@gmail.com"}]
+authors = [{ name = "Dmitri Priimak", email = "priimak@gmail.com" }]
 license = "MIT"
 license-files = ["LICENSE"]
 dynamic = ["version"]
@@ -18,7 +18,7 @@ classifiers = [
 ]
 dependencies = [
     "bitstring >= 5.0.0, < 6.0.0",
-    "i2c-api>=0.21.0",
+    "i2c-api>=0.21.1",
     "pydantic>=2.14.1",
     "requests>=2.34.2",
     "tabulate>=0.10.0",
@@ -39,6 +39,7 @@ where = ["src"]
 
 [tool.ruff]
 line-length = 120
+src = ["src", "tests"]
 
 [tool.ruff.lint]
 select = [
@@ -60,9 +61,14 @@ dev = [
     "mkdocs>=1.6.1",
     "mkdocs-material>=9.7.7",
     "ruff",
+    "mypy>=2.4.1",
 ]
 
 [tool.pytest]
 minversion = "9.0"
 addopts = ["--cov=src", "--cov-report=json", "-ra", "-q", "--strict-markers", "--ignore=tests/test_integration_bmp581.py"]
 testpaths = ["tests"]
+
+[tool.mypy]
+strict = true
+mypy_path = "src"

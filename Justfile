@@ -13,3 +13,6 @@ test-cov:
 
 test-cov-all:
     pytest --cov=rgscore --rootdir=src --cov-report=html; xdg-open htmlcov/index.html
+
+ruff-format:
+    uv run ruff format src tests

@@ -4,7 +4,7 @@ import re
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from functools import cache, reduce
-from typing import Self, final
+from typing import Any, Callable, Self, final
 
 from bitstring import BitArray
 from i2c_api import I2CMaster, RegisterAddress
@@ -70,7 +70,7 @@ class EnumValue:
     value: float
     desc: str = ""
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         if not enum_value_name_re.match(self.name):
             raise ValueError(f"Invalid enum name [{self.name}]")
 
@@ -78,10 +78,15 @@ class EnumValue:
         return f"{self.name}({self.value})"
 
 
+type FieldValueType = float | str | EnumValue
+
+
 class HardwareRegister:
     @staticmethod
-    def __mk_accessor(fname, register):
-        def field_accessor(r: HardwareRegister, new_value=None) -> int | float:
+    def __mk_accessor(
+        fname: str, register: "Register"
+    ) -> Callable[["HardwareRegister", FieldValueType | None], int | float]:
+        def field_accessor(r: HardwareRegister, new_value: FieldValueType | None = None) -> int | float:
             if new_value is None:
                 return register.get_field_value(fname)
             else:
@@ -90,7 +95,7 @@ class HardwareRegister:
         return field_accessor
 
     @staticmethod
-    def __mk_raw_accessor(fname, register):
+    def __mk_raw_accessor(fname: str, register: "Register") -> Callable[["HardwareRegister"], BitArray]:
         def field_accessor(r: HardwareRegister) -> BitArray:
             return register.get_field_value_raw(fname)
 
@@ -185,7 +190,7 @@ class FixedPointNumber:
     integer_bits: int
     fractional_bits: int  # number of fractional bits
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         if self.signed not in ("S", "U"):
             raise ValueError("Invalid signed value")
 
@@ -195,7 +200,7 @@ class FixedPointNumber:
     def __repr__(self) -> str:
         return f"{self.signed}{self.integer_bits}.{self.fractional_bits}"
 
-    def to_dict_def(self) -> dict:
+    def to_dict_def(self) -> dict[Any, Any]:
         return {
             "class": "FixedPointNumber",
             "signed": self.signed,
@@ -212,7 +217,7 @@ class BinaryCodedDecimal:
     def __repr__(self) -> str:
         return "BCD"
 
-    def to_dict_def(self) -> dict:
+    def to_dict_def(self) -> dict[Any, Any]:
         return {"class": "BinaryCodedDecimal"}
 
 
@@ -251,12 +256,10 @@ class FieldDef:
     width: int
     number_format: NumberFormat
     rw: bool
-    desc: str
-    rw: bool
     desc: str = ""
     enum_values: list[EnumValue] | None = None
 
-    def to_dict_def(self) -> dict:
+    def to_dict_def(self) -> dict[Any, Any]:
         data = dataclasses.asdict(self)
         data["number_format"] = self.number_format.to_dict_def()
         return data
@@ -286,7 +289,7 @@ class FieldDef:
         """Return r/w or r/o if this field is read/write or read/only."""
         return "r/w" if self.rw else "r/o"
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         self.__validate__()
 
     def num_type(self) -> str:
@@ -301,7 +304,7 @@ class FieldDef:
         else:
             raise ValueError(f"Invalid field number format {self.number_format}")
 
-    def __validate__(self):
+    def __validate__(self) -> None:
         if self.offset < 0:
             raise ValueError("Field offset must be a positive integer")
 
@@ -356,7 +359,7 @@ class FieldDef:
         """Returns string representation of an inclusive offset range."""
         return f"[{self.end_offset()}:{self.offset}]"
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         rw = "rw" if self.rw else "ro"
         return f"{self.name}@[{self.end_offset()}:{self.offset}]{self.num_type()}#{rw}"
 
@@ -410,7 +413,7 @@ class FieldDef:
 
     def __read_from_raw_field(self, raw_field: BitArray) -> float | int:
         match self.number_format:
-            case FixedPointNumber(signed, integer_bits, fractional_bits):
+            case FixedPointNumber(signed, _, fractional_bits):
                 if fractional_bits == 0:
                     return raw_field.int if signed == "S" else raw_field.uint
                 else:
@@ -571,7 +574,7 @@ class Register:
 
         self.name = name
 
-        def get_reset_uint_value():
+        def get_reset_uint_value() -> int:
             if isinstance(reset, str):
                 return BitArray(reset).uint
             elif isinstance(reset, int):
@@ -610,12 +613,12 @@ class Register:
         if link is not None and self.linked_address is None:
             raise ValueError("Register must have an address if link to the to external store is given.")
 
-    def __validate_model_wrt_width(self, model: list[FieldDef], width: int):
+    def __validate_model_wrt_width(self, model: list[FieldDef], width: int) -> None:
         for m in model:
             if m.end_offset() >= width or m.offset < 0:
                 raise ValueError(f'Field "{m.name}" extends outside of register width.')
 
-    def __validate_fields_overlapp(self, model: list[FieldDef]):
+    def __validate_fields_overlapp(self, model: list[FieldDef]) -> None:
         fields_idxs = reduce(lambda x, y: x + y, [m.idxs() for m in model], [])
         if len(set(fields_idxs)) != len(fields_idxs):
             raise ValueError(f"Overlapping fields in register [{self.name}].")
@@ -626,12 +629,12 @@ class Register:
         return self.__reset_data.copy()
 
     @property
-    def desc(self):
+    def desc(self) -> str:
         """Returns register description."""
         return self.__desc
 
     @desc.setter
-    def desc(self, desc: str):
+    def desc(self, desc: str) -> None:
         self.__desc = desc
 
     @property
@@ -640,7 +643,7 @@ class Register:
         return self.__width
 
     @width.setter
-    def width(self, new_width: int):
+    def width(self, new_width: int) -> None:
         self.__validate_model_wrt_width(self._model, new_width)
         self.__width = new_width
         self._originial_data = BitArray.from_zeros(new_width)
@@ -755,7 +758,7 @@ class Register:
                 and self._model == another._model
             )
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         retval = "Register" if self.name is None else self.name
         if self.address is not None:
             retval += f"[0x{self.address:0{self.address_bus_width_bytes * 2}X}]"
@@ -767,7 +770,7 @@ class Register:
             + ")"
         )
 
-    def to_dict_def(self) -> dict:
+    def to_dict_def(self) -> dict[Any, Any]:
         """Exports register definition as dict."""
         return {
             "name": self.name,
@@ -784,7 +787,7 @@ class Register:
         return json.dumps(self.to_dict_def(), indent=2)
 
     @staticmethod
-    def from_dict_def(data: dict) -> "Register":
+    def from_dict_def(data: dict[Any, Any]) -> "Register":
         """Creates instance of he Register from dict."""
         fd_adapter = TypeAdapter(FieldDef)
         return Register(
@@ -1067,7 +1070,7 @@ def Field(
         case BinaryCodedDecimal():
             if width is None:
                 raise ValueError(f"Width of field {name} cannot be None if numeric type is {numeric_type}")
-        case FixedPointNumber(signed, integer_bits, fractional_bits):
+        case FixedPointNumber(_, integer_bits, _):
             if width is not None and integer_bits != width:
                 raise ValueError(
                     f"Width of field {name} does not match value of integer "

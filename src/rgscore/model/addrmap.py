@@ -35,7 +35,7 @@ class RegList:
     def __call__(self) -> list[str]:
         return [r.name for r in self.__addrmap.registers]  # type: ignore[misc]
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return "RegList:: " + ", ".join(self())
 
 
@@ -44,7 +44,7 @@ class AddrMap:
         self,
         device: Device = default_device,
         link: RLink | None = None,
-        on_change_callback: Callable[[Self], None] = lambda _: None,
+        on_change_callback: Callable[["AddrMap"], None] = lambda _: None,
         registers: list[Register] | None = None,
         allow_multiple_registers_at_the_same_address: bool = False,
     ):
@@ -75,7 +75,7 @@ class AddrMap:
         if registers is not None:
             self.add(registers)
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f'AddrMap["{self.device!r}", len(registers)={len(self.registers)}]'
 
     @property
@@ -158,7 +158,7 @@ class AddrMap:
         """
         self.__delete_register_by_name(name, call_on_change_callback=True)
 
-    def __delete_register_by_name(self, name: str, call_on_change_callback: bool):
+    def __delete_register_by_name(self, name: str, call_on_change_callback: bool) -> None:
         """
         Removes register with a given name from this AddrMap. If register with this name not found, then do nothing.
         """
@@ -207,7 +207,7 @@ class AddrMap:
         self.__add(new_register, call_on_change_callback=False)
         self._on_change_callback(self)
 
-    def clear(self):
+    def clear(self) -> None:
         """Removes all registers from the list."""
         self.registers.clear()
         self._reg_names.clear()

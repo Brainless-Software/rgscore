@@ -644,9 +644,6 @@ def test_json_serialization():
 
     # now create new instance of Register from the json string
     r2 = Register.from_json_def(r_json)
-    b_json = r2.to_json_def()
-    # (Path.home() / "r.json").write_text(r_json)
-    # (Path.home() / "b.json").write_text(b_json)
     assert r2.name == "Foo"
     assert r2.address == 1
     assert r2.address_bus_width_bytes == 2
@@ -754,8 +751,8 @@ def test_field_enum_accessors():
 
     # repr of field_accessor should show array of field names present in this register
     assert (
-        repr(f)
-        == "Register: AReg\n  Addr:      0xA\n  Desc:      \n  Bit Width: 8\n  Reset:     0b00000000\n  Fields:    [b_raw, a]"
+        repr(f) == "Register: AReg\n  Addr:      0xA\n  Desc:      \n  Bit Width: 8\n  "
+        "Reset:     0b00000000\n  Fields:    [b_raw, a]"
     )
 
     # field "a" has associated enums
