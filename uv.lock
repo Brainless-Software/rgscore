@@ -860,14 +860,14 @@ wheels = [
 
 [[package]]
 name = "i2c-api"
-version = "0.21.1"
+version = "0.22.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "bitstring" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/67/73/fdce67bd02656c2ec14f1f0bc0302a60f9b24866a069ed00ad3489669a81/i2c_api-0.21.1.tar.gz", hash = "sha256:07e300869f6261971cf7859cb9a7a9d937b1f821517e42af8ffb51d52ed33094", size = 9972, upload-time = "2026-11-23T21:24:08.255Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/88/6e/6eb10756577d48120a4f198ac343081c5fe177a829dc775b7c222d223323/i2c_api-0.22.0.tar.gz", hash = "sha256:e35bc02e7a0136798fa0108eb985771826c3b18d6a01086e89dc1091e3905414", size = 11130, upload-time = "2026-11-25T16:46:06.389Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/8b/38/ae8fa4bfe7c6af158064401c1c0dcc267b54f51dfb2d19b2b779645c0d32/i2c_api-0.21.1-py3-none-any.whl", hash = "sha256:3d186ace2e25c0952ec1073bd1a7ea9cea68f920b3b55869259d07437193904d", size = 10426, upload-time = "2026-11-23T21:24:07.469Z" },
+    { url = "https://files.pythonhosted.org/packages/be/ee/7d6ecc4e4fe3902b598a5bf888b369b53883c902a9340a1bf9fd58c9348e/i2c_api-0.22.0-py3-none-any.whl", hash = "sha256:18d201a26c19a9cf823bfe0222062469e19b6161bf2e8ba099612fbb8c3d8ef5", size = 11125, upload-time = "2026-11-25T16:46:05.568Z" },
 ]
 
 [[package]]
@@ -2520,7 +2520,7 @@ dev = [
 [package.metadata]
 requires-dist = [
     { name = "bitstring", specifier = ">=5.0.0,<6.0.0" },
-    { name = "i2c-api", specifier = ">=0.21.1" },
+    { name = "i2c-api", specifier = ">=0.22.0,<2.0.0" },
     { name = "pydantic", specifier = ">=2.14.1" },
     { name = "requests", specifier = ">=2.34.2" },
     { name = "tabulate", specifier = ">=0.10.0" },

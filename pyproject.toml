@@ -18,7 +18,7 @@ classifiers = [
 ]
 dependencies = [
     "bitstring >= 5.0.0, < 6.0.0",
-    "i2c-api>=0.21.1",
+    "i2c-api>=0.22.0, < 2.0.0",
     "pydantic>=2.14.1",
     "requests>=2.34.2",
     "tabulate>=0.10.0",
