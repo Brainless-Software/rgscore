@@ -30,9 +30,23 @@ class RLink(ABC):
 
 @final
 class RLinkI2C(RLink):
-    def __init__(self, i2c: I2CMaster, device_address: int):
+    """
+    Class that expresses read and write operations over I2C bus.
+    """
+
+    def __init__(self, i2c: I2CMaster, device_address: int, use_restart: bool = False):
+        """
+        Constructor for RLinkI2C.
+
+        Args:
+            i2c: I2CMaster to use to communicate to the target device
+            device_address: address of the target device on I2C bus
+            use_restart: Should we use restart between read and write parts of the read_register(...)
+                operation. Default is False as some devices do not support use of restart condition.
+        """
         self.i2c = i2c
         self.device_address = device_address
+        self.use_restart = use_restart
 
     def read(self, addr: int, address_bus_width: int, width: int) -> BitArray | None:
         bytes_to_read = int(width / 8)
@@ -43,6 +57,7 @@ class RLinkI2C(RLink):
             address=self.device_address,
             register=RegisterAddress(addr, address_bus_width),
             num_bytes=bytes_to_read,
+            use_restart=self.use_restart,
         )
 
         if data is None:
