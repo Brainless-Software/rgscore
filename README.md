@@ -17,10 +17,10 @@ uv add rgscore
 
 Complete documentation is available [here](https://brainless-software.github.io/rgscore/).
 
-### Trying example Juputer Notebook
+## Trying example Juputer Notebook
 
-Source code this library contains example [Jupyter Notebook](https://jupyter.org/). To use it as it is you need to 
-have [I2CDriver](https://i2cdriver.com/) and [BMP581](https://www.adafruit.com/product/6407) temperature and 
+Source code this library contains example [Jupyter Notebook](https://jupyter.org/). To use it as it is you need to
+have [I2CDriver](https://i2cdriver.com/) and [BMP581](https://www.adafruit.com/product/6407) temperature and
 pressure sensor.
 
 To try it out do following.
@@ -49,3 +49,8 @@ uv run jupyter lab BMP581_Example.ipynb
 ```
 
 Last command will start jupyter lab server and open browser with BMP581_Example.ipynb notebook opened.
+
+## Building code with LLM using this library
+
+File [LLM.md](https://raw.githubusercontent.com/Brainless-Software/rgscore/refs/heads/master/LLM.md) can be used
+as an entry point by the AI agents to understand how API provided by this library works. 
